@@ -2,6 +2,7 @@ package com.example.callrapport
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,6 +12,7 @@ import com.example.callrapport.dto.HospitalPageResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        // 백엔드 서버로부터 정보를 가져오는 메소드
         fetchHospitals()
     }
 
