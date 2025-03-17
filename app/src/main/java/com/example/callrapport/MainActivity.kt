@@ -7,6 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.callrapport.adapter.serviceAdapter
+import com.example.callrapport.databinding.ActivityMainBinding
 import com.example.callrapport.dto.HospitalDetailsResponse
 import com.example.callrapport.dto.HospitalPageResponse
 import retrofit2.Call
@@ -18,7 +22,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -27,6 +33,21 @@ class MainActivity : AppCompatActivity() {
 
         // 백엔드 서버로부터 정보를 가져오는 메소드
         fetchHospitals()
+
+        // 서비스 목록에 동적으로 텍스트를 넣음
+        // datas 배열의 크기와 내용을 기반으로 카드뷰를 생성한다
+        val datas = mutableListOf<String>()
+        datas.add("병원 목록")
+        datas.add("의사 목록")
+        datas.add("자가진단")
+
+        // 카드뷰를 수평으로 배치하도록 설정
+        val layoutManager = LinearLayoutManager(this)
+        layoutManager.orientation = LinearLayoutManager.HORIZONTAL
+
+        // 앞선 데이터와 설정을 토대로 리사이클러뷰를 출력한다
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = serviceAdapter(datas)
     }
 
     private fun fetchHospitals() {

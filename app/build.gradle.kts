@@ -7,6 +7,10 @@ android {
     namespace = "com.example.callrapport"
     compileSdk = 35
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.example.callrapport"
         minSdk = 24
