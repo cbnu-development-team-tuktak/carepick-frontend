@@ -1,4 +1,4 @@
-package com.example.callrapport
+package com.example.callrapport.network
 
 import com.example.callrapport.service.HospitalApiService
 import retrofit2.Retrofit

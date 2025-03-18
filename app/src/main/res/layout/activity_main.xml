@@ -53,33 +53,10 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/recyclerView"
+                android:id="@+id/serviceListRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-<!--            <FrameLayout android:id="@+id/card1"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content">-->
-<!--                <include layout="@layout/service_card" />-->
-<!--            </FrameLayout>-->
-
-<!--            <FrameLayout android:id="@+id/card2"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content">-->
-<!--                <include layout="@layout/service_card" />-->
-<!--            </FrameLayout>-->
-
-<!--            <FrameLayout android:id="@+id/card3"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content">-->
-<!--                <include layout="@layout/service_card" />-->
-<!--            </FrameLayout>-->
-
-<!--            <FrameLayout android:id="@+id/card4"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content">-->
-<!--                <include layout="@layout/service_card" />-->
-<!--            </FrameLayout>-->
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -123,13 +100,11 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <include layout="@layout/hospital_card" />
-
-            <include layout="@layout/hospital_card" />
-
-            <include layout="@layout/hospital_card" />
-
-            <include layout="@layout/hospital_card" />
+            <androidx.recyclerview.widget.RecyclerView
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/hospitalListRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
         </LinearLayout>
     </HorizontalScrollView>

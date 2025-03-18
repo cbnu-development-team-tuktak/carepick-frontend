@@ -1,28 +1,30 @@
 package com.example.callrapport
 
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.callrapport.adapter.serviceAdapter
+import com.example.callrapport.adapter.HospitalListAdapter
+import com.example.callrapport.adapter.ServiceListAdapter
 import com.example.callrapport.databinding.ActivityMainBinding
-import com.example.callrapport.dto.HospitalDetailsResponse
-import com.example.callrapport.dto.HospitalPageResponse
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.callrapport.repository.HospitalListRepository
+import com.example.callrapport.repository.HospitalRepository
+import com.example.callrapport.repository.ServiceListRepository
 
 
 class MainActivity : AppCompatActivity() {
+
+    private val hospitalRepository = HospitalRepository()
+    private val serviceListRepository = ServiceListRepository()
+    private val hospitalListRepository = HospitalListRepository()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val binding = ActivityMainBinding.inflate(layoutInflater)
+
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -32,49 +34,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 백엔드 서버로부터 정보를 가져오는 메소드
-        fetchHospitals()
+        hospitalRepository.fetchHospitals()
 
-        // 서비스 목록에 동적으로 텍스트를 넣음
-        // datas 배열의 크기와 내용을 기반으로 카드뷰를 생성한다
-        val datas = mutableListOf<String>()
-        datas.add("병원 목록")
-        datas.add("의사 목록")
-        datas.add("자가진단")
+        // 서비스 목록 리포지토리로부터 서비스 목록 카드뷰에 들어갈 텍스트와 정보들을 받는다
+        val serviceList = serviceListRepository.getServiceList()
+        val hospitalList = hospitalListRepository.getHospitalList()
 
-        // 카드뷰를 수평으로 배치하도록 설정
-        val layoutManager = LinearLayoutManager(this)
-        layoutManager.orientation = LinearLayoutManager.HORIZONTAL
+        // 서비스 목록의 카드뷰를 수평으로 배치하도록 HORIZONTAL 옵션을 준다
+        binding.serviceListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.hospitalListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        // 앞선 데이터와 설정을 토대로 리사이클러뷰를 출력한다
-        binding.recyclerView.layoutManager = layoutManager
-        binding.recyclerView.adapter = serviceAdapter(datas)
-    }
-
-    private fun fetchHospitals() {
-        RetrofitClient.instance.getAllHospitals(page = 0, size = 10)
-            .enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {
-                override fun onResponse(
-                    call: Call<HospitalPageResponse<HospitalDetailsResponse>>,
-                    response: Response<HospitalPageResponse<HospitalDetailsResponse>>
-                ) {
-                    if (response.isSuccessful) {
-                        val pageResponse = response.body()
-                        val hospitals = pageResponse?.content // content 리스트 가져오기
-
-                        hospitals?.let {
-                            Log.e("API_SUCCESS", "병원 목록 (${it.size}개) 수신 성공")
-                            it.forEach { hospital ->
-                                Log.e("API_SUCCESS", "ID: ${hospital.id}, 이름: ${hospital.name}, 주소: ${hospital.address}")
-                            }
-                        } ?: Log.e("API_SUCCESS", "응답 성공 but 데이터 없음")
-                    } else {
-                        Log.e("API_ERROR", "응답 실패: ${response.code()}, 메시지: ${response.message()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<HospitalPageResponse<HospitalDetailsResponse>>, t: Throwable) {
-                    Log.e("API_ERROR", "네트워크 오류 발생", t)
-                }
-            })
+        // 서비스 목록 리포지토리로부터 받아온 정보를 토대로 카듀브들을 동적으로 생성한다
+        binding.serviceListRecyclerView.adapter = ServiceListAdapter(serviceList)
+        binding.hospitalListRecyclerView.adapter = HospitalListAdapter(hospitalList)
     }
 }

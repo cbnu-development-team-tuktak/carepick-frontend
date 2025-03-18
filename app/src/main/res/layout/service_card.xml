@@ -14,7 +14,7 @@
         android:layout_height="108dp">
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/serviceText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/serviceIcon"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginEnd="8dp"
