@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "callrapport"
+rootProject.name = "carepick"
 include(":app")
  
