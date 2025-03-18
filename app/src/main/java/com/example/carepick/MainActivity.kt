@@ -1,4 +1,4 @@
-package com.example.callrapport
+package com.example.carepick
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,12 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.callrapport.adapter.HospitalListAdapter
-import com.example.callrapport.adapter.ServiceListAdapter
-import com.example.callrapport.databinding.ActivityMainBinding
-import com.example.callrapport.repository.HospitalListRepository
-import com.example.callrapport.repository.HospitalRepository
-import com.example.callrapport.repository.ServiceListRepository
+import com.example.carepick.adapter.HospitalListAdapter
+import com.example.carepick.adapter.ServiceListAdapter
+import com.example.carepick.databinding.ActivityMainBinding
+import com.example.carepick.repository.HospitalListRepository
+import com.example.carepick.repository.HospitalRepository
+import com.example.carepick.repository.ServiceListRepository
 
 
 class MainActivity : AppCompatActivity() {

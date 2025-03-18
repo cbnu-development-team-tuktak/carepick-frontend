@@ -1,6 +1,6 @@
-package com.example.callrapport.viewHolder
+package com.example.carepick.viewHolder
 
 import androidx.recyclerview.widget.RecyclerView
-import com.example.callrapport.databinding.ServiceCardBinding
+import com.example.carepick.databinding.ServiceCardBinding
 
 class ServiceListViewHolder(val binding: ServiceCardBinding) : RecyclerView.ViewHolder(binding.root)

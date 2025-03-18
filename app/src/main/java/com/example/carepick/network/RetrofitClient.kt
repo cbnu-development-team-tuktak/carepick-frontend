@@ -1,6 +1,6 @@
-package com.example.callrapport.network
+package com.example.carepick.network
 
-import com.example.callrapport.service.HospitalApiService
+import com.example.carepick.service.HospitalApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

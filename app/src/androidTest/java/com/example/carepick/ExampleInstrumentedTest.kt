@@ -1,4 +1,4 @@
-package com.example.callrapport
+package com.example.carepick
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

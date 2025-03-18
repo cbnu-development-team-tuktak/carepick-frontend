@@ -1,11 +1,11 @@
-package com.example.callrapport.adapter
+package com.example.carepick.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.callrapport.databinding.ServiceCardBinding
-import com.example.callrapport.model.ServiceListData
-import com.example.callrapport.viewHolder.ServiceListViewHolder
+import com.example.carepick.databinding.ServiceCardBinding
+import com.example.carepick.model.ServiceListData
+import com.example.carepick.viewHolder.ServiceListViewHolder
 
 class ServiceListAdapter(val datas: MutableList<ServiceListData>): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun getItemCount(): Int = datas.size

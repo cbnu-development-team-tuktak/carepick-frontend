@@ -1,7 +1,7 @@
-package com.example.callrapport.service
+package com.example.carepick.service
 
-import com.example.callrapport.dto.HospitalDetailsResponse
-import com.example.callrapport.dto.HospitalPageResponse
+import com.example.carepick.dto.HospitalDetailsResponse
+import com.example.carepick.dto.HospitalPageResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

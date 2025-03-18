@@ -1,4 +1,4 @@
-package com.example.callrapport.dto
+package com.example.carepick.dto
 
 data class HospitalDetailsResponse (
     val id: String, // 병원 ID (기본키)

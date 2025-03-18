@@ -1,4 +1,4 @@
-package com.example.callrapport
+package com.example.carepick
 
 import org.junit.Test
 

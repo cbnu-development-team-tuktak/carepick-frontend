@@ -1,4 +1,4 @@
-package com.example.callrapport.model
+package com.example.carepick.model
 
 data class HospitalListData (
     val name: String, // 병원 이름

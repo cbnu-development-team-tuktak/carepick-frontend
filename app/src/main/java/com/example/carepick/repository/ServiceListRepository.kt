@@ -1,7 +1,7 @@
-package com.example.callrapport.repository
+package com.example.carepick.repository
 
-import com.example.callrapport.R
-import com.example.callrapport.model.ServiceListData
+import com.example.carepick.R
+import com.example.carepick.model.ServiceListData
 
 class ServiceListRepository {
     fun getServiceList(): MutableList<ServiceListData> {

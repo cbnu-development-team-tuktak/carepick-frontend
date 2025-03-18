@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.callrapport"
+    namespace = "com.example.carepick"
     compileSdk = 35
 
     buildFeatures {
@@ -12,7 +12,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.callrapport"
+        applicationId = "com.example.carepick"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

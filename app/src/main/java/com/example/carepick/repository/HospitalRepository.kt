@@ -1,9 +1,9 @@
-package com.example.callrapport.repository
+package com.example.carepick.repository
 
 import android.util.Log
-import com.example.callrapport.dto.HospitalDetailsResponse
-import com.example.callrapport.dto.HospitalPageResponse
-import com.example.callrapport.network.RetrofitClient
+import com.example.carepick.dto.HospitalDetailsResponse
+import com.example.carepick.dto.HospitalPageResponse
+import com.example.carepick.network.RetrofitClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
