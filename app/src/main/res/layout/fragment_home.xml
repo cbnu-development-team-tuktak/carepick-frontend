@@ -38,32 +38,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <HorizontalScrollView
-        android:id="@+id/scrollView2"
-        android:layout_width="409dp"
-        android:layout_height="150dp"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/serviceListRecyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/serviceListRecyclerView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
+        </androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="0dp"
         android:layout_height="74dp"
+        android:layout_marginTop="16dp"
         android:background="#FFB0B0"
         android:paddingLeft="28dp"
         android:paddingTop="16dp"
@@ -74,46 +72,38 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="0dp"
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="병원/의사 목록"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="병원/의사 목록"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <HorizontalScrollView
-        android:layout_width="409dp"
-        android:layout_height="310dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView4">
 
-        <LinearLayout
-            android:layout_width="1200dp"
+        <include
+            android:id="@+id/networkErrorView"
+            layout="@layout/network_error"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hospitalListRecyclerView"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <androidx.recyclerview.widget.RecyclerView
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/hospitalListRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
-
-            <!-- 네트워크 오류 화면 -->
-            <include
-                android:id="@+id/networkErrorView"
-                layout="@layout/network_error"
-                android:visibility="gone"/>
-
-        </LinearLayout>
-    </HorizontalScrollView>
+            android:visibility="gone" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

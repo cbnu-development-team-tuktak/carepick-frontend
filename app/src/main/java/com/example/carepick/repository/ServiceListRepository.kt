@@ -11,11 +11,7 @@ class ServiceListRepository {
         return mutableListOf(
             ServiceListData("병원 목록", R.drawable.hospital_icon, HospitalListFragment()),
             ServiceListData("의사 목록", R.drawable.doctor_icon, DoctorListFragment()),
-            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment()),
-            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment()),
-            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment()),
-            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment()),
-            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment()),
+            ServiceListData("자가진단", R.drawable.diagnosis_icon, SelfCheckFragment())
         )
     }
 }
