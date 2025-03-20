@@ -26,9 +26,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // 백엔드 서버로부터 정보를 가져오는 메소드
-        hospitalRepository.fetchHospitals()
-
         // 첫 실행 시 HomeFragment 표시
         // MainActivity는 실행만을 맡고 첫 화면을 비롯한 나머지 화면은 모두 Fragment로 구현하였음
         if (savedInstanceState == null) {

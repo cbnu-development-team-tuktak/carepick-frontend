@@ -47,15 +47,15 @@
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <androidx.recyclerview.widget.RecyclerView
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/serviceListRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </HorizontalScrollView>
@@ -96,7 +96,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView4">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="1200dp"
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
@@ -104,7 +104,14 @@
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/hospitalListRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+            <!-- 네트워크 오류 화면 -->
+            <include
+                android:id="@+id/networkErrorView"
+                layout="@layout/network_error"
+                android:visibility="gone"/>
 
         </LinearLayout>
     </HorizontalScrollView>

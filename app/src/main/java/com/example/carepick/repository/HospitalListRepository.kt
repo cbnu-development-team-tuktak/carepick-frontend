@@ -1,15 +1,25 @@
 package com.example.carepick.repository
 
+import android.util.Log
 import com.example.carepick.R
+import com.example.carepick.dto.HospitalDetailsResponse
 import com.example.carepick.model.HospitalListData
 import com.example.carepick.ui.HospitalDetailFragment
 
 class HospitalListRepository {
-    fun getHospitalList(): MutableList<HospitalListData> {
-        return mutableListOf(
-            HospitalListData("한국 병원", "충북 청주시 상당구 단재로 106", R.drawable.hospital_pic, HospitalDetailFragment()),
-            HospitalListData("효성 병원", "충북 청주시 상당구 쇠내로 16", R.drawable.hospital_pic, HospitalDetailFragment()),
-            HospitalListData("충북대학교 병원", "충북 청주시 서원구 1순환로", R.drawable.hospital_pic, HospitalDetailFragment()),
-        )
+
+    private val hospitalRepository = HospitalRepository()
+    suspend fun getHospitalList(): MutableList<HospitalListData> {
+
+        val hospitals: MutableList<HospitalDetailsResponse> = hospitalRepository.fetchHospitals()
+
+        return hospitals.map { hospital ->
+            HospitalListData(
+                name = hospital.name,
+                address = hospital.address,
+                imageResId = R.drawable.hospital_pic,
+                fragment = HospitalDetailFragment()
+            )
+        }.toMutableList()
     }
 }
