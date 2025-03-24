@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.HospitalCardBinding
 import com.example.carepick.model.HospitalListData
@@ -29,7 +30,11 @@ class HospitalListAdapter(
 
         binding.hospitalCardName.text = cleanedName
         binding.hospitalCardAddress.text = hospitalData.address
-        binding.hospitalPicture.setImageResource(hospitalData.imageResId)
+        Glide.with(binding.root)
+            .load(hospitalData.imageUrl)
+            .placeholder(R.drawable.sand_clock)
+            .error(R.drawable.warning)
+            .into(binding.hospitalPicture)
 
         binding.root.setOnClickListener {
             // 병원 카드를 선택하면 전환될 Fragment 지정
@@ -39,6 +44,7 @@ class HospitalListAdapter(
             val bundle = Bundle().apply {
                 putString("name", cleanedName)
                 putString("address", hospitalData.address)
+                putString("imageUrl", hospitalData.imageUrl)
             }
             hospitalDetailFragment.arguments = bundle
 

@@ -17,7 +17,7 @@ class HospitalListRepository {
             HospitalListData(
                 name = hospital.name,
                 address = hospital.address,
-                imageResId = R.drawable.hospital_pic,
+                imageUrl = hospital.images?.firstOrNull()?.url ?: "", // ✅ null이나 빈 경우 안전 처리
                 fragment = HospitalDetailFragment()
             )
         }.toMutableList()

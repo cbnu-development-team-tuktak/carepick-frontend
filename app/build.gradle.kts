@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("kotlin-kapt")
 }
 
 android {
@@ -55,4 +56,6 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     // naver 지도
     implementation(libs.naver.map)
+    implementation(libs.glide)
+    kapt(libs.glide.compiler)
 }
