@@ -24,7 +24,10 @@ class HospitalListAdapter(
         val binding = (holder as HospitalListViewHolder).binding
         val hospitalData = datas[position]
 
-        binding.hospitalCardName.text = hospitalData.name
+        val cleanedName = hospitalData.name
+            .replace(Regex("""^["'(【\[].*?["')】\]]\s*"""), "") // 앞 괄호/따옴표 제거
+
+        binding.hospitalCardName.text = cleanedName
         binding.hospitalCardAddress.text = hospitalData.address
         binding.hospitalPicture.setImageResource(hospitalData.imageResId)
 
@@ -34,7 +37,7 @@ class HospitalListAdapter(
 
             // 병원 상세 정보 Fragment에게 전달할 매개변수를 bundle에 담는다
             val bundle = Bundle().apply {
-                putString("name", hospitalData.name)
+                putString("name", cleanedName)
                 putString("address", hospitalData.address)
             }
             hospitalDetailFragment.arguments = bundle
