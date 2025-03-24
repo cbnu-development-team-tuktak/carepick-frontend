@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.carepick.repository.HospitalRepository
 import com.example.carepick.ui.HomeFragment
+import com.naver.maps.map.NaverMapSdk
 
 
 class MainActivity : AppCompatActivity() {
