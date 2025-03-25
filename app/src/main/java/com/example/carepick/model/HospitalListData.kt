@@ -6,5 +6,7 @@ data class HospitalListData (
     val name: String, // 병원 이름
     val address: String, // 병원 주소
     val imageUrl: String, // 병원 이미지 url
-    val fragment: Fragment // 터치시 넘어갈 화면 지정
+    val fragment: Fragment, // 터치시 넘어갈 화면 지정
+    val latitude: Double?, // 병원의 위도
+    val longitude: Double?, // 병원의 경도
 )

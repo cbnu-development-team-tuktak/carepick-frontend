@@ -45,6 +45,10 @@ class HospitalListAdapter(
                 putString("name", cleanedName)
                 putString("address", hospitalData.address)
                 putString("imageUrl", hospitalData.imageUrl)
+
+                // 병원의 좌표값 저장
+                hospitalData.latitude?.let { putDouble("latitude", it) }
+                hospitalData.longitude?.let { putDouble("longitude", it) }
             }
             hospitalDetailFragment.arguments = bundle
 

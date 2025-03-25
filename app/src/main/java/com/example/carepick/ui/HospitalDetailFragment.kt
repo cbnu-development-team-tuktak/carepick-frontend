@@ -10,6 +10,7 @@ import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
+import com.naver.maps.map.overlay.Marker
 
 class HospitalDetailFragment : Fragment() {
 
@@ -37,6 +38,8 @@ class HospitalDetailFragment : Fragment() {
 
         val fm = childFragmentManager
         var mapFragment = fm.findFragmentById(R.id.map) as? MapFragment
+        val latitude = arguments?.getDouble("latitude") ?: 0.0
+        val longitude = arguments?.getDouble("longitude") ?: 0.0
 
         if (mapFragment == null) {
             mapFragment = MapFragment.newInstance()
@@ -44,7 +47,15 @@ class HospitalDetailFragment : Fragment() {
         }
 
         mapFragment.getMapAsync { naverMap ->
-            naverMap.moveCamera(CameraUpdate.scrollTo(LatLng(37.5665, 126.9780)))
+            val location = LatLng(latitude, longitude)
+
+            // 병원 위치로 이동
+            naverMap.moveCamera(CameraUpdate.scrollTo(location))
+
+            // 마커 생성 및 지도에 추가
+            val marker = Marker()
+            marker.position = location
+            marker.map = naverMap
         }
     }
 

@@ -18,7 +18,9 @@ class HospitalListRepository {
                 name = hospital.name,
                 address = hospital.address,
                 imageUrl = hospital.images?.firstOrNull()?.url ?: "", // ✅ null이나 빈 경우 안전 처리
-                fragment = HospitalDetailFragment()
+                fragment = HospitalDetailFragment(),
+                latitude = hospital.location?.latitude ?: 0.0, // 병원의 location 데이터에서 위도 추출
+                longitude = hospital.location?.longitude ?: 0.0 // 병원의 location 데이터에서 경도 추출
             )
         }.toMutableList()
     }

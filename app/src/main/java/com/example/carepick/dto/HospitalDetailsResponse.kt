@@ -1,5 +1,7 @@
 package com.example.carepick.dto
 
+import com.naver.maps.geometry.LatLng
+
 data class HospitalDetailsResponse (
     val id: String, // 병원 ID (기본키)
     val name: String, // 병원 이름
@@ -11,5 +13,6 @@ data class HospitalDetailsResponse (
     val specialties: List<String>?, // 병운의 진료과 목록
     val doctors: List<String>?, // 병원에 소속된 의사 목록
     val images: List<ImageResponse>?, // 병원과 연결된 이미지 정보 추가
-    val additionalInfo: HospitalAdditionalInfo? // 병원 추가 정보
+    val additionalInfo: HospitalAdditionalInfo?, // 병원 추가 정보
+    val location: LatLng? // 병원 좌표
 )
