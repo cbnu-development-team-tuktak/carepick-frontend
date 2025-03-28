@@ -43,8 +43,11 @@ class HospitalListAdapter(
             // 병원 상세 정보 Fragment에게 전달할 매개변수를 bundle에 담는다
             val bundle = Bundle().apply {
                 putString("name", cleanedName)
+                putString("phoneNumber", hospitalData.phoneNumber)
+                putString("homepage", hospitalData.homepage)
                 putString("address", hospitalData.address)
                 putString("imageUrl", hospitalData.imageUrl)
+                putString("operationgHours", hospitalData.operatingHours)
 
                 // 병원의 좌표값 저장
                 hospitalData.latitude?.let { putDouble("latitude", it) }

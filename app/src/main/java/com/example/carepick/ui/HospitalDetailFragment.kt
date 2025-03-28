@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.naver.maps.geometry.LatLng
@@ -26,9 +27,19 @@ class HospitalDetailFragment : Fragment() {
 
         val name = arguments?.getString("name")
         val address = arguments?.getString("address")
+        val phoneNumber = arguments?.getString("phoneNumber")
+        val opertingHours = arguments?.getString("operatingHours")
+        val imageUrl = arguments?.getString("imageUrl")
 
         binding.hospitalDetailName.text = name ?: "데이터 없음"
         binding.hospitalDetailAddress.text = address ?: "데이터 없음"
+        binding.hospitalDetailPhone.text = phoneNumber ?: "데이터 없음"
+        binding.hospitalDetailTime.text = opertingHours ?: "데이터 없음"
+        Glide.with(binding.root)
+            .load(imageUrl)
+            .placeholder(R.drawable.sand_clock)
+            .error(R.drawable.warning)
+            .into(binding.hospitalDetailImage)
 
         return binding.root
     }
