@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_1">24시간 문의 가능</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_2">연중무휴 진료</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_3">24시간 응급 진료</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_4">일요일 &amp; 공휴일 진료</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_5">남녀 전문의 선택 가능</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_6">평일 야간 진료</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_7">네트워크 병원</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_8">협진 시스템 지원</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_9">무료 검진 제공</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_10">점심시간 없이 진료</string>
+    <string name="HOSPITAL_DETAIL_ADD_INFO_11">역세권 위치</string>
+
+</resources>
