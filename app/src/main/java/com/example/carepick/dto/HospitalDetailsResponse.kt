@@ -2,6 +2,7 @@ package com.example.carepick.dto
 
 import com.naver.maps.geometry.LatLng
 
+// 서버에서 받는 병원 정보는 다음과 같은 형태를 가진다
 data class HospitalDetailsResponse (
     val id: String, // 병원 ID (기본키)
     val name: String, // 병원 이름

@@ -1,5 +1,9 @@
 package com.example.carepick.dto
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class HospitalAdditionalInfo(
     val id: String,
     val open24Hours: Boolean, // 24시간 문의 가능 여부
@@ -14,4 +18,4 @@ data class HospitalAdditionalInfo(
     val collaborativeCare: Boolean, // 협진 시스템 지원 여부
     val noLunchBreak: Boolean, // 점심시간 없이 진료 여부
 
-)
+) : Parcelable
