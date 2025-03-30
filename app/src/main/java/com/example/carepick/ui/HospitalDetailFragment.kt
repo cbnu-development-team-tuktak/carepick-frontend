@@ -1,13 +1,16 @@
 package com.example.carepick.ui
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
+import com.example.carepick.dto.HospitalAdditionalInfo
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
@@ -30,6 +33,7 @@ class HospitalDetailFragment : Fragment() {
         val phoneNumber = arguments?.getString("phoneNumber")
         val operatingHours = arguments?.getString("operatingHours")
         val imageUrl = arguments?.getString("imageUrl")
+        val addInfo = arguments?.getParcelable<HospitalAdditionalInfo>("additionalInfo")
 
         binding.hospitalDetailName.text = name ?: "데이터 없음"
         binding.hospitalDetailAddress.text = address ?: "데이터 없음"
@@ -40,6 +44,13 @@ class HospitalDetailFragment : Fragment() {
             .placeholder(R.drawable.sand_clock)
             .error(R.drawable.warning)
             .into(binding.hospitalDetailImage)
+
+        // 병원 추가 정보 표시
+        if (addInfo != null) {
+            addInfoCheck(requireContext(), binding, addInfo)
+        }
+
+        Log.e("addInfo", "$operatingHours")
 
         return binding.root
     }
