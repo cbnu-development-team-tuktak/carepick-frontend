@@ -16,7 +16,7 @@ class HospitalRepository {
 
     suspend fun fetchHospitals(): MutableList<HospitalDetailsResponse> {
         return suspendCancellableCoroutine { continuation ->
-            RetrofitClient.instance.getAllHospitals(page = 0, size = 10)
+            RetrofitClient.hospitalService.getAllHospitals(page = 0, size = 10)
                 .enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {
                     override fun onResponse(
                         call: Call<HospitalPageResponse<HospitalDetailsResponse>>,

@@ -7,14 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.carepick.R
+import com.example.carepick.adapter.DoctorListAdapter
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.example.carepick.dto.HospitalAdditionalInfo
+import com.example.carepick.repository.DoctorRepository
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.overlay.Marker
+import kotlinx.coroutines.launch
 
 class HospitalDetailFragment : Fragment() {
 
@@ -50,7 +56,19 @@ class HospitalDetailFragment : Fragment() {
             addInfoCheck(requireContext(), binding, addInfo)
         }
 
-        Log.e("addInfo", "$operatingHours")
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val doctorIds = arguments?.getStringArrayList("doctors") ?: return@launch
+                val doctorList = DoctorRepository().getDoctorsByIds(doctorIds)
+
+                binding.doctorListRecyclerView.adapter = DoctorListAdapter(doctorList, requireActivity())
+            } catch (e: Exception) {
+                Log.e("DoctorFetchError", "의사 목록 불러오기 실패", e)
+                // TODO: 사용자에게 에러 메시지 표시할 수도 있음
+            }
+
+            binding.doctorListRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2) // 2열
+        }
 
         return binding.root
     }
