@@ -4,9 +4,7 @@ import android.util.Log
 import com.example.carepick.dto.HospitalDetailsResponse
 import com.example.carepick.dto.HospitalPageResponse
 import com.example.carepick.network.RetrofitClient
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,7 +12,10 @@ import kotlin.coroutines.resume
 
 class HospitalRepository {
 
+    // 백엔드 서버로 getAllHospitals 메소드를 호출하고 그 결과를 HospitalPageResponse 객체로 받는다
+    // HospitalPageResponse는 HospitalDetailsResponse 객체를 배열로 담는 객체이다
     suspend fun fetchHospitals(): MutableList<HospitalDetailsResponse> {
+
         return suspendCancellableCoroutine { continuation ->
             RetrofitClient.hospitalService.getAllHospitals(page = 0, size = 10)
                 .enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {

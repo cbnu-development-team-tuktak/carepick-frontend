@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.carepick.databinding.FragmentHospitalListBinding
 
+// fragment_hospital_list.xml을 객체화하는 코드
+// 아직 구현을 시작하지 않음
 class HospitalListFragment: Fragment() {
 
     private var _binding: FragmentHospitalListBinding? = null

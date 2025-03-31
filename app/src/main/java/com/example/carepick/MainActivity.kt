@@ -6,15 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.carepick.repository.HospitalRepository
-import com.example.carepick.ui.HomeFragment
-import com.naver.maps.map.NaverMapSdk
+import com.example.carepick.ui.HomeFragment // MainActivity가 로드할 Fragment
 
 
 class MainActivity : AppCompatActivity() {
-
-    // 서버로부터 병원 정보를 가져오는 리포지토리
-    private val hospitalRepository = HospitalRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,8 +22,8 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // 첫 실행 시 HomeFragment 표시
-        // MainActivity는 실행만을 맡고 첫 화면을 비롯한 나머지 화면은 모두 Fragment로 구현하였음
+        // 메인 액티비티가 ui를 가질 경우 특정 프래그먼트를 불러올 때 화면이 겹치는 문제가 발생한다
+        // 따라서 메인 액티비티는 자체 ui를 가지지 않고 바로 HomeFragment를 불러오도록 하였다
         if (savedInstanceState == null) {
             loadFragment(HomeFragment())
         }

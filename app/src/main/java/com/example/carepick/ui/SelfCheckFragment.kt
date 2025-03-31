@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.carepick.databinding.FragmentSelfCheckBinding
 
+// 아직 구현을 시작하지 않음
 class SelfCheckFragment: Fragment() {
     private var _binding: FragmentSelfCheckBinding? = null
     private val binding get() = _binding!!

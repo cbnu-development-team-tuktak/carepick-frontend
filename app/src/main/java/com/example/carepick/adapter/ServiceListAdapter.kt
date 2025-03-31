@@ -4,25 +4,23 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.example.carepick.MainActivity
 import com.example.carepick.R
 import com.example.carepick.databinding.ServiceCardBinding
 import com.example.carepick.model.ServiceListData
-import com.example.carepick.ui.HospitalListFragment
 import com.example.carepick.viewHolder.ServiceListViewHolder
 
 class ServiceListAdapter(
-    private val datas: MutableList<ServiceListData>,
+    private val data: MutableList<ServiceListData>,
     private val activity: FragmentActivity
 ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    override fun getItemCount(): Int = datas.size
+    override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         ServiceListViewHolder(ServiceCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val binding = (holder as ServiceListViewHolder).binding
-        val serviceData = datas[position]
+        val serviceData = data[position]
 
         binding.serviceText.text = serviceData.title
         binding.serviceIcon.setImageResource(serviceData.iconResId)

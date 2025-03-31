@@ -32,8 +32,11 @@ class HospitalDetailFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // fragment_hospital_detail.xml을 객체화하여 _binding 객체에 저장한다
+        // 이를 통해 레이아웃의 텍스트를 변경하는 등 속성을 수정할 수 있다
         _binding = FragmentHospitalDetailBinding.inflate(inflater, container, false)
 
+        // bundle이 전달해준 데이터를 받아서 변수에 저장한다
         val name = arguments?.getString("name")
         val address = arguments?.getString("address")
         val phoneNumber = arguments?.getString("phoneNumber")
@@ -41,10 +44,13 @@ class HospitalDetailFragment : Fragment() {
         val imageUrl = arguments?.getString("imageUrl")
         val addInfo = arguments?.getParcelable<HospitalAdditionalInfo>("additionalInfo")
 
+        // 레이아웃에 데이터를 바인딩한다
+        // 이때 데이터가 존재하지 않으면 "데이터 없음" 으로 데이터를 넣는다
         binding.hospitalDetailName.text = name ?: "데이터 없음"
         binding.hospitalDetailAddress.text = address ?: "데이터 없음"
         binding.hospitalDetailPhone.text = phoneNumber ?: "데이터 없음"
         binding.hospitalDetailTime.text = operatingHours ?: "데이터 없음"
+        // 이미지 url을 받아서 로드한다
         Glide.with(binding.root)
             .load(imageUrl)
             .placeholder(R.drawable.sand_clock)
@@ -53,9 +59,10 @@ class HospitalDetailFragment : Fragment() {
 
         // 병원 추가 정보 표시
         if (addInfo != null) {
-            addInfoCheck(requireContext(), binding, addInfo)
+            addInfoCheck(requireContext(), binding, addInfo) // 추가 정보가 비어있지 않다면 추가 정보 중 true 값인 것을 찾아서 텍스트 색을 바꾼다
         }
 
+        // 여기서는 의사 목록을 동적으로 생성한다
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doctorIds = arguments?.getStringArrayList("doctors") ?: return@launch
@@ -67,12 +74,14 @@ class HospitalDetailFragment : Fragment() {
                 // TODO: 사용자에게 에러 메시지 표시할 수도 있음
             }
 
-            binding.doctorListRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2) // 2열
+            // 의사 카드들은 좌우 스크롤을 할 수 있도록 수평 배치한다
+            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
 
         return binding.root
     }
 
+    // 뷰가 생성되면 지도 화면에서 병원 위치로 이동하고 병원 자리에 마커를 생성한다
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

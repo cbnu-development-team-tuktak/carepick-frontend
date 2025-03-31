@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.databinding.FragmentHomeBinding
-import com.example.carepick.repository.HospitalListRepository
 import com.example.carepick.repository.ServiceListRepository
 import com.example.carepick.adapter.HospitalListAdapter
 import com.example.carepick.adapter.ServiceListAdapter
@@ -19,12 +18,13 @@ import kotlinx.coroutines.launch
 // 홈화면의 기능을 구현한 Fragment
 class HomeFragment: Fragment() {
 
+    // fragment_home.xml 을 객체처럼 취급하여 binding 변수에 저장할 것임을 선언한다
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     // 서비스 목록 카드뷰와 병원 목록 카드뷰를 생성하기 위한 각각의 리포지토리
     private val serviceListRepository = ServiceListRepository()
-    private val hospitalListRepository = HospitalListRepository()
+    private val hospitalRepository = HospitalRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,7 +46,7 @@ class HomeFragment: Fragment() {
 
         // ✅ 병원 목록 가져오기 (CoroutineScope 사용)
         viewLifecycleOwner.lifecycleScope.launch {
-            val hospitalList = hospitalListRepository.getHospitalList()
+            val hospitalList = hospitalRepository.fetchHospitals()
 
             if (hospitalList.isEmpty()) {
                 // ❌ 네트워크 오류 발생 시 오류 화면 표시
@@ -59,11 +59,11 @@ class HomeFragment: Fragment() {
                 binding.hospitalListRecyclerView.adapter = HospitalListAdapter(hospitalList, requireActivity())
                 binding.hospitalListRecyclerView.setHasFixedSize(true)
 
+                // 병원 정보를 몇개 가져왔는지 확인하기 위한 코드
                 val itemCount = HospitalListAdapter(hospitalList, requireActivity()).getItemCount()
                 Log.e("Item Count", "$itemCount")
-
-
             }
+            // 병원 카드는 좌우 스크롤을 할 수 있도록 배치된다
             binding.hospitalListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         }
 

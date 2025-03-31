@@ -8,7 +8,6 @@ import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.DoctorCardBinding
 import com.example.carepick.dto.DoctorDetailsResponse
-import com.example.carepick.model.HospitalListData
 import com.example.carepick.viewHolder.DoctorListViewHolder
 
 class DoctorListAdapter(
