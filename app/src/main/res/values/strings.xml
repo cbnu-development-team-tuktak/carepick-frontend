@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">carepick</string>
     <string name="doctor_list">의사 목록</string>
+    <string name="search_placeholder">병원이나 의사를 검색하세요</string>
+    <string name="service_list">서비스 목록</string>
+    <string name="hospital_list">병원 목록</string>
+    <string name="self_check">자가진단</string>
+    <string name="banner">배너</string>
+    <string name="pinned_hospital_list">즐겨찾는 병원</string>
 </resources>

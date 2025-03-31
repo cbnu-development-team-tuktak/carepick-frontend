@@ -5,9 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.Filter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.carepick.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.repository.ServiceListRepository
 import com.example.carepick.adapter.HospitalListAdapter
@@ -44,8 +47,15 @@ class HomeFragment: Fragment() {
         // 리포지토리로부터 받아온 정보를 토대로 카드뷰들을 동적으로 생성한다
         binding.serviceListRecyclerView.adapter = ServiceListAdapter(serviceList, requireActivity())
 
-        // ✅ 병원 목록 가져오기 (CoroutineScope 사용)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         viewLifecycleOwner.lifecycleScope.launch {
+
+            // <<병원 카드를 동적으로 생성하는 파트>>
             val hospitalList = hospitalRepository.fetchHospitals()
 
             if (hospitalList.isEmpty()) {
@@ -63,12 +73,34 @@ class HomeFragment: Fragment() {
                 val itemCount = HospitalListAdapter(hospitalList, requireActivity()).getItemCount()
                 Log.e("Item Count", "$itemCount")
             }
+
             // 병원 카드는 좌우 스크롤을 할 수 있도록 배치된다
             binding.hospitalListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        }
 
-        return binding.root
+
+            // <<검색창에서 병원 이름을 자동 완성하는 부분>>
+            val rawNames = hospitalList.map { it.name }
+            // 병원 이름에서 괄호나 따음표로 감싸져있는 부분은 제거
+            val hospitalNames = rawNames.map { name ->
+                name.replace(Regex("""^["'(【\[].*?["')】\]]\s*"""), "")
+            }
+
+            Log.d("AutoComplete", "names: $hospitalNames")
+
+            // 어댑터를 불러와서 부분적으로 일치하는 병원 이름을 출력하도록 함
+            val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
+            binding.searchView.setAdapter(autoCompleteAdapter)
+            // 한 문자만 입력해도 자동완성이 되도록 함
+            binding.searchView.threshold = 3
+
+            // 자동완성 항목 클릭 시 검색 창에 해당 병원 이름이 들어가도록 함
+            binding.searchView.setOnItemClickListener { parent, _, position, _ ->
+                val selectedName = parent.getItemAtPosition(position).toString()
+                binding.searchView.setText(selectedName)
+            }
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
