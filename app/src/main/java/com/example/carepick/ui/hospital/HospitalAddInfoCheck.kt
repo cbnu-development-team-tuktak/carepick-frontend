@@ -1,4 +1,4 @@
-package com.example.carepick.ui
+package com.example.carepick.ui.hospital
 
 import android.content.Context
 import androidx.core.content.ContextCompat

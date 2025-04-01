@@ -2,8 +2,8 @@ package com.example.carepick.repository
 
 import com.example.carepick.R
 import com.example.carepick.model.ServiceListData
-import com.example.carepick.ui.DoctorListFragment
-import com.example.carepick.ui.HospitalListFragment
+import com.example.carepick.ui.doctor.DoctorListFragment
+import com.example.carepick.ui.hospital.HospitalListFragment
 import com.example.carepick.ui.SelfCheckFragment
 
 class ServiceListRepository {

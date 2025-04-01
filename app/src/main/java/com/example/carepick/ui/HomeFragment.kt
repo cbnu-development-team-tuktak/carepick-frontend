@@ -1,15 +1,11 @@
 package com.example.carepick.ui
 
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.Filter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,6 +17,7 @@ import com.example.carepick.repository.ServiceListRepository
 import com.example.carepick.adapter.HospitalListAdapter
 import com.example.carepick.adapter.ServiceListAdapter
 import com.example.carepick.repository.HospitalRepository
+import com.example.carepick.ui.hospital.HospitalSearchResultFragment
 import kotlinx.coroutines.launch
 
 // 홈화면의 기능을 구현한 Fragment

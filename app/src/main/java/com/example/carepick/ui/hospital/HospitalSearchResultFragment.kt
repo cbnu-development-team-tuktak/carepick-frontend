@@ -1,4 +1,4 @@
-package com.example.carepick.ui
+package com.example.carepick.ui.hospital
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.carepick.adapter.HospitalListAdapter
+import com.example.carepick.adapter.HospitalSearchListAdapter
 import com.example.carepick.databinding.FragmentHospitalSearchResultBinding
 import com.example.carepick.repository.HospitalRepository
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ class HospitalSearchResultFragment: Fragment() {
             }.toMutableList()
 
             // RecyclerView에 필터된 병원 정보 세팅
-            binding.recyclerView.adapter = HospitalListAdapter(filteredHospitals, requireActivity())
+            binding.recyclerView.adapter = HospitalSearchListAdapter(filteredHospitals, requireActivity())
             binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         }
     }

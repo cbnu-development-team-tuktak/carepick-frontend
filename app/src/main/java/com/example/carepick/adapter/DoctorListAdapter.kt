@@ -11,11 +11,11 @@ import com.example.carepick.dto.DoctorDetailsResponse
 import com.example.carepick.viewHolder.DoctorListViewHolder
 
 class DoctorListAdapter(
-    private val datas: List<DoctorDetailsResponse>,
+    private val data: List<DoctorDetailsResponse>,
     private val activity: FragmentActivity
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    override fun getItemCount(): Int = datas.size
+    override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         DoctorListViewHolder(DoctorCardBinding.inflate(LayoutInflater.from(parent.context), parent, false))
@@ -24,7 +24,7 @@ class DoctorListAdapter(
         val binding = (holder as DoctorListViewHolder).binding
 
         // 의사 정보를 담는 객체
-        val doctorData = datas[position]
+        val doctorData = data[position]
 
         binding.doctorName.text = doctorData.name
         // 카드에 이미지를 url을 통해서 집어넣는다
