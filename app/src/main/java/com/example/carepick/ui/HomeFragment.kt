@@ -1,15 +1,20 @@
 package com.example.carepick.ui
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.carepick.R
 import com.example.carepick.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.repository.ServiceListRepository
@@ -43,7 +48,7 @@ class HomeFragment: Fragment() {
         // 리포지토리로부터 카드뷰에 들어갈 텍스트와 정보들을 받는다
         val serviceList = serviceListRepository.getServiceList()
         // 카드뷰를 수평으로 배치하도록 HORIZONTAL 옵션을 준다
-        binding.serviceListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.serviceListRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
         // 리포지토리로부터 받아온 정보를 토대로 카드뷰들을 동적으로 생성한다
         binding.serviceListRecyclerView.adapter = ServiceListAdapter(serviceList, requireActivity())
 
@@ -98,12 +103,37 @@ class HomeFragment: Fragment() {
                 val selectedName = parent.getItemAtPosition(position).toString()
                 binding.searchView.setText(selectedName)
             }
+
+            // <<검색 버튼 누르면 검색 결과 화면으로 이동>>
+            binding.searchView.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    val query = binding.searchView.text.toString()
+                    if (query.isNotBlank()) {
+                        navigateToSearchResult(query)
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun navigateToSearchResult(query: String) {
+        val bundle = Bundle().apply {
+            putString("search_query", query)
+        }
+        val fragment = HospitalSearchResultFragment()
+        fragment.arguments = bundle
+
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, fragment) // R.id.fragment_container는 실제 프래그먼트 영역 ID로 변경
+            .addToBackStack(null)
+            .commit()
     }
 }
