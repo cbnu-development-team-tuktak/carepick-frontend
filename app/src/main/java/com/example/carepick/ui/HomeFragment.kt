@@ -93,7 +93,7 @@ class HomeFragment: Fragment() {
             val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
             binding.searchView.setAdapter(autoCompleteAdapter)
             // 한 문자만 입력해도 자동완성이 되도록 함
-            binding.searchView.threshold = 3
+            binding.searchView.threshold = 1
 
             // 자동완성 항목 클릭 시 검색 창에 해당 병원 이름이 들어가도록 함
             binding.searchView.setOnItemClickListener { parent, _, position, _ ->

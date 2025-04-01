@@ -1,6 +1,7 @@
 package com.example.carepick.ui.hospital
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,9 +40,11 @@ class HospitalSearchResultFragment: Fragment() {
                 cleanedName.contains(query, ignoreCase = true)
             }.toMutableList()
 
+            Log.e("Searched Hospital", "$filteredHospitals.size")
+
             // RecyclerView에 필터된 병원 정보 세팅
             binding.recyclerView.adapter = HospitalSearchListAdapter(filteredHospitals, requireActivity())
-            binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         }
     }
 
