@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.DoctorCardBinding
-import com.example.carepick.dto.DoctorDetailsResponse
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.viewHolder.DoctorListViewHolder
 
 class DoctorListAdapter(
@@ -33,5 +33,10 @@ class DoctorListAdapter(
             .placeholder(R.drawable.sand_clock)
             .error(R.drawable.warning)
             .into(binding.doctorImage)
+
+        // 카드를 선택했을 때 다음의 동작들을 수행한다
+        binding.root.setOnClickListener {
+            // TODO: 의사 상세 페이지로 넘어가도록 구현해야 함
+        }
     }
 }

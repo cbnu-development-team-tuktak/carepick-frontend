@@ -1,4 +1,4 @@
-package com.example.carepick.dto
+package com.example.carepick.dto.hospital
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

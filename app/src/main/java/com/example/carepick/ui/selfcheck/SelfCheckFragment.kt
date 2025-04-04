@@ -1,4 +1,4 @@
-package com.example.carepick.ui
+package com.example.carepick.ui.selfcheck
 
 import android.os.Bundle
 import android.view.LayoutInflater

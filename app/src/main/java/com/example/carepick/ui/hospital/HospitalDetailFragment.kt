@@ -12,7 +12,9 @@ import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.adapter.DoctorListAdapter
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
-import com.example.carepick.dto.HospitalAdditionalInfo
+import com.example.carepick.dto.ImageResponse
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
+import com.example.carepick.dto.hospital.HospitalAdditionalInfo
 import com.example.carepick.repository.DoctorRepository
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -39,7 +41,7 @@ class HospitalDetailFragment : Fragment() {
         val address = arguments?.getString("address")
         val phoneNumber = arguments?.getString("phoneNumber")
         val operatingHours = arguments?.getString("operatingHours")
-        val imageUrl = arguments?.getString("imageUrl")
+        val images = arguments?.getParcelableArrayList<ImageResponse>("images")?.firstOrNull()?.url ?: ""
         val addInfo = arguments?.getParcelable<HospitalAdditionalInfo>("additionalInfo")
 
         // 레이아웃에 데이터를 바인딩한다
@@ -50,7 +52,7 @@ class HospitalDetailFragment : Fragment() {
         binding.hospitalDetailTime.text = operatingHours ?: "데이터 없음"
         // 이미지 url을 받아서 로드한다
         Glide.with(binding.root)
-            .load(imageUrl)
+            .load(images)
             .placeholder(R.drawable.sand_clock)
             .error(R.drawable.warning)
             .into(binding.hospitalDetailImage)
@@ -61,12 +63,26 @@ class HospitalDetailFragment : Fragment() {
         }
 
         // 여기서는 의사 목록을 동적으로 생성한다
+//        viewLifecycleOwner.lifecycleScope.launch {
+//            try {
+//                val doctorIds = arguments?.getStringArrayList("doctors") ?: return@launch
+//                val doctorList = DoctorRepository().getDoctorsByIds(doctorIds)
+//
+//                binding.doctorListRecyclerView.adapter = DoctorListAdapter(doctorList, requireActivity())
+//            } catch (e: Exception) {
+//                Log.e("DoctorFetchError", "의사 목록 불러오기 실패", e)
+//                // TODO: 사용자에게 에러 메시지 표시할 수도 있음
+//            }
+//
+//            // 의사 카드들은 좌우 스크롤을 할 수 있도록 수평 배치한다
+//            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+//        }
+
+        // 여기서는 의사 목록을 동적으로 생성한다
         viewLifecycleOwner.lifecycleScope.launch {
             try {
-                val doctorIds = arguments?.getStringArrayList("doctors") ?: return@launch
-                val doctorList = DoctorRepository().getDoctorsByIds(doctorIds)
-
-                binding.doctorListRecyclerView.adapter = DoctorListAdapter(doctorList, requireActivity())
+                val doctors = arguments?.getParcelableArrayList<DoctorDetailsResponse>("doctors") ?: arrayListOf()
+                binding.doctorListRecyclerView.adapter = DoctorListAdapter(doctors, requireActivity())
             } catch (e: Exception) {
                 Log.e("DoctorFetchError", "의사 목록 불러오기 실패", e)
                 // TODO: 사용자에게 에러 메시지 표시할 수도 있음

@@ -4,7 +4,7 @@ import com.example.carepick.R
 import com.example.carepick.model.ServiceListData
 import com.example.carepick.ui.doctor.DoctorListFragment
 import com.example.carepick.ui.hospital.HospitalListFragment
-import com.example.carepick.ui.SelfCheckFragment
+import com.example.carepick.ui.selfcheck.SelfCheckFragment
 
 class ServiceListRepository {
     fun getServiceList(): MutableList<ServiceListData> {

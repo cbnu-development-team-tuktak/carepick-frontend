@@ -1,6 +1,6 @@
-package com.example.carepick.dto
+package com.example.carepick.dto.doctor
 
-data class HospitalPageResponse<T>(
+data class DoctorPageResponse<T>(
     val content: List<T>,  // 실제 데이터 리스트
     val totalPages: Int,
     val totalElements: Int,

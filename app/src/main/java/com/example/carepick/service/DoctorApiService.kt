@@ -1,7 +1,7 @@
 package com.example.carepick.service
 
-import com.example.carepick.dto.DoctorDetailsResponse
-import com.example.carepick.dto.DoctorPageResponse
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
+import com.example.carepick.dto.doctor.DoctorPageResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

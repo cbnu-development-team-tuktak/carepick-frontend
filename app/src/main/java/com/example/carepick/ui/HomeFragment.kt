@@ -57,9 +57,14 @@ class HomeFragment: Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
 
-            // <<병원 카드를 동적으로 생성하는 파트>>
-            val hospitalList = hospitalRepository.fetchHospitals()
+            // <<병원 정보를 백엔드 서버에서 받아서 동적으로 카드를 생성하는 파트>>
+            // val hospitalList = hospitalRepository.fetchHospitals()
 
+            // <<병원 정보를 사전에 저장된 json 파일에서 읽는 코드>>
+            val hospitalList = hospitalRepository.loadHospitalsFromAsset(requireContext())
+
+
+            // 제대로 병원 정보를 로드했는지, 그 여부에 따른 동작을 지정하는 코드
             if (hospitalList.isEmpty()) {
                 // ❌ 네트워크 오류 발생 시 오류 화면 표시
                 binding.networkErrorView.root.visibility = View.VISIBLE
@@ -81,11 +86,8 @@ class HomeFragment: Fragment() {
 
 
             // <<검색창에서 병원 이름을 자동 완성하는 부분>>
-            val rawNames = hospitalList.map { it.name }
-            // 병원 이름에서 괄호나 따음표로 감싸져있는 부분은 제거
-            val hospitalNames = rawNames.map { name ->
-                name.replace(Regex("""^["'(【\[].*?["')】\]]\s*"""), "")
-            }
+            // 병원 정보에서 병원 이름들만 뽑아낸다
+            val hospitalNames = hospitalList.map { it.name }
 
             Log.d("AutoComplete", "names: $hospitalNames")
 
@@ -121,6 +123,7 @@ class HomeFragment: Fragment() {
         _binding = null
     }
 
+    // 검색 버튼을 클릭할 경우 검색 결과 화면으로 이동한다
     private fun navigateToSearchResult(query: String) {
         val bundle = Bundle().apply {
             putString("search_query", query)

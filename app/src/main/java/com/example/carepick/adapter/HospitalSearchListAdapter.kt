@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.HospitalSearchListBinding
-import com.example.carepick.dto.HospitalDetailsResponse
+import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.ui.hospital.HospitalDetailFragment
 import com.example.carepick.viewHolder.HospitalSearchListViewHolder
 
@@ -39,11 +39,11 @@ class HospitalSearchListAdapter(
 
         // 카드를 선택했을 때 다음의 동작들을 수행한다
         binding.root.setOnClickListener {
-            navigateToDetail(hospitalData, imageUrl)
+            navigateToDetail(hospitalData)
         }
     }
 
-    private fun navigateToDetail(hospitalData: HospitalDetailsResponse, imageUrl: String) {
+    private fun navigateToDetail(hospitalData: HospitalDetailsResponse) {
         // 카드뷰를 클릭했을 때 넘어갈 Fragment를 객체에 저장
         val hospitalDetailFragment = HospitalDetailFragment()
 
@@ -53,18 +53,21 @@ class HospitalSearchListAdapter(
             putString("phoneNumber", hospitalData.phoneNumber)
             putString("homepage", hospitalData.homepage)
             putString("address", hospitalData.address)
-            putString("imageUrl", imageUrl)
             putString("operatingHours", hospitalData.operatingHours)
 
             hospitalData.location?.latitude?.let { putDouble("latitude", it) }
             hospitalData.location?.longitude?.let { putDouble("longitude", it) }
+
+            hospitalData.images?.let {
+                putParcelableArrayList("images", ArrayList(it))
+            }
 
             hospitalData.specialties?.let {
                 putStringArrayList("specialties", ArrayList(it))
             }
 
             hospitalData.doctors?.let {
-                putStringArrayList("doctors", ArrayList(it))
+                putParcelableArrayList("doctors", ArrayList(it))
             }
 
             hospitalData.additionalInfo?.let {

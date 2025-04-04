@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.example.carepick.R
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
-import com.example.carepick.dto.HospitalAdditionalInfo
+import com.example.carepick.dto.hospital.HospitalAdditionalInfo
 
 fun addInfoCheck(
     context: Context,

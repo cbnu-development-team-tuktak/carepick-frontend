@@ -1,6 +1,6 @@
 package com.example.carepick.repository
 
-import com.example.carepick.dto.DoctorDetailsResponse
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.network.RetrofitClient
 
 class DoctorRepository {
