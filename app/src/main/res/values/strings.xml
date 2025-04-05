@@ -7,4 +7,5 @@
     <string name="self_check">자가진단</string>
     <string name="banner">배너</string>
     <string name="pinned_hospital_list">즐겨찾는 병원</string>
+    <string name="self_check_text">현재 발생한 증상을 자유롭게 입력하세요</string>
 </resources>
