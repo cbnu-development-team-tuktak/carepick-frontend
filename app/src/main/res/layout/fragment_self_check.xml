@@ -18,7 +18,7 @@
         android:id="@+id/inputContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
+        app:shapeAppearance="@style/TopCornersShapeAppearance"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,28 +29,61 @@
         android:padding="0dp"
         android:clipToPadding="false">
 
-        <LinearLayout
+<!--        <LinearLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center_vertical"-->
+<!--            android:orientation="horizontal">-->
+
+<!--            <EditText-->
+<!--                android:id="@+id/selfCheckInput"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:maxHeight="200dp"-->
+<!--                android:layout_weight="1"-->
+<!--                android:background="@null"-->
+<!--                android:hint="@string/self_check_text"-->
+<!--                android:padding="16dp" />-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/selfCheckSendButton"-->
+<!--                android:layout_width="28dp"-->
+<!--                android:layout_height="28dp"-->
+<!--                android:layout_marginEnd="16dp"-->
+<!--                android:background="@null"-->
+<!--                android:src="@drawable/ic_search" />-->
+<!--        </LinearLayout>-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:padding="0dp">
 
             <EditText
                 android:id="@+id/selfCheckInput"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:background="@null"
                 android:hint="@string/self_check_text"
-                android:padding="16dp" />
+                android:maxLines="5"
+                android:minLines="1"
+                android:padding="16dp"
+                android:gravity="start|top"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/selfCheckSendButton" />
 
             <ImageButton
                 android:id="@+id/selfCheckSendButton"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="@null"
-                android:src="@drawable/ic_search" />
-        </LinearLayout>
+                android:src="@drawable/ic_search"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

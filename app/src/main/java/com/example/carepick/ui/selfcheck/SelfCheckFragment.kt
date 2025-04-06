@@ -20,6 +20,8 @@ class SelfCheckFragment : Fragment() {
     private val messages = mutableListOf<String>()
     private lateinit var adapter: MessageAdapter
 
+    private var hasScrolledOnKeyboardOpen = false // ✨ 키보드 올라왔을 때 한 번만 스크롤
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -28,7 +30,6 @@ class SelfCheckFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         adapter = MessageAdapter(messages)
         binding.messageRecyclerView.adapter = adapter
         binding.messageRecyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -40,6 +41,7 @@ class SelfCheckFragment : Fragment() {
                 adapter.notifyItemInserted(messages.size - 1)
                 binding.messageRecyclerView.scrollToPosition(messages.size - 1)
                 binding.selfCheckInput.text?.clear()
+                hasScrolledOnKeyboardOpen = false // ✨ 새 메시지를 보냈으면 다음 키보드 열림에 다시 스크롤
             }
         }
 
@@ -49,14 +51,15 @@ class SelfCheckFragment : Fragment() {
             val screenHeight = binding.root.rootView.height
             val keypadHeight = screenHeight - rect.bottom
 
-            // 키보드가 올라온 경우
             if (keypadHeight > screenHeight * 0.15) {
-                // 키보드가 보이는 동안 가장 마지막 메시지로 스크롤
-                if (messages.isNotEmpty()) {
+                if (messages.isNotEmpty() && !hasScrolledOnKeyboardOpen) {
                     binding.messageRecyclerView.post {
                         binding.messageRecyclerView.scrollToPosition(messages.size - 1)
+                        hasScrolledOnKeyboardOpen = true // ✨ 한 번만 스크롤되게
                     }
                 }
+            } else {
+                hasScrolledOnKeyboardOpen = false // 키보드 내려가면 초기화
             }
         }
     }
