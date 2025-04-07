@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.carepick.R
@@ -27,6 +28,8 @@ class HospitalSearchListAdapter(
         // 병원 정보들을 한번에 받는 객체
         val hospitalData = data[position]
 
+        val specialties = hospitalData.specialties ?: emptyList()
+
         val imageUrl = hospitalData.images?.firstOrNull()?.url ?: ""
 
         binding.hospitalSearchListName.text = hospitalData.name
@@ -36,6 +39,11 @@ class HospitalSearchListAdapter(
             .placeholder(R.drawable.sand_clock)
             .error(R.drawable.warning)
             .into(binding.hospitalSearchListImage)
+
+        // 진료과 목록에 따라 동적으로 진료과를 카드에 추가한다
+        val specialtyAdapter = SpecialtyAdapterNoBg(specialties)
+        binding.hospitalSearchListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        binding.hospitalSearchListRecyclerView.adapter = specialtyAdapter
 
         // 카드를 선택했을 때 다음의 동작들을 수행한다
         binding.root.setOnClickListener {

@@ -29,6 +29,8 @@
                 android:id="@+id/doctorDetailImage"
                 android:layout_width="98dp"
                 android:layout_height="98dp"
+                android:background="@drawable/image_background"
+                android:clipToOutline="true"
                 android:contentDescription="@string/doctor_detail_image"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -50,9 +52,8 @@
             <TextView
                 android:id="@+id/doctorDetailHospitalName"
                 android:layout_width="wrap_content"
-                android:layout_height="16dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="12dp"
                 android:fontFamily="@font/pretendard_regular"
                 android:text="@string/hospital_name_example"
                 android:textSize="16sp"
@@ -62,11 +63,10 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/doctorDetailSpecialties"
                 android:layout_width="212dp"
-                android:layout_height="96dp"
+                android:layout_height="26dp"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="12dp"
-                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
-                app:layout_constraintTop_toBottomOf="@+id/doctorDetailHospitalName" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

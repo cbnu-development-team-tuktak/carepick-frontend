@@ -16,6 +16,7 @@ import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.repository.ServiceListRepository
 import com.example.carepick.adapter.HospitalListAdapter
 import com.example.carepick.adapter.ServiceListAdapter
+import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.repository.HospitalRepository
 import com.example.carepick.ui.hospital.HospitalSearchResultFragment
 import kotlinx.coroutines.launch
@@ -108,7 +109,7 @@ class HomeFragment: Fragment() {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     val query = binding.searchView.text.toString()
                     if (query.isNotBlank()) {
-                        navigateToSearchResult(query)
+                        navigateToSearchResult(query, hospitalList)
                     }
                     true
                 } else {
@@ -124,16 +125,33 @@ class HomeFragment: Fragment() {
     }
 
     // 검색 버튼을 클릭할 경우 검색 결과 화면으로 이동한다
-    private fun navigateToSearchResult(query: String) {
+    // 백엔드 서버로부터 병원 정보를 받는게 아니라 로컬에 저장된 json 파일을 이용한다
+    private fun navigateToSearchResult(query: String, hospitalList: List<HospitalDetailsResponse>) {
         val bundle = Bundle().apply {
             putString("search_query", query)
+            putParcelableArrayList("hospitals", ArrayList(hospitalList)) // Parcelable로 변환
         }
+
         val fragment = HospitalSearchResultFragment()
         fragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment) // R.id.fragment_container는 실제 프래그먼트 영역 ID로 변경
+            .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }
+
+    // 검색 버튼을 클릭할 경우 검색 결과 화면으로 이동한다
+//    private fun navigateToSearchResult(query: String) {
+//        val bundle = Bundle().apply {
+//            putString("search_query", query)
+//        }
+//        val fragment = HospitalSearchResultFragment()
+//        fragment.arguments = bundle
+//
+//        parentFragmentManager.beginTransaction()
+//            .replace(R.id.fragment_container, fragment) // R.id.fragment_container는 실제 프래그먼트 영역 ID로 변경
+//            .addToBackStack(null)
+//            .commit()
+//    }
 }

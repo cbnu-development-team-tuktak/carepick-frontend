@@ -3,18 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="132dp"
+    android:layout_height="108dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/hospitalSearchListImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="76dp"
+            android:layout_height="76dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
+            android:background="@drawable/image_background"
+            android:clipToOutline="true"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -23,20 +25,38 @@
 
         <TextView
             android:id="@+id/hospitalSearchListName"
-            android:layout_width="wrap_content"
+            android:layout_width="256dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:text="TextView"
+            android:ellipsize="end"
+            android:fontFamily="@font/pretendard_regular"
+            android:maxLines="1"
+            android:text="@string/hospital_name_example"
+            android:textSize="18sp"
+            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/hospitalSearchListAddress"
-            android:layout_width="wrap_content"
+            android:layout_width="256dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="TextView"
+            android:ellipsize="end"
+            android:fontFamily="@font/pretendard_regular"
+            android:maxLines="1"
+            android:text="@string/hospital_address_example"
+            android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
             app:layout_constraintTop_toBottomOf="@+id/hospitalSearchListName" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hospitalSearchListRecyclerView"
+            android:layout_width="256dp"
+            android:layout_height="106dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
+            app:layout_constraintTop_toBottomOf="@+id/hospitalSearchListAddress" />
 </androidx.constraintlayout.widget.ConstraintLayout>

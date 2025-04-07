@@ -15,5 +15,6 @@
 
     <string name="doctor_name_example">남호석 전문의</string>
     <string name="hospital_name_example">베이드의원</string>
+    <string name="hospital_address_example">병원 주소</string>
     <string name="doctor_detail_career_example">의사의 경력이 들어갈 자리</string>
 </resources>

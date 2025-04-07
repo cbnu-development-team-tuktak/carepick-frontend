@@ -1,10 +1,13 @@
 package com.example.carepick.dto.hospital
 
+import android.os.Parcelable
 import com.example.carepick.dto.ImageResponse
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.naver.maps.geometry.LatLng
+import kotlinx.parcelize.Parcelize
 
 // 서버에서 받는 병원 정보는 다음과 같은 형태를 가진다
+@Parcelize
 data class HospitalDetailsResponse (
     val id: String, // 병원 ID (기본키)
     val name: String, // 병원 이름
@@ -18,4 +21,4 @@ data class HospitalDetailsResponse (
     val images: List<ImageResponse>?, // 병원과 연결된 이미지 정보 추가
     val additionalInfo: HospitalAdditionalInfo?, // 병원 추가 정보
     val location: LatLng? // 병원 좌표
-)
+) : Parcelable
