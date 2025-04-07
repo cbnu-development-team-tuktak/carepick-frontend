@@ -15,7 +15,6 @@ import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.example.carepick.dto.ImageResponse
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.dto.hospital.HospitalAdditionalInfo
-import com.example.carepick.repository.DoctorRepository
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment

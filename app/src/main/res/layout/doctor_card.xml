@@ -50,7 +50,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/pretendard_regular"
             android:singleLine="true"
-            android:text="충북대학교 병원"
+            android:text="소속 병원"
             android:textAlignment="center"
             android:textSize="12sp"
             android:textStyle="bold"

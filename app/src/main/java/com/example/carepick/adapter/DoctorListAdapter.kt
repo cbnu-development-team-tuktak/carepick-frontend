@@ -1,5 +1,6 @@
 package com.example.carepick.adapter
 
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
@@ -8,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.DoctorCardBinding
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
+import com.example.carepick.ui.doctor.DoctorDetailFragment
 import com.example.carepick.viewHolder.DoctorListViewHolder
 
 class DoctorListAdapter(
@@ -36,7 +38,33 @@ class DoctorListAdapter(
 
         // 카드를 선택했을 때 다음의 동작들을 수행한다
         binding.root.setOnClickListener {
-            // TODO: 의사 상세 페이지로 넘어가도록 구현해야 함
+            navigateToDetail(doctorData)
         }
+    }
+
+    private fun navigateToDetail(doctorData: DoctorDetailsResponse) {
+        val doctorDetailFragment = DoctorDetailFragment()
+
+        // 의사 상세 페이지에 데이터를 전달한다
+        val bundle = Bundle().apply {
+            putString("name", doctorData.name)
+            putString("url", doctorData.url)
+            putString("profileImage", doctorData.profileImage)
+            putString("career", doctorData.career)
+            putString("specialty", doctorData.specialty)
+
+            putStringArrayList(
+                "educationLicense",
+                ArrayList(doctorData.educationLicenses ?: emptyList())
+            )
+        }
+
+        doctorDetailFragment.arguments = bundle
+
+        // 의사 상세 페이지로 화면을 넘긴다
+        activity.supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, doctorDetailFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

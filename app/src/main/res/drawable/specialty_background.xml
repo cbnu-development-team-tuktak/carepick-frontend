@@ -6,13 +6,13 @@
     <solid android:color="#CDCDCD" /> <!-- 초록 계열, 필요시 변경 가능 -->
 
     <!-- 모서리 둥글게 -->
-    <corners android:radius="8dp" />
+    <corners android:radius="16dp" />
 
     <!-- 패딩 효과 -->
     <padding
-        android:left="4dp"
+        android:left="8dp"
         android:top="4dp"
         android:bottom="4dp"
-        android:right="4dp" />
+        android:right="8dp" />
 
 </shape>

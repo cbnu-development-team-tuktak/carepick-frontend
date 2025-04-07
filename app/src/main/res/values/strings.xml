@@ -8,4 +8,12 @@
     <string name="banner">배너</string>
     <string name="pinned_hospital_list">즐겨찾는 병원</string>
     <string name="self_check_text">현재 발생한 증상을 자유롭게 입력하세요</string>
+    <string name="doctor_detail_image">의사 사진</string>
+
+    <string name="doctor_detail_license">자격면허</string>
+    <string name="doctor_detail_career">경력</string>
+
+    <string name="doctor_name_example">남호석 전문의</string>
+    <string name="hospital_name_example">베이드의원</string>
+    <string name="doctor_detail_career_example">의사의 경력이 들어갈 자리</string>
 </resources>

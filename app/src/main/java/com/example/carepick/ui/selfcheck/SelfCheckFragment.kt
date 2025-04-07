@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.adapter.MessageAdapter
 import com.example.carepick.databinding.FragmentSelfCheckBinding
 
-// 아직 구현을 시작하지 않음
 class SelfCheckFragment : Fragment() {
     private var _binding: FragmentSelfCheckBinding? = null
     private val binding get() = _binding!!
