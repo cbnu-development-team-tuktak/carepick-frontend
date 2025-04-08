@@ -1,6 +1,7 @@
 package com.example.carepick.dto.hospital
 
 import android.os.Parcelable
+import com.example.carepick.model.SearchResultItem
 import com.example.carepick.dto.ImageResponse
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.naver.maps.geometry.LatLng
@@ -21,4 +22,4 @@ data class HospitalDetailsResponse (
     val images: List<ImageResponse>?, // 병원과 연결된 이미지 정보 추가
     val additionalInfo: HospitalAdditionalInfo?, // 병원 추가 정보
     val location: LatLng? // 병원 좌표
-) : Parcelable
+) : Parcelable, SearchResultItem

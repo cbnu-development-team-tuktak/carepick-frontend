@@ -16,6 +16,7 @@ import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.repository.ServiceListRepository
 import com.example.carepick.adapter.HospitalListAdapter
 import com.example.carepick.adapter.ServiceListAdapter
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.repository.HospitalRepository
 import com.example.carepick.ui.hospital.HospitalSearchResultFragment
@@ -63,7 +64,8 @@ class HomeFragment: Fragment() {
 
             // <<병원 정보를 사전에 저장된 json 파일에서 읽는 코드>>
             val hospitalList = hospitalRepository.loadHospitalsFromAsset(requireContext())
-
+            // 병원 정보 dto에 존재하는 의사 정보 객체를 추출하여 별도 객체에 저장한다
+            val doctorList = hospitalList.flatMap { it.doctors ?: emptyList() }
 
             // 제대로 병원 정보를 로드했는지, 그 여부에 따른 동작을 지정하는 코드
             if (hospitalList.isEmpty()) {
@@ -89,16 +91,19 @@ class HomeFragment: Fragment() {
             // <<검색창에서 병원 이름을 자동 완성하는 부분>>
             // 병원 정보에서 병원 이름들만 뽑아낸다
             val hospitalNames = hospitalList.map { it.name }
+            // 의사 정보에서 의사 이름들만 뽑아낸다
+            val doctorNames = doctorList.map { it.name }
 
             Log.d("AutoComplete", "names: $hospitalNames")
 
-            // 어댑터를 불러와서 부분적으로 일치하는 병원 이름을 출력하도록 함
-            val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
+            // 어댑터를 불러와서 부분적으로 일치하는 병원/의사 이름을 출력하도록 함
+            val autoCompleteNames = (hospitalNames + doctorNames).distinct()
+            val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), autoCompleteNames)
             binding.searchView.setAdapter(autoCompleteAdapter)
             // 한 문자만 입력해도 자동완성이 되도록 함
             binding.searchView.threshold = 1
 
-            // 자동완성 항목 클릭 시 검색 창에 해당 병원 이름이 들어가도록 함
+            // 자동완성 항목 클릭 시 검색 창에 해당 이름이 들어가도록 함
             binding.searchView.setOnItemClickListener { parent, _, position, _ ->
                 val selectedName = parent.getItemAtPosition(position).toString()
                 binding.searchView.setText(selectedName)
@@ -109,7 +114,7 @@ class HomeFragment: Fragment() {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     val query = binding.searchView.text.toString()
                     if (query.isNotBlank()) {
-                        navigateToSearchResult(query, hospitalList)
+                        navigateToSearchResult(query, hospitalList, doctorList)
                     }
                     true
                 } else {
@@ -126,10 +131,11 @@ class HomeFragment: Fragment() {
 
     // 검색 버튼을 클릭할 경우 검색 결과 화면으로 이동한다
     // 백엔드 서버로부터 병원 정보를 받는게 아니라 로컬에 저장된 json 파일을 이용한다
-    private fun navigateToSearchResult(query: String, hospitalList: List<HospitalDetailsResponse>) {
+    private fun navigateToSearchResult(query: String, hospitalList: List<HospitalDetailsResponse>, doctorList: List<DoctorDetailsResponse>) {
         val bundle = Bundle().apply {
             putString("search_query", query)
             putParcelableArrayList("hospitals", ArrayList(hospitalList)) // Parcelable로 변환
+            putParcelableArrayList("doctors", ArrayList(doctorList))
         }
 
         val fragment = HospitalSearchResultFragment()

@@ -1,6 +1,7 @@
 package com.example.carepick.dto.doctor
 
 import android.os.Parcelable
+import com.example.carepick.model.SearchResultItem
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -12,4 +13,4 @@ data class DoctorDetailsResponse(
     val specialty: String?, // 진료과 목록
     val career: String?, // 경력
     val educationLicenses: List<String>, // 자격 면허 목록
-) : Parcelable
+) : Parcelable, SearchResultItem

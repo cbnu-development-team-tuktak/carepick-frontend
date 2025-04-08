@@ -9,7 +9,7 @@
     app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/hospitalSearchListImage"
+            android:id="@+id/searchListImage"
             android:layout_width="76dp"
             android:layout_height="76dp"
             android:layout_marginStart="16dp"
@@ -24,7 +24,7 @@
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/hospitalSearchListName"
+            android:id="@+id/searchListName"
             android:layout_width="256dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -35,11 +35,11 @@
             android:text="@string/hospital_name_example"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
+            app:layout_constraintStart_toEndOf="@+id/searchListImage"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/hospitalSearchListAddress"
+            android:id="@+id/searchListAddress"
             android:layout_width="256dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -48,15 +48,15 @@
             android:maxLines="1"
             android:text="@string/hospital_address_example"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
-            app:layout_constraintTop_toBottomOf="@+id/hospitalSearchListName" />
+            app:layout_constraintStart_toEndOf="@+id/searchListImage"
+            app:layout_constraintTop_toBottomOf="@+id/searchListName" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/hospitalSearchListRecyclerView"
+            android:id="@+id/searchListRecyclerView"
             android:layout_width="256dp"
             android:layout_height="106dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            app:layout_constraintStart_toEndOf="@+id/hospitalSearchListImage"
-            app:layout_constraintTop_toBottomOf="@+id/hospitalSearchListAddress" />
+            app:layout_constraintStart_toEndOf="@+id/searchListImage"
+            app:layout_constraintTop_toBottomOf="@+id/searchListAddress" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,6 @@
 package com.example.carepick.viewHolder
 
 import androidx.recyclerview.widget.RecyclerView
-import com.example.carepick.databinding.HospitalSearchListBinding
+import com.example.carepick.databinding.SearchListBinding
 
-class HospitalSearchListViewHolder(val binding: HospitalSearchListBinding) : RecyclerView.ViewHolder(binding.root)
+class HospitalSearchListViewHolder(val binding: SearchListBinding) : RecyclerView.ViewHolder(binding.root)

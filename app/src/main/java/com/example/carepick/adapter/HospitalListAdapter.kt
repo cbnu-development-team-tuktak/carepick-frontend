@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.carepick.R
 import com.example.carepick.databinding.HospitalCardBinding
+import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.dto.hospital.HospitalDetailsResponse
+import com.example.carepick.model.SearchResultItem
 import com.example.carepick.ui.hospital.HospitalDetailFragment
 import com.example.carepick.viewHolder.HospitalListViewHolder
 
@@ -19,6 +21,7 @@ class HospitalListAdapter(
     private val data: MutableList<HospitalDetailsResponse>,
     private val activity: FragmentActivity
 ): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
     override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
