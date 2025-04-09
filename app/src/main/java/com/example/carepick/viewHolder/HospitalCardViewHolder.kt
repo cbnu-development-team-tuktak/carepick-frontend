@@ -11,14 +11,18 @@ import com.example.carepick.databinding.HospitalCardBinding
 import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.ui.hospital.HospitalDetailFragment
 
-// layout 폴더의 hospital_card.xml 레이아웃을 객체처럼 접근하여 속성(텍스트 등등)을 수정하기 위해 binding 시키는 부분
-// HospitalListViewHolder는 병원 카드를 바인딩한 객체를 받고 리사이클러뷰를 반환한다
+// hospital_card.xml 레이아웃을 바인딩한 객체에 속성으로 접근하여 데이터를 넣는 코드
+// 뷰 어디에 어떤 데이터가 들어갈지를 보여준다
 class HospitalCardViewHolder(
     val binding: HospitalCardBinding,
     private val activity: FragmentActivity
 ) : RecyclerView.ViewHolder(binding.root){
     fun bind(hospital: HospitalDetailsResponse) {
+
+        // 진료 과목을 추출한다
         val specialties = hospital.specialties ?: emptyList()
+
+        // 첫번째 이미지를 가져와서 url을 추출한다
         val imageUrl = hospital.images?.firstOrNull()?.url ?: ""
 
         binding.hospitalCardName.text = hospital.name
@@ -30,17 +34,19 @@ class HospitalCardViewHolder(
             .error(R.drawable.warning)
             .into(binding.hospitalPicture)
 
+        // 진료 과목 개수에 따라 동적으로 생성한다
         val specialtyAdapter = SpecialtyAdapter(specialties)
         binding.hospitalCardRecyclerView.layoutManager =
             LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         binding.hospitalCardRecyclerView.adapter = specialtyAdapter
 
+        // 병원 카드를 클릭했을 때 수행할 동작
         binding.root.setOnClickListener {
             navigateToDetail(hospital)
         }
     }
 
-    // 카드를 선택했을 때 수행할 로직을 담은 코드
+    // 사용자가 선택한 병원의 상세 페이지로 이동한다
     private fun navigateToDetail(hospitalData: HospitalDetailsResponse) {
         // 카드뷰를 클릭했을 때 넘어갈 Fragment를 객체에 저장
         val hospitalDetailFragment = HospitalDetailFragment()

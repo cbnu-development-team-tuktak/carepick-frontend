@@ -14,7 +14,7 @@ import com.example.carepick.R
 import com.example.carepick.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.repository.ServiceListRepository
-import com.example.carepick.adapter.HospitalListAdapter
+import com.example.carepick.adapter.HospitalCardAdapter
 import com.example.carepick.adapter.ServiceListAdapter
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.dto.hospital.HospitalDetailsResponse
@@ -110,11 +110,11 @@ class HomeFragment: Fragment() {
                 // 병원 목록을 출력할 어댑터를 지정한다
                 // 어댑터를 통해 어떤 레이아웃에 어떤 위치에 어떤 정보가 저장되는지를 지정한다
                 // 또한 어댑터를 통해 각각의 카드뷰에 대한 리스너를 추가할 수 있다
-                binding.hospitalListRecyclerView.adapter = HospitalListAdapter(hospitalList, requireActivity())
+                binding.hospitalListRecyclerView.adapter = HospitalCardAdapter(hospitalList, requireActivity())
                 binding.hospitalListRecyclerView.setHasFixedSize(true)
 
                 // 병원 정보를 몇개 가져왔는지 확인하기 위한 코드
-                val itemCount = HospitalListAdapter(hospitalList, requireActivity()).getItemCount()
+                val itemCount = HospitalCardAdapter(hospitalList, requireActivity()).getItemCount()
                 Log.e("Item Count", "$itemCount")
             }
             // 병원 카드는 좌우 스크롤을 할 수 있도록 배치된다

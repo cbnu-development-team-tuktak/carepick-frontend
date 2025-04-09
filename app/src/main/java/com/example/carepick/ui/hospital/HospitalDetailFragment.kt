@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.carepick.R
-import com.example.carepick.adapter.DoctorListAdapter
+import com.example.carepick.adapter.DoctorCardAdapter
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.example.carepick.dto.ImageResponse
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
@@ -87,7 +87,7 @@ class HospitalDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doctors = arguments?.getParcelableArrayList<DoctorDetailsResponse>("doctors") ?: arrayListOf()
-                binding.doctorListRecyclerView.adapter = DoctorListAdapter(doctors, requireActivity())
+                binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
             } catch (e: Exception) {
                 Log.e("DoctorFetchError", "의사 목록 불러오기 실패", e)
                 // TODO: 사용자에게 에러 메시지 표시할 수도 있음

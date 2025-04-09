@@ -8,5 +8,5 @@
     android:fontFamily="@font/pretendard_regular"
     android:maxLines="1"
     android:text="진료과"
-    android:textColor="@android:color/white"
+    android:textColor="@color/black"
     android:textSize="12sp" />

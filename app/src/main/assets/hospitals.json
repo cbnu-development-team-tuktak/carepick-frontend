@@ -14,8 +14,8 @@
     "additionalInfo": {
       "hospitalId": "H0000238449",
       "open24Hours": false,
-      "emergencyTreatment": false,
-      "maleFemaleDoctorChoice": false,
+      "emergencyTreatment": true,
+      "maleFemaleDoctorChoice": true,
       "networkHospital": false,
       "freeCheckup": false,
       "nearSubway": false,
