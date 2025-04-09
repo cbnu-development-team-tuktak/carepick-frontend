@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <AutoCompleteTextView
-        android:id="@+id/hospitalSearchResultSearchView"
+        android:id="@+id/searchResultSearchView"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginStart="16dp"
@@ -26,12 +26,12 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/hospitalSearchResultRecyclerView"
+        android:id="@+id/searchResultRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="112dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/hospitalSearchResultSearchView" />
+        app:layout_constraintTop_toBottomOf="@+id/searchResultSearchView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

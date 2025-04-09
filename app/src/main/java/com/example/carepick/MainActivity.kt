@@ -3,10 +3,8 @@ package com.example.carepick
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.carepick.ui.HomeFragment // MainActivity가 로드할 Fragment
+import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
 
 
 class MainActivity : AppCompatActivity() {

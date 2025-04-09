@@ -21,8 +21,14 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.overlay.Marker
 import kotlinx.coroutines.launch
 
+// 병원 상세 페이지를 구현하는 코드
+// - 지도 화면을 불러와서 병원 위치로 이동시키고, 병원 좌표에 마커를 찍는다
+// - 병원에 대한 기본 정보를 출력한다
+// - 병원에 대한 추가 정보를 출력한다
+// - 해당 병원에 소속된 의사 목록을 출력한다
 class HospitalDetailFragment : Fragment() {
 
+    // 이 프래그먼트는 fragment_hospital_detail.xml 레이아웃을 사용함을 명시한다
     private var _binding: FragmentHospitalDetailBinding? = null
     private val binding get() = _binding!!
 

@@ -46,13 +46,19 @@ class HospitalRepository {
     }
 
     // 사전에 저장된 json 파일에서 병원 정보를 읽는 코드
+    // json 파일에서 데이터를 불러온 다음, HospitalDetailResponse 객체의 포맷으로 데이터를 가공한 다음 반환한다
     fun loadHospitalsFromAsset(context: Context): MutableList<HospitalDetailsResponse> {
+        // json을 읽는다
         val jsonString =
             context.assets.open("hospitals.json").bufferedReader().use { it.readText() }
+
+        // json의 Document 타입을 HospitalDetailResponse로 포맷을 변환한다
         val listType = object : TypeToken<List<HospitalDetailsResponse>>() {}.type
         val rawList: MutableList<HospitalDetailsResponse> = Gson().fromJson(jsonString, listType)
 
         // 병원 이름 정리
+        // 병원 이름에서 따음표나 괄호로 감싸진 부분을 제거하도록 하였음
+        // cleanHospitalName 메소드는 utils 패키지의 StringExtension.kt에 정의하였음
         return rawList.map { hospital ->
             hospital.copy(name = hospital.name.cleanHospitalName())
         }.toMutableList()
