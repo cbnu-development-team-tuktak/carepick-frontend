@@ -2,88 +2,76 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/CommonHeader"
+        layout="@layout/header_selfcheck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/inputContainer"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/CommonHeader" />
 
-    <com.google.android.material.card.MaterialCardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/inputContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:shapeAppearance="@style/TopCornersShapeAppearance"
+        android:background="@drawable/input_container_background"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="0dp"
-        app:cardElevation="0dp"
-        app:cardUseCompatPadding="false"
-        app:contentPadding="0dp"
-        android:padding="0dp"
-        android:clipToPadding="false">
+        app:layout_constraintStart_toStartOf="parent">
 
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:gravity="center_vertical"-->
-<!--            android:orientation="horizontal">-->
-
-<!--            <EditText-->
-<!--                android:id="@+id/selfCheckInput"-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:maxHeight="200dp"-->
-<!--                android:layout_weight="1"-->
-<!--                android:background="@null"-->
-<!--                android:hint="@string/self_check_text"-->
-<!--                android:padding="16dp" />-->
-
-<!--            <ImageButton-->
-<!--                android:id="@+id/selfCheckSendButton"-->
-<!--                android:layout_width="28dp"-->
-<!--                android:layout_height="28dp"-->
-<!--                android:layout_marginEnd="16dp"-->
-<!--                android:background="@null"-->
-<!--                android:src="@drawable/ic_search" />-->
-<!--        </LinearLayout>-->
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/selfCheckInput"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:padding="0dp">
+            android:background="@null"
+            android:fontFamily="@font/pretendard_regular"
+            android:hint="@string/self_check_text"
+            android:maxLines="5"
+            android:minLines="1"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/selfCheckKeywordButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/selfCheckInput"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:background="@null"
-                android:hint="@string/self_check_text"
-                android:maxLines="5"
-                android:minLines="1"
-                android:padding="16dp"
-                android:gravity="start|top"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/selfCheckSendButton" />
+        <ImageView
+            android:id="@+id/selfCheckKeywordButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:padding="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/selfCheckSendButton"
+            app:layout_constraintStart_toEndOf="@+id/selfCheckInput"
+            app:srcCompat="@drawable/keyword_btn" />
 
-            <ImageButton
-                android:id="@+id/selfCheckSendButton"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="@null"
-                android:src="@drawable/ic_search"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <ImageButton
+            android:id="@+id/selfCheckSendButton"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@null"
+            android:contentDescription="전송 버튼"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/send_btn_activated"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

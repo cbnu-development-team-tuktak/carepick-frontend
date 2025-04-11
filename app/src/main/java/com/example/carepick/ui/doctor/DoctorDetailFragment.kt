@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -45,6 +46,21 @@ class DoctorDetailFragment: Fragment() {
         binding.doctorDetailSpecialties.adapter = specialtyAdapter
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // include된 헤더 내의 뒤로가기 버튼
+        val backButton = view.findViewById<ImageButton>(R.id.btn_back)
+        backButton.setOnClickListener {
+            val manager = requireActivity().supportFragmentManager
+            if (manager.backStackEntryCount > 0) {
+                manager.popBackStack()
+            } else {
+                requireActivity().finish() // or moveTaskToBack(true)
+            }
+        }
     }
 
     override fun onDestroyView() {

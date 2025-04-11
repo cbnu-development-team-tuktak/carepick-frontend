@@ -1,334 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <!-- 공통 헤더 -->
+    <include
+        android:id="@+id/CommonHeader"
+        layout="@layout/header_detail_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_marginBottom="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- 지도 뷰 -->
-        <LinearLayout
-            android:id="@+id/HospitalDetailHeaderContainer"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"></LinearLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="252dp"
-            android:id="@+id/map_container">
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/map"
-                android:name="com.naver.maps.map.MapFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </FrameLayout>
-
-        <!-- 기타 내용들 -->
-        <LinearLayout
-            android:id="@+id/HospitalDetailBasicInfoContainer"
-            android:layout_width="match_parent"
-            android:layout_height="196dp"
-            android:orientation="horizontal" >
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="172dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/hospitalDetailImage"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/hospitalDetailName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="병원 이름"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/hospitalDetailPhone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="병원 전화번호"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/hospitalDetailAddress"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="병원 주소"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/hospitalDetailTime"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="병원 운영 시간"
-                        android:textSize="16sp" />
-
-                </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/hospitalDetailImage"
-                    android:layout_width="140dp"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:layout_weight="0"
-                    android:background="@drawable/image_background"
-                    android:clipToOutline="true"
-                    android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@tools:sample/avatars" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/HospitalDetailAddInfoContainer"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:orientation="horizontal" >
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/hospitalDetailAddInfo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="추가 정보"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginTop="16dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfo"
-                        app:layout_constraintVertical_bias="1.0">
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_1"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView2"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView2"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_2"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView1"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_3"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView4"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView1" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView4"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_4"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView3"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView2" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_5"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView6"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView3" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView6"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_6"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView5"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView4" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView7"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_7"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView8"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView5" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView8"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_8"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView7"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView6" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView9"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_9"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView10"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView7" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView10"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_10"
-                            android:textAlignment="center"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView9"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView8" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView11"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_11"
-                            android:textAlignment="center"
-                            android:visibility="visible"
-                            app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView12"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView9" />
-
-                        <TextView
-                            android:id="@+id/hospitalDetailAddInfoTextView12"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:text="@string/HOSPITAL_DETAIL_ADD_INFO_11"
-                            android:textAlignment="center"
-                            android:visibility="invisible"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView11"
-                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView10" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+    <ScrollView
+        android:id="@+id/HospitalDetailScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CommonHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <!-- 지도 뷰 -->
+            <FrameLayout
+                android:id="@+id/map_container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="252dp">
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/map"
+                    android:name="com.naver.maps.map.MapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+
+            <!-- 기타 내용들 -->
+            <LinearLayout
+                android:id="@+id/HospitalDetailBasicInfoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="196dp"
+                android:orientation="horizontal">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_width="match_parent"
+                    android:layout_height="172dp">
 
-                    <TextView
-                        android:id="@+id/hospitalDetailDoctorList"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="@string/doctor_list"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/hospitalDetailImage"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/doctorListRecyclerView"
+                        <TextView
+                            android:id="@+id/hospitalDetailName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="병원 이름"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/hospitalDetailPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="병원 전화번호"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/hospitalDetailAddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="병원 주소"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/hospitalDetailTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="병원 운영 시간"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/hospitalDetailImage"
+                        android:layout_width="140dp"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:layout_weight="0"
+                        android:background="@drawable/image_background"
+                        android:clipToOutline="true"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:srcCompat="@tools:sample/avatars" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/HospitalDetailAddInfoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:orientation="horizontal">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/hospitalDetailDoctorList" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+                        app:layout_constraintTop_toTopOf="parent">
 
-    </LinearLayout>
-</ScrollView>
+                        <TextView
+                            android:id="@+id/hospitalDetailAddInfo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="추가 정보"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="16dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfo"
+                            app:layout_constraintVertical_bias="1.0">
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_1"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView2"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView2"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_2"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView1"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView3"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_3"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView4"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView1" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView4"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_4"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView3"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView2" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView5"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_5"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView6"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView3" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView6"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_6"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView5"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView4" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView7"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_7"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView8"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView5" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView8"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_8"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView7"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView6" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView9"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_9"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView10"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView7" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView10"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_10"
+                                android:textAlignment="center"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView9"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView8" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView11"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_11"
+                                android:textAlignment="center"
+                                android:visibility="visible"
+                                app:layout_constraintEnd_toStartOf="@+id/hospitalDetailAddInfoTextView12"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView9" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddInfoTextView12"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:text="@string/HOSPITAL_DETAIL_ADD_INFO_11"
+                                android:textAlignment="center"
+                                android:visibility="invisible"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/hospitalDetailAddInfoTextView11"
+                                app:layout_constraintTop_toBottomOf="@+id/hospitalDetailAddInfoTextView10" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/hospitalDetailDoctorList"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="@string/doctor_list"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/doctorListRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="16dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailDoctorList" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

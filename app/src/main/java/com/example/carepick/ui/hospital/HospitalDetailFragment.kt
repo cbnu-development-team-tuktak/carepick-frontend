@@ -5,6 +5,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -104,6 +107,12 @@ class HospitalDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(0, statusBarHeight, 0, 0) // 상단 padding만 수동 적용
+            insets
+        }
+
         val fm = childFragmentManager
         var mapFragment = fm.findFragmentById(R.id.map) as? MapFragment
         val latitude = arguments?.getDouble("latitude") ?: 0.0
@@ -124,6 +133,17 @@ class HospitalDetailFragment : Fragment() {
             val marker = Marker()
             marker.position = location
             marker.map = naverMap
+        }
+
+        // include된 헤더 내의 뒤로가기 버튼
+        val backButton = view.findViewById<ImageButton>(R.id.btn_back)
+        backButton.setOnClickListener {
+            val manager = requireActivity().supportFragmentManager
+            if (manager.backStackEntryCount > 0) {
+                manager.popBackStack()
+            } else {
+                requireActivity().finish() // or moveTaskToBack(true)
+            }
         }
     }
 
