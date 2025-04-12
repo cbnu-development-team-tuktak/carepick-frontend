@@ -7,6 +7,7 @@
     android:padding="12dp" >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:background="#F4FBF8"
         android:layout_width="160dp"
         android:layout_height="260dp">
 

@@ -24,7 +24,7 @@ class HospitalSearchListViewHolder(
         Glide.with(binding.root)
             .load(imageUrl)
             .placeholder(R.drawable.sand_clock)
-            .error(R.drawable.warning)
+            .error(R.drawable.hospital_placeholder)
             .into(binding.searchListImage)
 
         // 진료과 목록에 따라 동적으로 진료과를 카드에 추가한다

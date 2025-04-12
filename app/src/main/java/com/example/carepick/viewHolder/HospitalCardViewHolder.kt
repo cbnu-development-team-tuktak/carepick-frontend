@@ -31,7 +31,7 @@ class HospitalCardViewHolder(
         Glide.with(binding.root)
             .load(imageUrl)
             .placeholder(R.drawable.sand_clock)
-            .error(R.drawable.warning)
+            .error(R.drawable.hospital_placeholder)
             .into(binding.hospitalPicture)
 
         // 진료 과목 개수에 따라 동적으로 생성한다

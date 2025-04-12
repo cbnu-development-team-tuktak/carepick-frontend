@@ -63,7 +63,7 @@ class HospitalDetailFragment : Fragment() {
         Glide.with(binding.root)
             .load(images)
             .placeholder(R.drawable.sand_clock)
-            .error(R.drawable.warning)
+            .error(R.drawable.hospital_placeholder)
             .into(binding.hospitalDetailImage)
 
         // 병원 추가 정보 표시
@@ -91,10 +91,17 @@ class HospitalDetailFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val doctors = arguments?.getParcelableArrayList<DoctorDetailsResponse>("doctors") ?: arrayListOf()
-                binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
+
+                // 의사 목록이 비어 있으면 안내 메시지를 보여줌
+                if (doctors.isEmpty()) {
+                    binding.doctorListEmptyText.visibility = View.VISIBLE
+                } else {
+                    binding.doctorListEmptyText.visibility = View.GONE
+                    binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
+                }
             } catch (e: Exception) {
                 Log.e("DoctorFetchError", "의사 목록 불러오기 실패", e)
-                // TODO: 사용자에게 에러 메시지 표시할 수도 있음
+                binding.doctorListEmptyText.visibility = View.VISIBLE
             }
 
             // 의사 카드들은 좌우 스크롤을 할 수 있도록 수평 배치한다

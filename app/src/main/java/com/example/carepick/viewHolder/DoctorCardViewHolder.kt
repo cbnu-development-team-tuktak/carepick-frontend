@@ -23,7 +23,7 @@ class DoctorCardViewHolder(
         Glide.with(binding.root)
             .load(doctor.profileImage)
             .placeholder(R.drawable.sand_clock)
-            .error(R.drawable.warning)
+            .error(R.drawable.doctor_placeholder)
             .into(binding.doctorImage)
 
         // 카드를 선택했을 때 다음의 동작들을 수행한다

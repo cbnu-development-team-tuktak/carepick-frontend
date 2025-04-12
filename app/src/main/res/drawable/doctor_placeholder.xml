@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 병원 아이콘 이미지 (패딩 포함) -->
+    <item>
+        <inset
+            android:drawable="@drawable/ic_doctor_no_color"
+            android:insetLeft="50dp"
+            android:insetTop="50dp"
+            android:insetRight="50dp"
+            android:insetBottom="50dp" />
+    </item>
+
+</layer-list>

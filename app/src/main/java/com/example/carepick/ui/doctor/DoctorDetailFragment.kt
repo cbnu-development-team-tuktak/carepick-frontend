@@ -38,7 +38,7 @@ class DoctorDetailFragment: Fragment() {
         Glide.with(binding.root)
             .load(profileImage)
             .placeholder(R.drawable.sand_clock)
-            .error(R.drawable.warning)
+            .error(R.drawable.doctor_placeholder)
             .into(binding.doctorDetailImage)
 
         // 진료과를 동적으로 넣는다

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:background="@color/white">
+    android:background="#F4FBF8">
 
     <!-- 뒤로가기 버튼 -->
     <ImageButton
@@ -13,10 +13,10 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
-        android:background="@color/white"
         android:contentDescription="Back"
         android:padding="16dp"
         android:scaleType="centerInside"
+        android:background="#F4FBF8"
         android:src="@drawable/back_btn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
