@@ -1,6 +1,7 @@
 package com.example.carepick
 
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -9,7 +10,6 @@ import com.example.carepick.ui.favorite.FavoriteFragment
 import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
 import com.example.carepick.ui.profile.UserProfileFragment
 import com.example.carepick.ui.search.SearchResultFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,27 +26,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<ConstraintLayout>(R.id.nav_home).setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HomeFragment())
-                .commit()
+            loadFragment(HomeFragment())
+            updateNavIcons(R.id.nav_home)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_search).setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, SearchResultFragment())
-                .commit()
+            loadFragment(SearchResultFragment())
+            updateNavIcons(R.id.nav_search)
         }
 
-        findViewById<ConstraintLayout>(R.id.nav_favorite).setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, FavoriteFragment())
-                .commit()
+        findViewById<ConstraintLayout>(R.id.nav_recommand).setOnClickListener {
+            loadFragment(FavoriteFragment())
+            updateNavIcons(R.id.nav_recommand)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_profile).setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, UserProfileFragment())
-                .commit()
+            loadFragment(UserProfileFragment())
+            updateNavIcons(R.id.nav_profile)
         }
     }
 
@@ -54,5 +50,31 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
+    }
+
+    fun updateNavIcons(activeId: Int) {
+        // 모든 아이콘을 비활성화된 상태로 초기화
+        findViewById<ImageView>(R.id.nav_home_icon).setImageResource(R.drawable.ic_home_deactivated)
+        findViewById<ImageView>(R.id.nav_search_icon).setImageResource(R.drawable.ic_search_deactivated)
+        findViewById<ImageView>(R.id.nav_recommand_icon).setImageResource(R.drawable.ic_recommand_deactivated)
+        findViewById<ImageView>(R.id.nav_profile_icon).setImageResource(R.drawable.ic_profile_deactivated)
+
+        // -1이면 아무것도 활성화하지 않음
+        if (activeId == -1) return
+
+        // 선택된 아이콘만 활성화 상태로 교체
+        when (activeId) {
+            R.id.nav_home -> findViewById<ImageView>(R.id.nav_home_icon)
+                .setImageResource(R.drawable.ic_home_activated)
+
+            R.id.nav_search -> findViewById<ImageView>(R.id.nav_search_icon)
+                .setImageResource(R.drawable.ic_search_activated)
+
+            R.id.nav_recommand -> findViewById<ImageView>(R.id.nav_recommand_icon)
+                .setImageResource(R.drawable.ic_recommand_activated)
+
+            R.id.nav_profile -> findViewById<ImageView>(R.id.nav_profile_icon)
+                .setImageResource(R.drawable.ic_profile_activated)
+        }
     }
 }

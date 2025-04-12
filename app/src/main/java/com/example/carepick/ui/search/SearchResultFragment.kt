@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.carepick.MainActivity
+import com.example.carepick.R
 import com.example.carepick.adapter.SearchResultListAdapter
 import com.example.carepick.databinding.FragmentSearchResultBinding
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
@@ -71,6 +73,11 @@ class SearchResultFragment: Fragment() {
         binding.searchResultRecyclerView.adapter = SearchResultListAdapter(allResults, requireActivity())
         // 병원/의사 목록은 LinearLayout 형태로 출력한다
         binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as? MainActivity)?.updateNavIcons(R.id.nav_search)
     }
 
     override fun onDestroyView() {

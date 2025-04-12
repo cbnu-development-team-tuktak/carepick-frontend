@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.carepick.MainActivity
 import com.example.carepick.R
 import com.example.carepick.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
@@ -156,6 +157,11 @@ class HomeFragment: Fragment() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as? MainActivity)?.updateNavIcons(R.id.nav_home)
     }
 
     override fun onDestroyView() {

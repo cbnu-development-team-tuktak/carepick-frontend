@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.carepick.MainActivity
 import com.example.carepick.R
 import com.example.carepick.adapter.SpecialtyAdapter
 import com.example.carepick.databinding.FragmentDoctorDetailBinding
@@ -61,6 +62,11 @@ class DoctorDetailFragment: Fragment() {
                 requireActivity().finish() // or moveTaskToBack(true)
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (requireActivity() as? MainActivity)?.updateNavIcons(-1)
     }
 
     override fun onDestroyView() {
