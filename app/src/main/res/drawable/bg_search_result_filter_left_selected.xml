@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <!-- 둥근 모서리 설정 -->
+    <corners
+        android:topLeftRadius="12dp"
+        android:topRightRadius="0dp"
+        android:bottomLeftRadius="12dp"
+        android:bottomRightRadius="0dp" />
+    <!-- 내부 색 지정 -->
+    <solid android:color="#00DEA4" />
+</shape>

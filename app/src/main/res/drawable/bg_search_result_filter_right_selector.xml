@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 선택되었을 때 -->
+    <item android:state_selected="true" android:drawable="@drawable/bg_search_result_filter_right_selected" />
+
+    <!-- 기본 상태 -->
+    <item android:drawable="@drawable/bg_search_result_filter_right" />
+</selector>

@@ -61,52 +61,57 @@ class SearchResultFragment: Fragment() {
             insets
         }
 
+        // 병원 정보 목록을 가져온다
+        val hospitals = hospitalRepository.loadHospitalsFromAsset(requireContext())
+        // 병원 정보에 존재하는 의사 정보 객체를 추출하여 별도 객체 리스트로 저장한다
+        val doctors = hospitals.flatMap { it.doctors ?: emptyList() }
+
+
         // <<HomeFragment에서 보낸 데이터를 가져오는 코드>>
-        //
         // 사용자가 검색했던 키워드를 가져온다
-        val query = arguments?.getString("search_query") ?: return
-        // HomeFragment로부터 받은 병원 정보 목록을 가져온다
-        val hospitals = arguments?.getParcelableArrayList<HospitalDetailsResponse>("hospitals") ?: return
-        // HomeFragment로부터 받은 의사 정보 목록을 가져온다
-        val doctors = arguments?.getParcelableArrayList<DoctorDetailsResponse>("doctors") ?: return
+        val query = arguments?.getString("search_query")
 
+        if (!query.isNullOrBlank()) {
 
-        // <<병원 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-        //
-        val filteredHospitals = hospitals.filter { hospital ->
-            hospital.name.contains(query, ignoreCase = true)
-        }.toMutableList()
+            // <<병원 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
+            // <<의사 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
+            val filteredHospitals = hospitals.filter { it.name.contains(query, ignoreCase = true) }
+            val filteredDoctors = doctors.filter { it.name.contains(query, ignoreCase = true) }
 
-        // <<의사 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-        //
-        val filteredDoctors = doctors.filter { doctor ->
-            doctor.name.contains(query, ignoreCase = true)
-        }.toMutableList()
+            // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
+            val allResults = mutableListOf<SearchResultItem>().apply {
+                addAll(filteredHospitals)
+                addAll(filteredDoctors)
+            }
 
-        // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
-        val allResults = mutableListOf<SearchResultItem>()
-        // 병원 정보와 의사 정보를 집어넣는다
-        allResults.addAll(filteredHospitals)
-        allResults.addAll(filteredDoctors)
+            // 검색 결과가 없을 경우 안내 메시지를 표시한다
+            if (allResults.isEmpty()) {
+                binding.searchResultErrorText.visibility = View.VISIBLE
+                binding.searchResultRecyclerView.visibility = View.GONE
+            } else {
+                binding.searchResultErrorText.visibility = View.GONE
+                binding.searchResultRecyclerView.visibility = View.VISIBLE
 
-        // 병원/의사 목록을 출력할 어댑터를 호출한다
-        binding.searchResultRecyclerView.adapter = SearchResultListAdapter(allResults, requireActivity())
-        // 병원/의사 목록은 LinearLayout 형태로 출력한다
-        binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                // 병원/의사 목록을 출력할 어댑터를 호출한다
+                binding.searchResultRecyclerView.adapter = SearchResultListAdapter(allResults, requireActivity())
+                // 병원/의사 목록은 LinearLayout 형태로 출력한다
+                binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            }
+        } else {
+            // 하단 네비게이션을 통해 처음 검색 결과 뷰로 넘어온 경우
+            binding.searchResultRecyclerView.visibility = View.GONE
+            binding.searchResultErrorText.visibility = View.GONE
+            binding.searchResultRecentSearchText.visibility = View.VISIBLE
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
-
-            val hospitalList = hospitalRepository.loadHospitalsFromAsset(requireContext())
-
-            // 병원 정보에 존재하는 의사 정보 객체를 추출하여 별도 객체 리스트로 저장한다
-            val doctorList = hospitalList.flatMap { it.doctors ?: emptyList() }
 
             // <<검색창에서 병원 이름을 자동 완성하는 부분>>
             //
             // 병원 정보에서 병원 이름들만 뽑아낸다
-            val hospitalNames = hospitalList.map { it.name }
+            val hospitalNames = hospitals.map { it.name }
             // 의사 정보에서 의사 이름들만 뽑아낸다
-            val doctorNames = doctorList.map { it.name }
+            val doctorNames = doctors.map { it.name }
 
             Log.d("AutoComplete", "names: $hospitalNames")
 
@@ -128,7 +133,7 @@ class SearchResultFragment: Fragment() {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     val query = binding.searchResultSearchView.text.toString()
                     if (query.isNotBlank()) {
-                        navigateToSearchResult(query, hospitalList, doctorList)
+                        navigateToSearchResult(query, hospitals, doctors)
                     }
                     true
                 } else {

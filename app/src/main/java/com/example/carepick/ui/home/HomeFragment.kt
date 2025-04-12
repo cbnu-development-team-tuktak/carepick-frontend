@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -74,6 +76,14 @@ class HomeFragment: Fragment() {
     // 프래그먼트 내부의 위젯들이 생성된 후 작동하는 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // 상태창 영역 침범하지 않도록 패딩 부여
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            view.setPadding(0, statusBarHeight, 0, 0) // 상단 padding만 수동 적용
+
+            insets
+        }
 
         // 이 내부의 코드는 HomeFragment의 생명주기를 따른다
         // 즉, 사용자가 HomeFragment에 있을 때에만 내부 코드들이 실행되고,
