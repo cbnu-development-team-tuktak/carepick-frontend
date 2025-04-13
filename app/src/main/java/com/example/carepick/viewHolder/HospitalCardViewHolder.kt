@@ -57,7 +57,6 @@ class HospitalCardViewHolder(
             putString("phoneNumber", hospitalData.phoneNumber)
             putString("homepage", hospitalData.homepage)
             putString("address", hospitalData.address)
-            putString("operatingHours", hospitalData.operatingHours)
 
             hospitalData.location?.latitude?.let { putDouble("latitude", it) }
             hospitalData.location?.longitude?.let { putDouble("longitude", it) }
@@ -76,6 +75,10 @@ class HospitalCardViewHolder(
 
             hospitalData.additionalInfo?.let {
                 putParcelable("additionalInfo", it)
+            }
+
+            hospitalData.operatingHours.let {
+                putSerializable("operatingHours", HashMap(it)) // Map은 직접 Serializable로 넘겨야 함
             }
         }
 

@@ -54,16 +54,15 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="172dp">
+                    android:layout_height="wrap_content">
 
-                    <LinearLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="16dp"
-                        android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/hospitalDetailImage"
                         app:layout_constraintStart_toStartOf="parent"
@@ -71,42 +70,151 @@
 
                         <TextView
                             android:id="@+id/hospitalDetailName"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
                             android:fontFamily="@font/pretendard_regular"
                             android:text="병원 이름"
                             android:textSize="20sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
-                        <TextView
-                            android:id="@+id/hospitalDetailPhone"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:id="@+id/linearLayout"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="병원 전화번호"
-                            android:textSize="16sp" />
+                            android:layout_marginTop="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/hospitalDetailName">
 
-                        <TextView
-                            android:id="@+id/hospitalDetailAddress"
-                            android:layout_width="match_parent"
+                            <ImageView
+                                android:id="@+id/imageView"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginEnd="8dp"
+                                android:src="@drawable/ic_phone" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailPhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:includeFontPadding="false"
+                                android:lineSpacingExtra="0dp"
+                                android:paddingTop="0dp"
+                                android:paddingBottom="0dp"
+                                android:text="병원 전화번호"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/linearLayout2"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="병원 주소"
-                            android:textSize="16sp" />
+                            android:layout_marginTop="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
 
-                        <TextView
-                            android:id="@+id/hospitalDetailTime"
-                            android:layout_width="match_parent"
+                            <ImageView
+                                android:id="@+id/imageView2"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginEnd="8dp"
+                                app:srcCompat="@drawable/ic_map" />
+
+                            <TextView
+                                android:id="@+id/hospitalDetailAddress"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_regular"
+                                android:includeFontPadding="false"
+                                android:text="병원 주소"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0"
-                            android:fontFamily="@font/pretendard_regular"
-                            android:text="병원 운영 시간"
-                            android:textSize="16sp" />
+                            android:layout_marginTop="8dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-                    </LinearLayout>
+                            <LinearLayout
+                                android:id="@+id/linearLayout3"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/imageView3"
+                                    android:layout_width="16dp"
+                                    android:layout_height="16dp"
+                                    android:layout_marginEnd="8dp"
+                                    app:srcCompat="@drawable/ic_clock" />
+
+                                <TextView
+                                    android:id="@+id/hospitalDetailTimeWeekDay"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/pretendard_regular"
+                                    android:includeFontPadding="false"
+                                    android:text="평일:"
+                                    android:textSize="16sp" />
+
+                                <TextView
+                                    android:id="@+id/hospitalDetailTimeWeekDayText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:fontFamily="@font/pretendard_regular"
+                                    android:includeFontPadding="false"
+                                    android:text="평일 운영 시간"
+                                    android:textSize="16sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+                                <TextView
+                                    android:id="@+id/hospitalDetailTimeWeekend"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="24dp"
+                                    android:fontFamily="@font/pretendard_regular"
+                                    android:includeFontPadding="false"
+                                    android:text="주말:"
+                                    android:textSize="16sp" />
+
+                                <TextView
+                                    android:id="@+id/hospitalDetailTimeWeekendText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:fontFamily="@font/pretendard_regular"
+                                    android:includeFontPadding="false"
+                                    android:text="주말 운영 시간"
+                                    android:textSize="16sp" />
+                            </LinearLayout>
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <ImageView
                         android:id="@+id/hospitalDetailImage"
