@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.androidx.databinding.runtime)
     implementation(libs.play.services.maps)
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

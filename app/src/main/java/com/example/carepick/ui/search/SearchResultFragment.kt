@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.MainActivity
@@ -37,6 +38,7 @@ class SearchResultFragment: Fragment() {
     private val binding get() = _binding!!
 
     private val hospitalRepository = HospitalRepository()
+    private val selectedFilters = mutableListOf<String>() // 추가: 선택된 필터를 저장할 리스트
 
 
     // 프래그먼트가 생성되었을 때 실행할 코드
@@ -53,11 +55,22 @@ class SearchResultFragment: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // BottomSheet 결과 수신해서 정렬 버튼 텍스트 변경
+        setFragmentResultListener("sort_filter_result") { _, bundle ->
+            val selectedText = bundle.getString("selected_filter_text") ?: ""
+                binding.searchResultSortButtonText.text = if (selectedText.isNotEmpty()) selectedText else "정렬"
+            val backgroundRes = if (selectedText.isNotEmpty()) {
+                R.drawable.bg_search_result_btn_active  // 초록색
+            } else {
+                R.drawable.bg_search_result_btn         // 회색 기본값
+            }
+            binding.searchResultSortButton.setBackgroundResource(backgroundRes)
+        }
+
         // 상태창 영역 침범하지 않도록 패딩 부여
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             view.setPadding(0, statusBarHeight, 0, 0) // 상단 padding만 수동 적용
-
             insets
         }
 
@@ -140,6 +153,33 @@ class SearchResultFragment: Fragment() {
                     false
                 }
             }
+        }
+
+        // 정렬 버튼 클릭 이벤트 추가
+        binding.searchResultSortButton.setOnClickListener {
+            val bottomSheet = SortFilterBottomSheetFragment()
+            bottomSheet.show(parentFragmentManager, bottomSheet.tag)
+        }
+    }
+
+    // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
+    private fun updateFilter(filterName: String, isChecked: Boolean) {
+        if (isChecked) {
+            if (!selectedFilters.contains(filterName)) selectedFilters.add(filterName)
+        } else {
+            selectedFilters.remove(filterName)
+        }
+        updateSearchSortButton()
+    }
+
+    // 추가: 정렬 버튼 UI 업데이트
+    private fun updateSearchSortButton() {
+        if (selectedFilters.isNotEmpty()) {
+            binding.searchResultSortButton.setBackgroundResource(R.drawable.bg_search_result_btn_active)
+            binding.searchResultSortButtonText.text = selectedFilters.joinToString(", ")
+        } else {
+            binding.searchResultSortButton.setBackgroundResource(R.drawable.bg_search_result_btn)
+            binding.searchResultSortButtonText.text = "정렬"
         }
     }
 

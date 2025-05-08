@@ -17,4 +17,13 @@
     <string name="hospital_name_example">베이드의원</string>
     <string name="hospital_address_example">병원 주소</string>
     <string name="doctor_detail_career_example">의사의 경력이 들어갈 자리</string>
+
+    <string name="sort_filter">정렬 필터</string>
+    <string name="sort_distance">거리순</string>
+    <string name="sort_experience">근속연수순</string>
+    <string name="sort_education">학력순</string>
+    <string name="apply_filter">필터 적용</string>
+
+    <string name="close">닫기</string>
+
 </resources>
