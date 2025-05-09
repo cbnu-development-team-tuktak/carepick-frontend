@@ -29,3 +29,4 @@
             android:fontFamily="@font/pretendard_semibold"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
+</LinearLayout>

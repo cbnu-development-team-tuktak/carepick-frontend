@@ -26,4 +26,6 @@
 
     <string name="close">닫기</string>
 
+    <string name="distance_range">거리 범위</string>
+
 </resources>

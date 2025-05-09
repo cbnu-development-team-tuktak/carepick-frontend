@@ -160,6 +160,14 @@ class SearchResultFragment: Fragment() {
             val bottomSheet = SortFilterBottomSheetFragment()
             bottomSheet.show(parentFragmentManager, bottomSheet.tag)
         }
+        // 필터 버튼 클릭 이벤트 추가
+        binding.searchResultFilterButton.setOnClickListener {
+            val filterFragment = FilterFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, filterFragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
