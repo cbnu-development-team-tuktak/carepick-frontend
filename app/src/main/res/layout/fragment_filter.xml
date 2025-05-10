@@ -20,7 +20,6 @@
             android:id="@+id/top_bar"
             layout="@layout/toolbar_filter" />
     </FrameLayout>
-
     <!-- 거리 범위 -->
     <LinearLayout
         android:id="@+id/distance_section"
@@ -458,4 +457,27 @@
             layout="@layout/fragment_disease_selection" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- ⬇️ 진료과 구분선 -->
+    <View
+        android:id="@+id/divider_department_section"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#B4B4B4"
+        app:layout_constraintTop_toBottomOf="@id/disease_section_wrapper"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/department_section_wrapper"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/divider_department_section"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <include
+            android:id="@+id/include_department_selection"
+            layout="@layout/fragment_department_selection" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,6 +14,9 @@ import java.util.*
 
 class FilterFragment : Fragment() {
 
+    private val selectedDiseaseTags = mutableSetOf<String>()
+    private val selectedDepartmentTags = mutableSetOf<String>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,8 +29,7 @@ class FilterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // 🔙 뒤로가기 버튼
-        val backButton = view.findViewById<View>(R.id.btn_back)
-        backButton?.setOnClickListener {
+        view.findViewById<View>(R.id.btn_back)?.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
 
@@ -72,26 +74,17 @@ class FilterFragment : Fragment() {
             dialog.show()
         }
 
-        startTimeIcon.setOnClickListener {
-            showTimePicker(startTimeText)
-        }
-
-        endTimeIcon.setOnClickListener {
-            showTimePicker(endTimeText)
-        }
+        startTimeIcon.setOnClickListener { showTimePicker(startTimeText) }
+        endTimeIcon.setOnClickListener { showTimePicker(endTimeText) }
 
         // ⏳ 시간 범위 Spinner 설정
         val spinner = view.findViewById<Spinner>(R.id.time_range_spinner)
         val spinnerIcon = view.findViewById<ImageView>(R.id.spinner_dropdown_icon)
         val timeRanges = listOf("30분", "1시간", "1시간 30분", "2시간", "2시간 30분", "3시간")
-
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, timeRanges)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
-
-        spinnerIcon.setOnClickListener {
-            spinner.performClick()
-        }
+        spinnerIcon.setOnClickListener { spinner.performClick() }
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
@@ -146,15 +139,11 @@ class FilterFragment : Fragment() {
         val selectedDays = mutableSetOf<String>()
         val dayGroupSpinner = view.findViewById<Spinner>(R.id.day_group_spinner)
         val dayGroupIcon = view.findViewById<ImageView>(R.id.day_group_icon)
-
         val dayGroupOptions = listOf("선택", "평일", "주말", "매일")
         val groupAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, dayGroupOptions)
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dayGroupSpinner.adapter = groupAdapter
-
-        dayGroupIcon.setOnClickListener {
-            dayGroupSpinner.performClick()
-        }
+        dayGroupIcon.setOnClickListener { dayGroupSpinner.performClick() }
 
         dayGroupSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -184,46 +173,79 @@ class FilterFragment : Fragment() {
             }
         }
 
-        // ✅ 🔍 질병 검색 기능
-        val searchInput = view.findViewById<EditText>(R.id.search_input)
-        val suggestionBox = view.findViewById<LinearLayout>(R.id.suggestion_box)
-        val suggestion1 = view.findViewById<TextView>(R.id.suggestion_1)
-        val suggestion2 = view.findViewById<TextView>(R.id.suggestion_2)
-        val suggestion3 = view.findViewById<TextView>(R.id.suggestion_3)
-        val selectedTagsContainer = view.findViewById<LinearLayout>(R.id.selected_tags_container)
+        // ✅ 질병 검색 및 태그 추가
+        setupSearchTagging(
+            view,
+            searchInputId = R.id.search_input,
+            suggestionBoxId = R.id.suggestion_box,
+            suggestionIds = listOf(R.id.suggestion_1, R.id.suggestion_2, R.id.suggestion_3),
+            tagContainerId = R.id.selected_tags_container,
+            sampleSuggestions = listOf("감기", "기흉", "각막염"),
+            selectedSet = selectedDiseaseTags
+        )
+
+        // ✅ 진료과 검색 및 태그 추가
+        setupSearchTagging(
+            view,
+            searchInputId = R.id.department_search_input,
+            suggestionBoxId = R.id.department_suggestion_box,
+            suggestionIds = listOf(R.id.suggestion_1, R.id.suggestion_2, R.id.suggestion_3),
+            tagContainerId = R.id.department_selected_tags_container,
+            sampleSuggestions = listOf("이비인후과", "안과", "가정의학과"),
+            selectedSet = selectedDepartmentTags
+        )
+    }
+
+    private fun setupSearchTagging(
+        root: View,
+        searchInputId: Int,
+        suggestionBoxId: Int,
+        suggestionIds: List<Int>,
+        tagContainerId: Int,
+        sampleSuggestions: List<String>,
+        selectedSet: MutableSet<String>
+    ) {
+        val searchInput = root.findViewById<EditText>(searchInputId)
+        val suggestionBox = root.findViewById<LinearLayout>(suggestionBoxId)
+        val suggestions = suggestionIds.map { root.findViewById<TextView>(it) }
+        val tagContainer = root.findViewById<LinearLayout>(tagContainerId)
 
         searchInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val query = s.toString()
-                if (query.isNotEmpty()) {
-                    suggestion1.text = "감기"
-                    suggestion2.text = "기흉"
-                    suggestion3.text = "각막염"
-                    suggestion1.visibility = View.VISIBLE
-                    suggestion2.visibility = View.VISIBLE
-                    suggestion3.visibility = View.VISIBLE
+                if (s.toString().isNotEmpty()) {
                     suggestionBox.visibility = View.VISIBLE
+                    suggestions.zip(sampleSuggestions).forEach { (tv, text) ->
+                        tv.text = text
+                        tv.visibility = View.VISIBLE
+                    }
                 } else {
-                    suggestion1.visibility = View.GONE
-                    suggestion2.visibility = View.GONE
-                    suggestion3.visibility = View.GONE
                     suggestionBox.visibility = View.GONE
+                    suggestions.forEach { it.visibility = View.GONE }
                 }
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // ✅ 태그 추가 기능
-        suggestion1.setOnClickListener { addTag("감기") }
-        suggestion2.setOnClickListener { addTag("기흉") }
-        suggestion3.setOnClickListener { addTag("각막염") }
+        suggestions.forEach { suggestion ->
+            suggestion.setOnClickListener {
+                val text = suggestion.text.toString()
+                if (selectedSet.add(text)) {
+                    val tagView = LayoutInflater.from(context).inflate(R.layout.tag_item, tagContainer, false)
+                    val tagText = tagView.findViewById<TextView>(R.id.tag_text)
+                    val tagClose = tagView.findViewById<ImageView>(R.id.tag_close)
+                    tagText.text = text
+                    tagClose.setOnClickListener {
+                        tagContainer.removeView(tagView)
+                        selectedSet.remove(text)
+                    }
+                    tagContainer.addView(tagView)
+                }
+            }
+        }
     }
 
-    private fun updateDayButtonUI(
-        dayButtons: Map<String, TextView>,
-        selectedDays: Set<String>
-    ) {
+    private fun updateDayButtonUI(dayButtons: Map<String, TextView>, selectedDays: Set<String>) {
         for ((day, btn) in dayButtons) {
             btn.setBackgroundResource(
                 if (selectedDays.contains(day)) R.drawable.bg_day_selected
@@ -235,20 +257,5 @@ class FilterFragment : Fragment() {
     private fun <T> MutableSet<T>.setAll(vararg items: T) {
         clear()
         addAll(items)
-    }
-
-    private fun addTag(tagText: String) {
-        val tagContainer = view?.findViewById<LinearLayout>(R.id.selected_tags_container) ?: return
-
-        val tagView = LayoutInflater.from(context).inflate(R.layout.tag_item, tagContainer, false)
-        val textView = tagView.findViewById<TextView>(R.id.tag_text)
-        val closeBtn = tagView.findViewById<ImageView>(R.id.tag_close)
-
-        textView.text = tagText
-        closeBtn.setOnClickListener {
-            tagContainer.removeView(tagView)
-        }
-
-        tagContainer.addView(tagView)
     }
 }
