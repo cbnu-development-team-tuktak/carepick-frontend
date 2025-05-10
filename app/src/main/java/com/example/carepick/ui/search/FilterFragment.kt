@@ -2,6 +2,8 @@ package com.example.carepick.ui.search
 
 import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,10 +31,9 @@ class FilterFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        // 📏 SeekBar 설정
+        // 📏 거리 범위 SeekBar
         val seekBar = view.findViewById<SeekBar>(R.id.distance_slider)
         val label = view.findViewById<TextView>(R.id.slider_value_label)
-
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (seekBar != null) {
@@ -45,12 +46,11 @@ class FilterFragment : Fragment() {
                     label.visibility = View.VISIBLE
                 }
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // 🕐 시작/종료 시간 설정
+        // 🕐 운영시간 설정
         val startTimeText = view.findViewById<TextView>(R.id.start_time_text)
         val startTimeIcon = view.findViewById<ImageView>(R.id.start_time_icon)
         val endTimeText = view.findViewById<TextView>(R.id.end_time_text)
@@ -83,16 +83,13 @@ class FilterFragment : Fragment() {
         // ⏳ 시간 범위 Spinner 설정
         val spinner = view.findViewById<Spinner>(R.id.time_range_spinner)
         val spinnerIcon = view.findViewById<ImageView>(R.id.spinner_dropdown_icon)
-        val timeRanges = listOf(
-            "30분", "1시간", "1시간 30분", "2시간", "2시간 30분",
-            "3시간"
-        )
+        val timeRanges = listOf("30분", "1시간", "1시간 30분", "2시간", "2시간 30분", "3시간")
 
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, timeRanges)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
-        spinnerIcon?.setOnClickListener {
+        spinnerIcon.setOnClickListener {
             spinner.performClick()
         }
 
@@ -100,15 +97,12 @@ class FilterFragment : Fragment() {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
                 val selectedRange = parent.getItemAtPosition(position).toString()
                 val startText = startTimeText.text.toString()
-
                 val regex = Regex("오(전|후) (\\d{2}) : (\\d{2})")
                 val match = regex.find(startText)
-
                 if (match != null) {
                     val ampm = match.groupValues[1]
                     var hour = match.groupValues[2].toInt()
                     val minute = match.groupValues[3].toInt()
-
                     if (ampm == "오후" && hour != 12) hour += 12
                     if (ampm == "오전" && hour == 12) hour = 0
 
@@ -133,16 +127,13 @@ class FilterFragment : Fragment() {
                     val isAM = endHour24 < 12
                     val endHour12 = if (endHour24 % 12 == 0) 12 else endHour24 % 12
                     val endAmPm = if (isAM) "오전" else "오후"
-
-                    val formattedEndTime = String.format("%s %02d : %02d", endAmPm, endHour12, endMinute)
-                    endTimeText.text = formattedEndTime
+                    endTimeText.text = String.format("%s %02d : %02d", endAmPm, endHour12, endMinute)
                 }
             }
-
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // ✅ 요일 선택 기능
+        // ✅ 요일 선택
         val dayButtons = mapOf(
             "월" to view.findViewById<TextView>(R.id.day_mon),
             "화" to view.findViewById<TextView>(R.id.day_tue),
@@ -152,7 +143,6 @@ class FilterFragment : Fragment() {
             "토" to view.findViewById<TextView>(R.id.day_sat),
             "일" to view.findViewById<TextView>(R.id.day_sun)
         )
-
         val selectedDays = mutableSetOf<String>()
         val dayGroupSpinner = view.findViewById<Spinner>(R.id.day_group_spinner)
         val dayGroupIcon = view.findViewById<ImageView>(R.id.day_group_icon)
@@ -162,45 +152,27 @@ class FilterFragment : Fragment() {
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dayGroupSpinner.adapter = groupAdapter
 
-        // ⬇️ 요일 그룹 화살표 클릭 시 Spinner 열기
         dayGroupIcon.setOnClickListener {
             dayGroupSpinner.performClick()
         }
 
-        // Spinner 선택 시 요일 자동 반영
         dayGroupSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 when (dayGroupOptions[position]) {
                     "선택" -> selectedDays.clear()
-                    "평일" -> {
-                        selectedDays.clear()
-                        selectedDays.addAll(listOf("월", "화", "수", "목", "금"))
-                    }
-                    "주말" -> {
-                        selectedDays.clear()
-                        selectedDays.addAll(listOf("토", "일"))
-                    }
-                    "매일" -> {
-                        selectedDays.clear()
-                        selectedDays.addAll(dayButtons.keys)
-                    }
+                    "평일" -> selectedDays.setAll("월", "화", "수", "목", "금")
+                    "주말" -> selectedDays.setAll("토", "일")
+                    "매일" -> selectedDays.setAll(*dayButtons.keys.toTypedArray())
                 }
                 updateDayButtonUI(dayButtons, selectedDays)
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // 요일 버튼 클릭 시 상태 반영
         for ((day, btn) in dayButtons) {
             btn.setOnClickListener {
-                if (selectedDays.contains(day)) {
-                    selectedDays.remove(day)
-                } else {
-                    selectedDays.add(day)
-                }
+                if (selectedDays.contains(day)) selectedDays.remove(day) else selectedDays.add(day)
                 updateDayButtonUI(dayButtons, selectedDays)
-
                 dayGroupSpinner.setSelection(
                     when {
                         selectedDays.containsAll(listOf("월", "화", "수", "목", "금", "토", "일")) -> 3
@@ -211,6 +183,41 @@ class FilterFragment : Fragment() {
                 )
             }
         }
+
+        // ✅ 🔍 질병 검색 기능
+        val searchInput = view.findViewById<EditText>(R.id.search_input)
+        val suggestionBox = view.findViewById<LinearLayout>(R.id.suggestion_box)
+        val suggestion1 = view.findViewById<TextView>(R.id.suggestion_1)
+        val suggestion2 = view.findViewById<TextView>(R.id.suggestion_2)
+        val suggestion3 = view.findViewById<TextView>(R.id.suggestion_3)
+        val selectedTagsContainer = view.findViewById<LinearLayout>(R.id.selected_tags_container)
+
+        searchInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val query = s.toString()
+                if (query.isNotEmpty()) {
+                    suggestion1.text = "감기"
+                    suggestion2.text = "기흉"
+                    suggestion3.text = "각막염"
+                    suggestion1.visibility = View.VISIBLE
+                    suggestion2.visibility = View.VISIBLE
+                    suggestion3.visibility = View.VISIBLE
+                    suggestionBox.visibility = View.VISIBLE
+                } else {
+                    suggestion1.visibility = View.GONE
+                    suggestion2.visibility = View.GONE
+                    suggestion3.visibility = View.GONE
+                    suggestionBox.visibility = View.GONE
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        // ✅ 태그 추가 기능
+        suggestion1.setOnClickListener { addTag("감기") }
+        suggestion2.setOnClickListener { addTag("기흉") }
+        suggestion3.setOnClickListener { addTag("각막염") }
     }
 
     private fun updateDayButtonUI(
@@ -218,11 +225,30 @@ class FilterFragment : Fragment() {
         selectedDays: Set<String>
     ) {
         for ((day, btn) in dayButtons) {
-            if (selectedDays.contains(day)) {
-                btn.setBackgroundResource(R.drawable.bg_day_selected)
-            } else {
-                btn.setBackgroundResource(R.drawable.bg_day_unselected)
-            }
+            btn.setBackgroundResource(
+                if (selectedDays.contains(day)) R.drawable.bg_day_selected
+                else R.drawable.bg_day_unselected
+            )
         }
+    }
+
+    private fun <T> MutableSet<T>.setAll(vararg items: T) {
+        clear()
+        addAll(items)
+    }
+
+    private fun addTag(tagText: String) {
+        val tagContainer = view?.findViewById<LinearLayout>(R.id.selected_tags_container) ?: return
+
+        val tagView = LayoutInflater.from(context).inflate(R.layout.tag_item, tagContainer, false)
+        val textView = tagView.findViewById<TextView>(R.id.tag_text)
+        val closeBtn = tagView.findViewById<ImageView>(R.id.tag_close)
+
+        textView.text = tagText
+        closeBtn.setOnClickListener {
+            tagContainer.removeView(tagView)
+        }
+
+        tagContainer.addView(tagView)
     }
 }
