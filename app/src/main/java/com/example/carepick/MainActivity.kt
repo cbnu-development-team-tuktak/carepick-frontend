@@ -11,7 +11,6 @@ import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fr
 import com.example.carepick.ui.profile.UserProfileFragment
 import com.example.carepick.ui.search.SearchResultFragment
 
-
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

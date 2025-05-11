@@ -36,7 +36,7 @@ class SearchResultListAdapter(
         return when (items[position]) {
 
             // HospitalDetailResponse 형태로 넘어왔다면 병원 타입이다
-            is HospitalDetailsResponse -> TYPE_HOSPITAL
+            is HospitalDetailsResponse-> TYPE_HOSPITAL
             // DoctorDetailResponse 형태로 넘어왔다면 의사 타입나다
             is DoctorDetailsResponse -> TYPE_DOCTOR
 

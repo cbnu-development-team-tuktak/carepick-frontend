@@ -74,7 +74,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/searchResultLocationButton"
+            android:id="@+id/btn_location_setting"
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:layout_marginStart="16dp"
