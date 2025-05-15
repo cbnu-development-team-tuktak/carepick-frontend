@@ -4,12 +4,17 @@ import android.app.TimePickerDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.carepick.R
+import com.example.carepick.model.HospitalResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 class FilterFragment : Fragment() {
@@ -48,6 +53,7 @@ class FilterFragment : Fragment() {
                     label.visibility = View.VISIBLE
                 }
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -123,6 +129,7 @@ class FilterFragment : Fragment() {
                     endTimeText.text = String.format("%s %02d : %02d", endAmPm, endHour12, endMinute)
                 }
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
@@ -155,6 +162,7 @@ class FilterFragment : Fragment() {
                 }
                 updateDayButtonUI(dayButtons, selectedDays)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
@@ -223,6 +231,7 @@ class FilterFragment : Fragment() {
                     suggestions.forEach { it.visibility = View.GONE }
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })

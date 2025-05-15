@@ -45,6 +45,58 @@ class HospitalRepository {
         }
     }
 
+    suspend fun getHospitalsWithExtendedFilter(
+        lat: Double?,
+        lng: Double?,
+        distance: Double?,
+        specialties: String?,
+        sortBy: String?,
+        selectedDays: String?,
+        startTime: String?,
+        endTime: String?,
+        page: Int = 0,
+        size: Int = 10
+    ): MutableList<HospitalDetailsResponse> {
+
+        return suspendCancellableCoroutine { continuation ->
+            RetrofitClient.hospitalService.getFilteredHospitals(
+                lat = lat,
+                lng = lng,
+                distance = distance,
+                specialties = specialties,
+                sortBy = sortBy,
+                selectedDays = selectedDays,
+                startTime = startTime,
+                endTime = endTime,
+                page = page,
+                size = size
+            ).enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {
+                override fun onResponse(
+                    call: Call<HospitalPageResponse<HospitalDetailsResponse>>,
+                    response: Response<HospitalPageResponse<HospitalDetailsResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        val hospitals = response.body()?.content?.toMutableList() ?: mutableListOf()
+                        continuation.resume(hospitals)
+                    } else {
+                        Log.e("API_ERROR", "응답 실패: ${response.code()}, ${response.message()}")
+                        continuation.resume(mutableListOf())
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<HospitalPageResponse<HospitalDetailsResponse>>,
+                    t: Throwable
+                ) {
+                    Log.e("API_ERROR", "네트워크 오류 발생", t)
+                    continuation.resume(mutableListOf())
+                }
+            })
+
+        }
+    }
+
+
     // 사전에 저장된 json 파일에서 병원 정보를 읽는 코드
     // json 파일에서 데이터를 불러온 다음, HospitalDetailResponse 객체의 포맷으로 데이터를 가공한 다음 반환한다
     fun loadHospitalsFromAsset(context: Context): MutableList<HospitalDetailsResponse> {

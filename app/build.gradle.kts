@@ -42,7 +42,7 @@ android {
 }
 
 dependencies {
-
+    // AndroidX 기본 라이브러리
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
