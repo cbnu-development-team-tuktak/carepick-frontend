@@ -59,7 +59,10 @@ class SearchResultFragment : Fragment() {
         }
 
         // 정렬 팝업에서 결과 수신
-        parentFragmentManager.setFragmentResultListener("sort_filter_result", viewLifecycleOwner) { _, bundle ->
+        parentFragmentManager.setFragmentResultListener(
+            "sort_filter_result",
+            viewLifecycleOwner
+        ) { _, bundle ->
             val selectedSortText = bundle.getString("selected_filter_text")
             if (!selectedSortText.isNullOrEmpty()) {
                 selectedFilters.clear()
@@ -106,8 +109,10 @@ class SearchResultFragment : Fragment() {
                 if (!query.isNullOrBlank()) {
                     // <<병원 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
                     // <<의사 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-                    val filteredHospitals = hospitals.filter { it.name.contains(query, ignoreCase = true) }
-                    val filteredDoctors = doctors.filter { it.name.contains(query, ignoreCase = true) }
+                    val filteredHospitals =
+                        hospitals.filter { it.name.contains(query, ignoreCase = true) }
+                    val filteredDoctors =
+                        doctors.filter { it.name.contains(query, ignoreCase = true) }
 
                     // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
                     val allResults = mutableListOf<SearchResultItem>().apply {
@@ -124,9 +129,11 @@ class SearchResultFragment : Fragment() {
                         binding.searchResultRecyclerView.visibility = View.VISIBLE
 
                         // 병원/의사 목록을 출력할 어댑터를 호출한다
-                        binding.searchResultRecyclerView.adapter = SearchResultListAdapter(allResults, requireActivity())
+                        binding.searchResultRecyclerView.adapter =
+                            SearchResultListAdapter(allResults, requireActivity())
                         // 병원/의사 목록은 LinearLayout 형태로 출력한다
-                        binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                        binding.searchResultRecyclerView.layoutManager =
+                            LinearLayoutManager(requireContext())
                     }
                 } else {
                     // 하단 네비게이션을 통해 처음 검색 결과 뷰로 넘어온 경우
@@ -199,9 +206,18 @@ class SearchResultFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+        // 병원 / 의사 토글 버튼 클릭 처리
+        binding.searchResultHospitalFilterButton.setOnClickListener {
+            binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left_selected)
+            binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right)
+        }
+        binding.searchResultDoctorFilterButton.setOnClickListener {
+            binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right_selected)
+            binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left)
+        }
     }
 
-    // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
+        // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
     private fun updateFilter(filterName: String, isChecked: Boolean) {
         if (isChecked) {
             if (!selectedFilters.contains(filterName)) selectedFilters.add(filterName)
