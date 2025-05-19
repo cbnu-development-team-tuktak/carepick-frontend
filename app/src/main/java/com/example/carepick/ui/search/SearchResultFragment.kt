@@ -64,6 +64,19 @@ class SearchResultFragment : Fragment() {
             insets
         }
 
+        // 정렬 팝업에서 결과 수신
+        parentFragmentManager.setFragmentResultListener(
+            "sort_filter_result",
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val selectedSortText = bundle.getString("selected_filter_text")
+            if (!selectedSortText.isNullOrEmpty()) {
+                selectedFilters.clear()
+                selectedFilters.add(selectedSortText)
+                updateSearchSortButton()
+            }
+        }
+
         // <<HomeFragment에서 보낸 데이터를 가져오는 코드>>
         // 사용자가 검색했던 키워드를 가져온다
         val query = arguments?.getString("search_query")
@@ -71,27 +84,30 @@ class SearchResultFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 // 병원 정보를 가져올 필터 조건 정의
-//                val lat = 36.6242237
-//                val lng = 127.4614843
-//                val distance = 100.0
-//                val specialties = "성형외과"
-//                val sortBy = null
-////                val selectedDays = null
-////                val startTime = null
-////                val endTime = null
-//                val page = 0
-//                val size = 10
+                val lat = 36.6242237
+                val lng = 127.4614843
+                val distance = 100.0
+                val specialties = "성형외과"
+                val sortBy = null
+                val selectedDays = null
+                val startTime = null
+                val endTime = null
+                val page = 0
+                val size = 10
 
                 // 병원 정보 목록을 API로부터 가져온다.
-//                val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
-//                    lat = lat,
-//                    lng = lng,
-//                    distance = distance,
-//                    specialties = specialties,
-//                    sortBy = sortBy,
-//                    page = page,
-//                    size = size
-//                )
+                val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
+                    lat = lat,
+                    lng = lng,
+                    distance = distance,
+                    specialties = specialties,
+                    sortBy = sortBy,
+                    selectedDays = selectedDays,
+                    startTime = startTime,
+                    endTime = endTime,
+                    page = page,
+                    size = size
+                )
 
                 // 병원 정보에 존재하는 의사 정보 객체를 추출하여 별도 객체 리스트로 저장한다
 //                val doctors = hospitals.flatMap { it.doctors ?: emptyList() }
@@ -236,9 +252,18 @@ class SearchResultFragment : Fragment() {
                 .addToBackStack(null)
                 .commit()
         }
+        // 병원 / 의사 토글 버튼 클릭 처리
+        binding.searchResultHospitalFilterButton.setOnClickListener {
+            binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left_selected)
+            binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right)
+        }
+        binding.searchResultDoctorFilterButton.setOnClickListener {
+            binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right_selected)
+            binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left)
+        }
     }
 
-    // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
+        // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
     private fun updateFilter(filterName: String, isChecked: Boolean) {
         if (isChecked) {
             if (!selectedFilters.contains(filterName)) selectedFilters.add(filterName)

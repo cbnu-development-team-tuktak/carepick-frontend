@@ -1,6 +1,5 @@
 package com.example.carepick.ui.search
 
-import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher

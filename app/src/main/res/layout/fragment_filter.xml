@@ -4,22 +4,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4FBF8">
+    android:background="#F4FBF8"
+    android:fitsSystemWindows="true">
 
-    <!-- 상단 바 -->
-    <FrameLayout
-        android:id="@+id/top_bar_container"
+<include
+    android:id="@+id/filterHeader"
+    layout="@layout/toolbar_filter"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+<ScrollView
+    android:id="@+id/filterScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:fillViewport="true"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/filterHeader">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:orientation="vertical">
 
-        <include
-            android:id="@+id/top_bar"
-            layout="@layout/toolbar_filter" />
-    </FrameLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
     <!-- 거리 범위 -->
     <LinearLayout
         android:id="@+id/distance_section"
@@ -27,9 +42,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
         android:paddingTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/top_bar_container"
+        android:paddingEnd="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -444,21 +458,25 @@
         app:layout_constraintTop_toBottomOf="@id/day_section"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/disease_section_wrapper"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/divider_disease_section"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <include
-            android:id="@+id/include_disease_selection"
-            layout="@layout/fragment_disease_selection" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- ⬇️ 진료과 구분선 -->
-    <View
+            <!-- ⬇️ 진료과 구분선 -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/disease_section_wrapper"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider_disease_section"
+                app:layout_constraintVertical_bias="0.0">
+
+                <include
+                    android:id="@+id/include_disease_selection"
+                    layout="@layout/fragment_disease_selection" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
         android:id="@+id/divider_department_section"
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -480,4 +498,9 @@
             android:id="@+id/include_department_selection"
             layout="@layout/fragment_department_selection" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
