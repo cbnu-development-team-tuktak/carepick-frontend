@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class HospitalOperatingHours(
-    val first: String,
-    val second: String
+    val day: String,
+    val startTime: String?,
+    val endTime: String?
 ) : Parcelable

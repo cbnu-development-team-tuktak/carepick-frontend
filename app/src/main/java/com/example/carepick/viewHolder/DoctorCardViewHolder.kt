@@ -38,16 +38,7 @@ class DoctorCardViewHolder(
 
         // 의사 상세 페이지에 데이터를 전달한다
         val bundle = Bundle().apply {
-            putString("name", doctorData.name)
-            putString("url", doctorData.url)
-            putString("profileImage", doctorData.profileImage)
-            putString("career", doctorData.career)
-            putString("specialty", doctorData.specialty)
-
-            putStringArrayList(
-                "educationLicense",
-                ArrayList(doctorData.educationLicenses ?: emptyList())
-            )
+            putString("doctorId", doctorData.id)
         }
 
         doctorDetailFragment.arguments = bundle

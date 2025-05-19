@@ -28,8 +28,7 @@ class DoctorSearchListViewHolder(
             .into(binding.searchListImage)
 
         // 진료과 목록에 따라 동적으로 진료과를 카드에 추가한다
-        val specialtyArray= doctor.specialty?.split(",")?.map { it.trim() } ?: emptyList()// 공백 제거 포함
-        val specialtyAdapter = SpecialtyAdapter(specialtyArray)
+        val specialtyAdapter = SpecialtyAdapter(doctor.specialties)
         binding.searchListRecyclerView.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         binding.searchListRecyclerView.adapter = specialtyAdapter
 
@@ -43,16 +42,7 @@ class DoctorSearchListViewHolder(
 
         // 의사 상세 페이지에 데이터를 전달한다
         val bundle = Bundle().apply {
-            putString("name", doctorData.name)
-            putString("url", doctorData.url)
-            putString("profileImage", doctorData.profileImage)
-            putString("career", doctorData.career)
-            putString("specialty", doctorData.specialty)
-
-            putStringArrayList(
-                "educationLicense",
-                ArrayList(doctorData.educationLicenses ?: emptyList())
-            )
+            putString("doctorId", doctorData.id)
         }
 
         doctorDetailFragment.arguments = bundle

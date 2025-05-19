@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("com.google.android.material:material:1.11.0")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

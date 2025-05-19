@@ -45,15 +45,66 @@ class HospitalRepository {
         }
     }
 
+    suspend fun getHospitalById(id: String): HospitalDetailsResponse? {
+        return suspendCancellableCoroutine { continuation ->
+            RetrofitClient.hospitalService.getHospitalById(id)
+                .enqueue(object : Callback<HospitalDetailsResponse> {
+                    override fun onResponse(
+                        call: Call<HospitalDetailsResponse>,
+                        response: Response<HospitalDetailsResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            val hospital = response.body()
+                            Log.e("API_SUCCESS", "Successfully brought hospital information: $hospital")
+                            continuation.resume(hospital)
+                        } else {
+                            Log.e("API_ERROR", "Failed to get hospital details: ${response.code()}, message: ${response.message()}")
+                            continuation.resume(null)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<HospitalDetailsResponse>, t: Throwable) {
+                        Log.e("API_ERROR", "Network problem occurred: getHospitalById", t)
+                        continuation.resume(null)
+                    }
+                })
+        }
+    }
+
+    // 특정 키워드와 부분/완전 일치하는 병원 목록을 가져오는 함수
+    suspend fun getSearchedHospitals(keyword: String): MutableList<HospitalDetailsResponse> {
+
+        return suspendCancellableCoroutine { continuation ->
+            RetrofitClient.hospitalService.getSearchedHospitals(keyword, page = 0, size = 10)
+                .enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {
+                    override fun onResponse(
+                        call: Call<HospitalPageResponse<HospitalDetailsResponse>>,
+                        response: Response<HospitalPageResponse<HospitalDetailsResponse>>
+                    ) {
+                        if (response.isSuccessful) {
+                            val hospitals = response.body()?.content?.toMutableList() ?: mutableListOf()
+                            Log.e("API_SUCCESS", "Successfully brought in ${hospitals.size} hospital information")
+                            continuation.resume(hospitals)
+                        } else {
+                            Log.e("API_ERROR", "Fail to get hospitals: ${response.code()}, message: ${response.message()}")
+                            continuation.resume(mutableListOf())
+                        }
+                    }
+
+                    override fun onFailure(call: Call<HospitalPageResponse<HospitalDetailsResponse>>, t: Throwable) {
+                        Log.e("API_ERROR", "network problem reveal!! : getSearchedHospitals", t)
+                        continuation.resume(mutableListOf())
+                    }
+                })
+        }
+    }
+
     suspend fun getHospitalsWithExtendedFilter(
         lat: Double?,
         lng: Double?,
         distance: Double?,
         specialties: String?,
         sortBy: String?,
-        selectedDays: String?,
-        startTime: String?,
-        endTime: String?,
         page: Int = 0,
         size: Int = 10
     ): MutableList<HospitalDetailsResponse> {
@@ -65,9 +116,6 @@ class HospitalRepository {
                 distance = distance,
                 specialties = specialties,
                 sortBy = sortBy,
-                selectedDays = selectedDays,
-                startTime = startTime,
-                endTime = endTime,
                 page = page,
                 size = size
             ).enqueue(object : Callback<HospitalPageResponse<HospitalDetailsResponse>> {

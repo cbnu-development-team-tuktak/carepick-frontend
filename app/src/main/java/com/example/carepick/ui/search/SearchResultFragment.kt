@@ -1,6 +1,8 @@
 package com.example.carepick.ui.search
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +23,8 @@ import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.model.SearchResultItem
 import com.example.carepick.repository.HospitalRepository
 import com.example.carepick.ui.location.LocationSettingFragment
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // 검색 결과 화면을 구현한 Fragment
@@ -37,6 +41,8 @@ class SearchResultFragment : Fragment() {
 
     private val hospitalRepository = HospitalRepository()
     private val selectedFilters = mutableListOf<String>() // 추가: 선택된 필터를 저장할 리스트
+
+    private var searchJob: Job? = null
 
     // 프래그먼트가 생성되었을 때 실행할 코드
     override fun onCreateView(
@@ -65,48 +71,45 @@ class SearchResultFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 // 병원 정보를 가져올 필터 조건 정의
-                val lat = 36.6242237
-                val lng = 127.4614843
-                val distance = 100.0
-                val specialties = "성형외과"
-                val sortBy = null
-                val selectedDays = null
-                val startTime = null
-                val endTime = null
-                val page = 0
-                val size = 10
+//                val lat = 36.6242237
+//                val lng = 127.4614843
+//                val distance = 100.0
+//                val specialties = "성형외과"
+//                val sortBy = null
+////                val selectedDays = null
+////                val startTime = null
+////                val endTime = null
+//                val page = 0
+//                val size = 10
 
                 // 병원 정보 목록을 API로부터 가져온다.
-                val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
-                    lat = lat,
-                    lng = lng,
-                    distance = distance,
-                    specialties = specialties,
-                    sortBy = sortBy,
-                    selectedDays = selectedDays,
-                    startTime = startTime,
-                    endTime = endTime,
-                    page = page,
-                    size = size
-                )
+//                val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
+//                    lat = lat,
+//                    lng = lng,
+//                    distance = distance,
+//                    specialties = specialties,
+//                    sortBy = sortBy,
+//                    page = page,
+//                    size = size
+//                )
 
                 // 병원 정보에 존재하는 의사 정보 객체를 추출하여 별도 객체 리스트로 저장한다
-                val doctors = hospitals.flatMap { it.doctors ?: emptyList() }
+//                val doctors = hospitals.flatMap { it.doctors ?: emptyList() }
 
                 if (!query.isNullOrBlank()) {
                     // <<병원 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
                     // <<의사 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-                    val filteredHospitals = hospitals.filter { it.name.contains(query, ignoreCase = true) }
-                    val filteredDoctors = doctors.filter { it.name.contains(query, ignoreCase = true) }
+//                    val filteredHospitals = hospitals.filter { it.name.contains(query, ignoreCase = true) }
+//
+//                    // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
+//                    val allResults = mutableListOf<SearchResultItem>().apply {
+//                        addAll(filteredHospitals)
+//                    }
 
-                    // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
-                    val allResults = mutableListOf<SearchResultItem>().apply {
-                        addAll(filteredHospitals)
-                        addAll(filteredDoctors)
-                    }
-
+                    val hospital = hospitalRepository.getSearchedHospitals(query)
+//
                     // 검색 결과가 없을 경우 안내 메시지를 표시한다
-                    if (allResults.isEmpty()) {
+                    if (hospital.isEmpty()) {
                         binding.searchResultErrorText.visibility = View.VISIBLE
                         binding.searchResultRecyclerView.visibility = View.GONE
                     } else {
@@ -114,10 +117,12 @@ class SearchResultFragment : Fragment() {
                         binding.searchResultRecyclerView.visibility = View.VISIBLE
 
                         // 병원/의사 목록을 출력할 어댑터를 호출한다
-                        binding.searchResultRecyclerView.adapter = SearchResultListAdapter(allResults, requireActivity())
+                        binding.searchResultRecyclerView.adapter = SearchResultListAdapter(hospital, requireActivity())
                         // 병원/의사 목록은 LinearLayout 형태로 출력한다
                         binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
                     }
+
+
                 } else {
                     // 하단 네비게이션을 통해 처음 검색 결과 뷰로 넘어온 경우
                     binding.searchResultRecyclerView.visibility = View.GONE
@@ -128,31 +133,73 @@ class SearchResultFragment : Fragment() {
                 // <<검색창에서 병원 이름을 자동 완성하는 부분>>
                 //
                 // 병원 정보에서 병원 이름들만 뽑아낸다
-                val hospitalNames = hospitals.map { it.name }
-                // 의사 정보에서 의사 이름들만 뽑아낸다
-                val doctorNames = doctors.map { it.name }
+//                val hospitalNames = hospital.map { it.name }
+//
+//                Log.d("AutoComplete", "names: $hospitalNames")
+//
+//                // 어댑터를 불러와서 부분적으로 일치하는 병원/의사 이름을 출력하도록 함
+//                val autoCompleteNames = (hospitalNames).distinct()
+//                val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), autoCompleteNames)
+//                binding.searchResultSearchView.setAdapter(autoCompleteAdapter)
+//                // 한 문자만 입력해도 자동완성이 되도록 함
+//                binding.searchResultSearchView.threshold = 1
+//
+//                // 자동완성 항목 클릭 시 검색 창에 해당 이름이 들어가도록 함
+//                binding.searchResultSearchView.setOnItemClickListener { parent, _, position, _ ->
+//                    val selectedName = parent.getItemAtPosition(position).toString()
+//                    binding.searchResultSearchView.setText(selectedName)
+//                }
+                // 검색창 입력 이벤트 처리
+                binding.searchResultSearchView.addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-                Log.d("AutoComplete", "names: $hospitalNames")
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                        val keyword = s?.toString()?.trim() ?: ""
 
-                // 어댑터를 불러와서 부분적으로 일치하는 병원/의사 이름을 출력하도록 함
-                val autoCompleteNames = (hospitalNames + doctorNames).distinct()
-                val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), autoCompleteNames)
-                binding.searchResultSearchView.setAdapter(autoCompleteAdapter)
-                // 한 문자만 입력해도 자동완성이 되도록 함
-                binding.searchResultSearchView.threshold = 1
+                        // 키워드가 1글자 이상일 때만 검색
+                        if (keyword.length >= 1) {
+                            // 이전 검색 작업 취소 (debounce 효과)
+                            searchJob?.cancel()
 
-                // 자동완성 항목 클릭 시 검색 창에 해당 이름이 들어가도록 함
-                binding.searchResultSearchView.setOnItemClickListener { parent, _, position, _ ->
-                    val selectedName = parent.getItemAtPosition(position).toString()
-                    binding.searchResultSearchView.setText(selectedName)
-                }
+                            // 300ms 대기 후 검색 (네트워크 부하 감소)
+                            searchJob = lifecycleScope.launch {
+                                delay(300)
+                                val hospitals = hospitalRepository.getSearchedHospitals(keyword)
+
+                                // 병원 이름들 추출
+                                val hospitalNames = hospitals.map { it.name }
+
+                                // 로그로 확인
+                                Log.d("AutoComplete", "names: $hospitalNames")
+
+                                // 어댑터 설정
+                                val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
+                                binding.searchResultSearchView.setAdapter(autoCompleteAdapter)
+
+                                // 한 글자만 입력해도 자동완성이 되도록 설정
+                                binding.searchResultSearchView.threshold = 1
+
+                                // 자동완성 항목 클릭 시 검색 창에 선택한 이름이 입력되도록 설정
+                                binding.searchResultSearchView.setOnItemClickListener { parent, _, position, _ ->
+                                    val selectedName = parent.getItemAtPosition(position).toString()
+                                    binding.searchResultSearchView.setText(selectedName)
+                                }
+
+                                // 어댑터 갱신 (필수)
+                                autoCompleteAdapter.notifyDataSetChanged()
+                            }
+                        }
+                    }
+
+                    override fun afterTextChanged(s: Editable?) {}
+                })
 
                 // <<검색 버튼 누르면 검색 결과 화면으로 이동>>
                 binding.searchResultSearchView.setOnEditorActionListener { _, actionId, _ ->
                     if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                        val query = binding.searchResultSearchView.text.toString()
-                        if (query.isNotBlank()) {
-                            navigateToSearchResult(query, hospitals, doctors)
+                        val newQuery = binding.searchResultSearchView.text.toString()
+                        if (newQuery.isNotBlank()) {
+                            navigateToSearchResult(newQuery)
                         }
                         true
                     } else {
@@ -224,17 +271,13 @@ class SearchResultFragment : Fragment() {
 
     // 검색 버튼을 클릭할 경우 검색 결과 화면으로 이동한다
     // 백엔드 서버로부터 병원 정보를 받는게 아니라 http://localhost:8080/api/hospitals/filter 이용한다.
-    private fun navigateToSearchResult(query: String, hospitalList: List<HospitalDetailsResponse>, doctorList: List<DoctorDetailsResponse>) {
+    private fun navigateToSearchResult(query: String) {
 
         // 검색 결과를 출력하는 프래그먼트에 데이터를 전달하기 위해 bundle에 데이터를 담는다
         // 검색 결과 프래그먼트에서는 arguments를 이용해서 아래의 데이터들을 불러올 수 있다
         val bundle = Bundle().apply {
             // 사용자가 검색한 키워드를 담는다
             putString("search_query", query)
-            // 병원 목록을 담는다
-            putParcelableArrayList("hospitals", ArrayList(hospitalList))
-            // 의사 목록을 담는다
-            putParcelableArrayList("doctors", ArrayList(doctorList))
         }
 
         // 검색 결과를 출력할 프래그먼트를 생성하고 데이터를 연결한다

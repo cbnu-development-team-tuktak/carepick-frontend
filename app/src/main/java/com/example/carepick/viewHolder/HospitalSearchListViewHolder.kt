@@ -45,33 +45,34 @@ class HospitalSearchListViewHolder(
 
         // 병원 상세 페이지에 전달할 데이터를 지정한다
         val bundle = Bundle().apply {
-            putString("name", hospitalData.name)
-            putString("phoneNumber", hospitalData.phoneNumber)
-            putString("homepage", hospitalData.homepage)
-            putString("address", hospitalData.address)
-
-            hospitalData.location?.latitude?.let { putDouble("latitude", it) }
-            hospitalData.location?.longitude?.let { putDouble("longitude", it) }
-
-            hospitalData.images?.let {
-                putParcelableArrayList("images", ArrayList(it))
-            }
-
-            hospitalData.specialties?.let {
-                putStringArrayList("specialties", ArrayList(it))
-            }
-
-            hospitalData.doctors?.let {
-                putParcelableArrayList("doctors", ArrayList(it))
-            }
-
-            hospitalData.additionalInfo?.let {
-                putParcelable("additionalInfo", it)
-            }
-
-            hospitalData.operatingHours.let {
-                putSerializable("operatingHours", HashMap(it)) // Map은 직접 Serializable로 넘겨야 함
-            }
+            putString("hospitalId", hospitalData.id)
+//            putString("name", hospitalData.name)
+//            putString("phoneNumber", hospitalData.phoneNumber)
+//            putString("homepage", hospitalData.homepage)
+//            putString("address", hospitalData.address)
+//
+//            hospitalData.location?.latitude?.let { putDouble("latitude", it) }
+//            hospitalData.location?.longitude?.let { putDouble("longitude", it) }
+//
+//            hospitalData.images?.let {
+//                putParcelableArrayList("images", ArrayList(it))
+//            }
+//
+//            hospitalData.specialties?.let {
+//                putStringArrayList("specialties", ArrayList(it))
+//            }
+//
+//            hospitalData.doctors?.let {
+//                putParcelableArrayList("doctors", ArrayList(it))
+//            }
+//
+//            hospitalData.additionalInfo?.let {
+//                putParcelable("additionalInfo", it)
+//            }
+//
+//            hospitalData.operatingHours.let {
+//                putSerializable("operatingHours", HashMap(it)) // Map은 직접 Serializable로 넘겨야 함
+//            }
         }
 
         hospitalDetailFragment.arguments = bundle
