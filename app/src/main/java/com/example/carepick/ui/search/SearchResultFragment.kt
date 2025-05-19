@@ -58,6 +58,16 @@ class SearchResultFragment : Fragment() {
             insets
         }
 
+        // 정렬 팝업에서 결과 수신
+        parentFragmentManager.setFragmentResultListener("sort_filter_result", viewLifecycleOwner) { _, bundle ->
+            val selectedSortText = bundle.getString("selected_filter_text")
+            if (!selectedSortText.isNullOrEmpty()) {
+                selectedFilters.clear()
+                selectedFilters.add(selectedSortText)
+                updateSearchSortButton()
+            }
+        }
+
         // <<HomeFragment에서 보낸 데이터를 가져오는 코드>>
         // 사용자가 검색했던 키워드를 가져온다
         val query = arguments?.getString("search_query")

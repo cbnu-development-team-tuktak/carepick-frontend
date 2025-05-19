@@ -15,6 +15,9 @@ import com.example.carepick.model.HospitalResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import java.util.*
 
 class FilterFragment : Fragment() {
@@ -32,6 +35,14 @@ class FilterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ 상태바 padding 적용
+        val toolbar = view.findViewById<View>(R.id.filterHeader)
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar) { v, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            v.updatePadding(top = topInset + 12) // 기존 padding 유지
+            insets
+        }
 
         // 🔙 뒤로가기 버튼
         view.findViewById<View>(R.id.btn_back)?.setOnClickListener {
