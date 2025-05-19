@@ -76,6 +76,45 @@ class SearchResultFragment : Fragment() {
                         selectedFilters.clear()
                         selectedFilters.add(selectedSortText)
                         updateSearchSortButton()
+
+                        // "거리순" 정렬 로직 추가
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            try {
+
+                                val speciaties = listOf("가정의학과")
+                                // 병원 리포지토리에서 거리순으로 병원 목록 가져오기
+                                val filteredHospitals = hospitalRepository.getHospitalsWithExtendedFilter(
+                                    37.4979,
+                                    127.0276,
+                                    null,
+                                    speciaties,
+                                    null,
+                                    null,
+                                    null,
+                                    "distance",
+                                    0,
+                                    30
+                                )
+
+                                if (filteredHospitals.isEmpty()) {
+                                    binding.searchResultErrorText.visibility = View.VISIBLE
+                                    binding.searchResultRecyclerView.visibility = View.GONE
+                                } else {
+                                    binding.searchResultErrorText.visibility = View.GONE
+                                    binding.searchResultRecyclerView.visibility = View.VISIBLE
+
+                                    // 병원/의사 목록을 출력할 어댑터를 호출한다
+                                    binding.searchResultRecyclerView.adapter = SearchResultListAdapter(filteredHospitals, requireActivity())
+                                    // 병원/의사 목록은 LinearLayout 형태로 출력한다
+                                    binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                                }
+
+                            } catch (e: Exception) {
+                                Log.e("API_ERROR", "거리순 병원 데이터 불러오기 실패: ${e.message}")
+                                binding.searchResultErrorText.visibility = View.VISIBLE
+                                binding.searchResultRecyclerView.visibility = View.GONE
+                            }
+                        }
                     }
                 }
 
@@ -241,7 +280,7 @@ class SearchResultFragment : Fragment() {
         }
     }
 
-        // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
+    // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
     private fun updateFilter(filterName: String, isChecked: Boolean) {
         if (isChecked) {
             if (!selectedFilters.contains(filterName)) selectedFilters.add(filterName)

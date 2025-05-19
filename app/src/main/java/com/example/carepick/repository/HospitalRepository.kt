@@ -13,6 +13,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import kotlin.coroutines.resume
 import com.example.carepick.utils.cleanHospitalName
+import java.time.LocalTime
 
 class HospitalRepository {
 
@@ -99,11 +100,16 @@ class HospitalRepository {
         }
     }
 
+
+
     suspend fun getHospitalsWithExtendedFilter(
         lat: Double?,
         lng: Double?,
         distance: Double?,
-        specialties: String?,
+        specialties: List<String>?,
+        selectedDays: List<String>?,
+        startTime: LocalTime?,
+        endTime: LocalTime?,
         sortBy: String?,
         page: Int = 0,
         size: Int = 10
@@ -115,6 +121,9 @@ class HospitalRepository {
                 lng = lng,
                 distance = distance,
                 specialties = specialties,
+                selectedDays = selectedDays,
+                startTime = startTime,
+                endTime = endTime,
                 sortBy = sortBy,
                 page = page,
                 size = size

@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.time.LocalTime
 
 interface HospitalApiService {
     @GET("/api/hospitals")
@@ -32,11 +33,11 @@ interface HospitalApiService {
         @Query("lat") lat: Double?,
         @Query("lng") lng: Double?,
         @Query("distance") distance: Double?,
-        @Query("specialties") specialties: String?,
+        @Query("specialties") specialties: List<String>?,
+        @Query("selectedDays") selectedDays: List<String>?,
+        @Query("startTime") startTime: LocalTime?,
+        @Query("endTime") endTime: LocalTime?,
         @Query("sortBy") sortBy: String?,
-//        @Query("selectedDays") selectedDays: String?,
-//        @Query("startTime") startTime: String?,
-//        @Query("endTime") endTime: String?,
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): Call<HospitalPageResponse<HospitalDetailsResponse>>
