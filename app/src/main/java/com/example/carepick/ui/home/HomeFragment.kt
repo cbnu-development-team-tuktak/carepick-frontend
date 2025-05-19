@@ -154,29 +154,32 @@ class HomeFragment: Fragment() {
                         // 300ms 대기 후 검색 (네트워크 부하 감소)
                         searchJob = lifecycleScope.launch {
                             delay(300)
-                            val hospitals = hospitalRepository.getSearchedHospitals(keyword)
 
-                            // 병원 이름들 추출
-                            val hospitalNames = hospitals.map { it.name }
+                            if (!isAdded) return@launch
 
-                            // 로그로 확인
-                            Log.d("AutoComplete", "names: $hospitalNames")
+                            try {
+                                val hospitals = hospitalRepository.getSearchedHospitals(keyword)
 
-                            // 어댑터 설정
-                            val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
-                            binding.searchView.setAdapter(autoCompleteAdapter)
+                                // 병원 이름들 추출
+                                val hospitalNames = hospitals.map { it.name }
 
-                            // 한 글자만 입력해도 자동완성이 되도록 설정
-                            binding.searchView.threshold = 1
+                                // 로그로 확인
+                                Log.d("AutoComplete", "names: $hospitalNames")
 
-                            // 자동완성 항목 클릭 시 검색 창에 선택한 이름이 입력되도록 설정
-                            binding.searchView.setOnItemClickListener { parent, _, position, _ ->
-                                val selectedName = parent.getItemAtPosition(position).toString()
-                                binding.searchView.setText(selectedName)
+                                if (hospitalNames.isNotEmpty() && isAdded) {
+                                    // 어댑터 설정
+                                    val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
+                                    binding.searchView.setAdapter(autoCompleteAdapter)
+
+                                    // 한 글자만 입력해도 자동완성이 되도록 설정
+                                    binding.searchView.threshold = 1
+
+                                    // 어댑터 갱신 (필수)
+                                    autoCompleteAdapter.notifyDataSetChanged()
+                                }
+                            } catch (e: Exception) {
+                                Log.e("SearchError", "Error occurred while searching", e)
                             }
-
-                            // 어댑터 갱신 (필수)
-                            autoCompleteAdapter.notifyDataSetChanged()
                         }
                     }
                 }
