@@ -5,27 +5,32 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import androidx.cardview.widget.CardView
-import androidx.constraintlayout.helper.widget.Flow
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.carepick.R
 import com.example.carepick.adapter.LocationAdapter
 import com.example.carepick.databinding.FragmentLocationSettingBinding
+import kotlinx.coroutines.launch
 
 class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
 
     private var _binding: FragmentLocationSettingBinding? = null
     private val binding get() = _binding!!
+
+    private val sidoAdapter by lazy {
+        SidoAdapter { sido ->
+            // TODO: 클릭 시 동작 (예: 다음 단계로 시/군/구 불러오기)
+            // showToast("${sido.name} 선택")
+            // 이후 시/군/구 API 호출/그리드 표시로 확장
+        }
+    }
 
     private val viewModel by lazy { LocationViewModel(restKey = "4bde7a7235a24839479023ff8eb22347") }
     private val adapter = LocationAdapter { doc ->
@@ -102,6 +107,24 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             }
         }
 
+        binding.rvSidoGrid.apply {
+            layoutManager = GridLayoutManager(requireContext(), 3)
+            adapter = sidoAdapter
+            setHasFixedSize(true)
+        }
+
+        // 버튼 토글 + 첫 호출
+        binding.btnAdminRegion.setOnClickListener {
+            if (binding.rvSidoGrid.visibility == View.VISIBLE) {
+                binding.rvSidoGrid.visibility = View.GONE
+            } else {
+                binding.rvSidoGrid.visibility = View.VISIBLE
+                if (sidoAdapter.itemCount == 0) {
+                    fetchSidos()
+                }
+            }
+        }
+
 //        // 검색 버튼 (바인딩 통해 접근!)
 //        binding.btnSearch.setOnClickListener {
 //            val q = binding.searchEdit.text?.toString().orEmpty()
@@ -123,6 +146,19 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    private fun fetchSidos() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                RetrofitProvider.api.getSidos(page = 0, size = 30)
+            }.onSuccess { page ->
+                sidoAdapter.submit(page.content)
+            }.onFailure { e ->
+                // TODO: 에러 처리 (스낵바/토스트 등)
+                // showError(e.message)
+            }
+        }
     }
 
     private fun createSelectableButton(text: String): TextView {

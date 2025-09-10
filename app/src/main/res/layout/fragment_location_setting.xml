@@ -89,30 +89,30 @@
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- (A) 검색 영역 바로 아래에 배치 -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_admin_region"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/bg_reset_button"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="행정구역으로 설정"
+        app:icon="@drawable/ic_location"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+        app:iconGravity="textStart"
+        app:iconPadding="8dp"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="현재 위치로 주소 찾기"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
+    <!-- (B) 시/도 그리드 (3열) — 처음엔 숨김 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSidoGrid"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/btn_admin_region"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- 📍 GPS/읍면동 설정 탭 -->
 
     <!-- 🗺️ 지역 및 시/군/구 드롭다운 -->

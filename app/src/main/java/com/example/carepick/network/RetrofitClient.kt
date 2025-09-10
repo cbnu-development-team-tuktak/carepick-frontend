@@ -20,4 +20,8 @@ object RetrofitClient {
     val doctorService: DoctorApiService by lazy {
         retrofit.create(DoctorApiService::class.java)
     }
+
+    val adminRegionService: AdminRegionApi by lazy {
+        retrofit.create(AdminRegionApi::class.java)
+    }
 }

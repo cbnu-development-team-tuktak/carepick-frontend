@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btnSido"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:text="서울특별시"
+    android:textAllCaps="false"
+    android:insetTop="0dp"
+    android:insetBottom="0dp"
+    android:layout_margin="6dp"
+    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    android:maxLines="1"
+    android:ellipsize="end"/>
