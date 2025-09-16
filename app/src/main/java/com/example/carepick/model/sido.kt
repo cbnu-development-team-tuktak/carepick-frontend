@@ -5,6 +5,10 @@ data class Sido(
     val type: String  // "도", "시"
 )
 
+data class Sgg(val name: String)
+
+data class Umd(val name: String)
+
 // models/PageResponse.kt
 data class PageResponse<T>(
     val content: List<T>

@@ -32,6 +32,12 @@ import kotlinx.coroutines.launch
 // - 메인 뷰의 검색창을 제공하며, 사용자가 입력한 키워드에 대해 병원/의사 이름 자동완성 목록을 제공한다.
 // - 메인 뷰의 서비스 목록을 제공하며 각각의 서비스를 선택하면 해당하는 프래그먼트로 넘어가도록 한다.
 // - 즐겨찾기 목록에서 현재 가져온 모든 병원 정보를 카드뷰의 형태로 출력하고 있다 --> 수정할 예정
+
+
+private const val KEY_SELECTED_ADDRESS = "key_selected_address"
+private const val ARG_ADDRESS = "address"
+
+
 class HomeFragment: Fragment() {
 
     // fragment_home.xml 을 객체처럼 취급하여 binding 변수에 저장할 것임을 선언한다
@@ -48,6 +54,32 @@ class HomeFragment: Fragment() {
     // 병원 리포지토리는 병원 정보를 반환한다
     // 현재는 로컬 json 파일에서 병원 정보를 가져올 예정
     private val hospitalRepository = HospitalRepository()
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val fm = requireActivity().supportFragmentManager
+        Log.d("ResultFlow", "register listener on $fm")
+
+        fm.setFragmentResultListener(
+            KEY_SELECTED_ADDRESS,
+            this  // HomeFragment lifecycle
+        ) { _, bundle ->
+            val addr = bundle.getString(ARG_ADDRESS).orEmpty()
+            Log.d("ResultFlow", "RECV addr=$addr (HomeFragment)")
+
+            // 뷰가 준비된 뒤 UI 반영
+            viewLifecycleOwnerLiveData.observe(this) { owner ->
+                if (owner != null && _binding != null) {
+                    Log.d("ResultFlow", "apply to textView4")
+                    binding.textView4.text = addr
+                }
+            }
+        }
+    }
+
+
 
 
     // 처음 프래그먼트가 생성되었을 때 실행하는 코드
@@ -139,6 +171,18 @@ class HomeFragment: Fragment() {
 
 
 
+
+
+            binding.constraintLayout2.setOnClickListener {
+                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+                // ★ Activity의 FragmentManager로 통일
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, com.example.carepick.ui.location.LocationSettingFragment())
+                    .addToBackStack("LocationSetting")
+                    .commit()
+            }
+
+
             // 검색창 입력 이벤트 처리
             binding.searchView.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -205,6 +249,13 @@ class HomeFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         (requireActivity() as? MainActivity)?.updateNavIcons(R.id.nav_home)
+
+        if (_binding != null) {
+            Log.d("ResultFlow",
+                "onResume textView4.id=" +
+                        resources.getResourceEntryName(binding.textView4.id)
+            )
+        }
     }
 
     override fun onDestroyView() {

@@ -1,5 +1,6 @@
 package com.example.carepick.ui.location
 
+import android.content.ContentValues.TAG
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -17,20 +19,68 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.carepick.R
 import com.example.carepick.adapter.LocationAdapter
 import com.example.carepick.databinding.FragmentLocationSettingBinding
+import com.example.carepick.network.RetrofitClient
 import kotlinx.coroutines.launch
+import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResult
+
+
+private const val KEY_SELECTED_ADDRESS = "key_selected_address"
+private const val ARG_ADDRESS = "address"
+
 
 class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
 
     private var _binding: FragmentLocationSettingBinding? = null
     private val binding get() = _binding!!
 
+    private var selectedSido: String? = null
+    private var selectedSgg:  String? = null
+    private var selectedUmd:  String? = null
+
+
     private val sidoAdapter by lazy {
         SidoAdapter { sido ->
-            // TODO: 클릭 시 동작 (예: 다음 단계로 시/군/구 불러오기)
-            // showToast("${sido.name} 선택")
-            // 이후 시/군/구 API 호출/그리드 표시로 확장
+            selectedSido = sido.name
+            Log.d(TAG, "Sido clicked: ${sido.name} (${sido.type})")
+            fetchSggs(sido.name)
         }
     }
+
+
+
+    private val sggAdapter by lazy {
+        SggAdapter(
+            currentSido = { selectedSido ?: "시/도" },
+            onBackClick = {
+                // SGG → SIDO
+                binding.rvSggGrid.visibility = View.GONE
+                binding.rvSidoGrid.visibility = View.VISIBLE
+            },
+            onItemClick = { sgg ->
+                selectedSgg = sgg.name
+                fetchUmds(sgg.name)
+            }
+        )
+    }
+
+    private val umdAdapter by lazy {
+        UmdAdapter(
+            currentSgg = { selectedSgg ?: "시/군/구" },
+            onBackClick = {
+                // UMD → SGG
+                binding.rvUmdGrid.visibility = View.GONE
+                binding.rvSggGrid.visibility = View.VISIBLE
+            },
+            onItemClick = { umd ->
+                selectedUmd = umd.name
+                showConfirmation()
+            }
+        )
+    }
+
+
+
 
     private val viewModel by lazy { LocationViewModel(restKey = "4bde7a7235a24839479023ff8eb22347") }
     private val adapter = LocationAdapter { doc ->
@@ -41,6 +91,11 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
         val jibun = doc.address?.address_name ?: doc.address_name
         // TODO: 선택 결과 처리 (예: 상세 페이지 이동, 지도 표시, 폼에 채우기 등)
     }
+
+
+
+
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -107,21 +162,66 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             }
         }
 
+
+        binding.btnConfirmSelection.setOnClickListener {
+            val addr = buildAddress()
+            Log.d("ResultFlow", "POST addr=$addr (LocationSetting)")
+
+            val fm = requireActivity().supportFragmentManager
+            Log.d("ResultFlow", "sender fm=$fm backStack=${fm.backStackEntryCount}")
+
+            // 1) 결과 먼저 세팅
+            val bundle = android.os.Bundle().apply { putString(ARG_ADDRESS, addr) }
+            fm.setFragmentResult(KEY_SELECTED_ADDRESS, bundle)
+            Log.d("ResultFlow", "POST setFragmentResult done")
+
+            // 2) 그 다음 pop (이 순서 중요!)
+            fm.popBackStack()
+            // onBackPressedDispatcher는 사용하지 말고 pop만 사용
+        }
+
+
+
         binding.rvSidoGrid.apply {
             layoutManager = GridLayoutManager(requireContext(), 3)
             adapter = sidoAdapter
             setHasFixedSize(true)
         }
 
+        // 시/군/구 그리드 준비
+        binding.rvSggGrid.apply {
+            layoutManager = GridLayoutManager(requireContext(), 3)
+            adapter = sggAdapter
+            setHasFixedSize(true)
+        }
+
+        binding.rvUmdGrid.apply {
+            layoutManager = GridLayoutManager(requireContext(), 3)
+            adapter = umdAdapter
+            setHasFixedSize(true)
+        }
+
+        // 취소/확인 리스너
+        binding.btnCancelSelection.setOnClickListener {
+            // 요구사항: 취소 시 시/도 그리드로 복귀
+            selectedUmd = null
+            binding.confirmBar.visibility = View.GONE
+            binding.rvUmdGrid.visibility = View.GONE
+            binding.rvSggGrid.visibility = View.GONE
+            binding.rvSidoGrid.visibility = View.VISIBLE
+        }
+
+
         // 버튼 토글 + 첫 호출
         binding.btnAdminRegion.setOnClickListener {
-            if (binding.rvSidoGrid.visibility == View.VISIBLE) {
-                binding.rvSidoGrid.visibility = View.GONE
-            } else {
-                binding.rvSidoGrid.visibility = View.VISIBLE
-                if (sidoAdapter.itemCount == 0) {
-                    fetchSidos()
-                }
+            Log.d(TAG, "행정구역 버튼 클릭")
+
+            val nowVisible = binding.rvSidoGrid.isVisible
+            binding.rvSidoGrid.visibility = if (nowVisible) View.GONE else View.VISIBLE
+            Log.d(TAG, "rvSidoGrid visibility = ${binding.rvSidoGrid.visibility}")
+
+            if (!nowVisible && sidoAdapter.itemCount == 0) {
+                fetchSidos()   // 처음 펼칠 때만 로드
             }
         }
 
@@ -149,16 +249,75 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
     }
 
     private fun fetchSidos() {
+        Log.d(TAG, "fetchSidos() 호출 - 서버로 요청 시작")
         viewLifecycleOwner.lifecycleScope.launch {
-            runCatching {
-                RetrofitProvider.api.getSidos(page = 0, size = 30)
-            }.onSuccess { page ->
-                sidoAdapter.submit(page.content)
-            }.onFailure { e ->
-                // TODO: 에러 처리 (스낵바/토스트 등)
-                // showError(e.message)
+            try {
+                val res = RetrofitClient.adminRegionService.getSidos(0, 30)
+                Log.d("RetrofitTest", "총 ${res.content.size}개 받아옴")
+
+                res.content.forEachIndexed { i, s ->
+                    Log.d(TAG, "[$i] name=${s.name}, type=${s.type}")
+                }
+
+                sidoAdapter.submit(res.content)
+                Log.d(TAG, "어댑터에 submit 완료")
+            } catch (e: Exception) {
+                Log.e("RetrofitTest", "요청 실패: ${e.message}", e)
             }
         }
+    }
+
+    private fun fetchSggs(sidoName: String) {
+        // ... 기존 구현 그대로 (SGG 표시)
+        binding.rvSidoGrid.visibility = View.GONE
+        binding.rvUmdGrid.visibility = View.GONE
+        binding.confirmBar.visibility = View.GONE
+        binding.rvSggGrid.visibility = View.VISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                RetrofitClient.adminRegionService.getSggsBySido(sidoName, 0, 100)
+            }.onSuccess { res ->
+                sggAdapter.submit(res.content)
+            }.onFailure { e ->
+                Log.e("LocationSetting", "SGG 조회 실패: ${e.message}", e)
+                binding.rvSggGrid.visibility = View.GONE
+                binding.rvSidoGrid.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun fetchUmds(sggName: String) {
+        Log.d("LocationSetting", "fetchUmds('$sggName')")
+        binding.rvSggGrid.visibility = View.GONE
+        binding.confirmBar.visibility = View.GONE
+        binding.rvUmdGrid.visibility = View.VISIBLE
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            runCatching {
+                RetrofitClient.adminRegionService.getUmdsBySgg(sggName, 0, 100)
+            }.onSuccess { res ->
+                umdAdapter.submit(res.content)
+            }.onFailure { e ->
+                Log.e("LocationSetting", "UMD 조회 실패: ${e.message}", e)
+                binding.rvUmdGrid.visibility = View.GONE
+                binding.rvSggGrid.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun showConfirmation() {
+        // 모든 그리드 감추고, 확인 바만 보여주기
+        binding.rvSidoGrid.visibility = View.GONE
+        binding.rvSggGrid.visibility = View.GONE
+        binding.rvUmdGrid.visibility = View.GONE
+
+        binding.tvSelectedAddress.text = buildAddress()
+        binding.confirmBar.visibility = View.VISIBLE
+    }
+
+    private fun buildAddress(): String {
+        val a = listOfNotNull(selectedSido, selectedSgg, selectedUmd)
+        return a.joinToString(" ")
     }
 
     private fun createSelectableButton(text: String): TextView {
