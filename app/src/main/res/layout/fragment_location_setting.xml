@@ -38,14 +38,56 @@
         app:layout_constraintStart_toEndOf="@id/btn_close"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout"
+    <!-- 🔘 모드 선택 세그먼트 (단일 선택) -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggle_modes"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:layout_constraintTop_toBottomOf="@id/tv_location_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnModeSearch"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="검색"
+            android:checkable="true" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnModeAdmin"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="행정구역"
+            android:checkable="true" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnModeGps"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="GPS"
+            android:checkable="true" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- 🔍 검색 섹션 컨테이너 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/searchContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_location_title">
+        app:layout_constraintTop_toBottomOf="@id/toggle_modes">
 
         <ImageView
             android:id="@+id/imageView4"
@@ -76,34 +118,33 @@
                 android:inputType="text"
                 android:maxLines="1"
                 android:padding="8dp" />
-
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- (A) 검색 영역 바로 아래에 배치 -->
+    <!-- 🗂️ 행정구역 섹션: 트리거 버튼 + 그리드 + 확인 바 -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_admin_region"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
         android:text="행정구역으로 설정"
         app:icon="@drawable/ic_location"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchContainer"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- (B) 시/도 그리드 (3열) — 처음엔 숨김 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSidoGrid"
         android:layout_width="0dp"
@@ -117,7 +158,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/confirmBar" />
 
-    <!-- 시/군/구 그리드 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSggGrid"
         android:layout_width="0dp"
@@ -131,7 +171,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/confirmBar" />
 
-    <!-- 읍/면/동 그리드 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvUmdGrid"
         android:layout_width="0dp"
@@ -145,7 +184,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/confirmBar" />
 
-    <!-- (E) 선택 요약 + 취소/확인 바 — 처음엔 숨김 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/confirmBar"
         android:layout_width="0dp"
@@ -188,14 +226,49 @@
             app:layout_constraintStart_toEndOf="@id/btnCancelSelection"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintWidth_percent="0.5" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-    <!-- 📍 GPS/읍면동 설정 탭 -->
 
-    <!-- 🗺️ 지역 및 시/군/구 드롭다운 -->
+    <!-- ⛳ 행정구역 섹션을 한 번에 토글하기 위한 Group -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/adminGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btn_admin_region,rvSidoGrid,rvSggGrid,rvUmdGrid,confirmBar" />
 
-    <!-- ✅ 지역 선택 박스 -->
+    <!-- 📍 GPS 섹션 컨테이너 (처음엔 숨김) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/gpsContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintTop_toBottomOf="@id/toggle_modes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- ✅ 시/군/구 선택 박스 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvGpsDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="현재 위치를 사용해 읍/면/동을 자동으로 설정합니다."
+                android:textSize="16sp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRequestGps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="GPS 권한 요청 및 위치 설정" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

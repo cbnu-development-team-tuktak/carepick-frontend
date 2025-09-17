@@ -97,16 +97,6 @@ class HomeFragment: Fragment() {
         binding.networkErrorView.root.visibility = View.GONE
         binding.hospitalListRecyclerView.visibility = View.GONE
 
-        // <<서비스 목록에 서비스 카드 정보를 가져와서 출력하는 코드>>
-        //
-        // 서비스 리포지토리로부터 서비스 목록 정보를 가져온다
-        val serviceList = serviceListRepository.getServiceList()
-        // 카드뷰를 좌우로 3개씩 배치하도록 그리드 레이아웃 형태로 배치함을 명시한다
-        binding.serviceListRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-        // 리포지토리로부터 받아온 정보를 토대로 카드뷰들을 동적으로 생성한다
-        // ServiceListAdapter를 불러와서 어디에 어떤 데이터가 들어갈지를 지정한다
-        binding.serviceListRecyclerView.adapter = ServiceListAdapter(serviceList, requireActivity())
-
         return binding.root
     }
 
@@ -179,6 +169,30 @@ class HomeFragment: Fragment() {
                 requireActivity().supportFragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, com.example.carepick.ui.location.LocationSettingFragment())
                     .addToBackStack("LocationSetting")
+                    .commit()
+            }
+
+            binding.selfCheckCardView.setOnClickListener {
+                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, com.example.carepick.ui.selfcheck.SelfCheckFragment())
+                    .addToBackStack("SelfCheck")
+                    .commit()
+            }
+
+            binding.hospitalCardView.setOnClickListener {
+                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, com.example.carepick.ui.hospital.HospitalListFragment())
+                    .addToBackStack("hospitalSearch")
+                    .commit()
+            }
+
+            binding.doctorCardView.setOnClickListener {
+                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+                requireActivity().supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, com.example.carepick.ui.doctor.DoctorListFragment())
+                    .addToBackStack("doctorSearch")
                     .commit()
             }
 
