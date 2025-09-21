@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.MainActivity
@@ -23,6 +24,8 @@ import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.model.SearchResultItem
 import com.example.carepick.repository.HospitalRepository
 import com.example.carepick.ui.location.LocationSettingFragment
+import com.example.carepick.ui.location.LocationSharedViewModel
+import com.example.carepick.ui.location.LocationVMFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -43,6 +46,10 @@ class SearchResultFragment : Fragment() {
     private val selectedFilters = mutableListOf<String>() // 추가: 선택된 필터를 저장할 리스트
 
     private var searchJob: Job? = null
+
+    private val locationVM: LocationSharedViewModel by activityViewModels {
+        LocationVMFactory(requireContext().applicationContext)
+    }
 
     // 프래그먼트가 생성되었을 때 실행할 코드
     override fun onCreateView(
@@ -77,43 +84,9 @@ class SearchResultFragment : Fragment() {
                         selectedFilters.add(selectedSortText)
                         updateSearchSortButton()
 
-                        // "거리순" 정렬 로직 추가
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            try {
-
-                                val speciaties = listOf("가정의학과")
-                                // 병원 리포지토리에서 거리순으로 병원 목록 가져오기
-                                val filteredHospitals = hospitalRepository.getHospitalsWithExtendedFilter(
-                                    37.4979,
-                                    127.0276,
-                                    null,
-                                    speciaties,
-                                    null,
-                                    null,
-                                    null,
-                                    "distance",
-                                    0,
-                                    30
-                                )
-
-                                if (filteredHospitals.isEmpty()) {
-                                    binding.searchResultErrorText.visibility = View.VISIBLE
-                                    binding.searchResultRecyclerView.visibility = View.GONE
-                                } else {
-                                    binding.searchResultErrorText.visibility = View.GONE
-                                    binding.searchResultRecyclerView.visibility = View.VISIBLE
-
-                                    // 병원/의사 목록을 출력할 어댑터를 호출한다
-                                    binding.searchResultRecyclerView.adapter = SearchResultListAdapter(filteredHospitals, requireActivity())
-                                    // 병원/의사 목록은 LinearLayout 형태로 출력한다
-                                    binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-                                }
-
-                            } catch (e: Exception) {
-                                Log.e("API_ERROR", "거리순 병원 데이터 불러오기 실패: ${e.message}")
-                                binding.searchResultErrorText.visibility = View.VISIBLE
-                                binding.searchResultRecyclerView.visibility = View.GONE
-                            }
+                        // 거리순 정렬이면 현재 위치 기준으로 다시 로드
+                        if (selectedSortText.contains("거리", ignoreCase = true)) {
+                            loadHospitalsByLocation(distanceKm = 5.0)
                         }
                     }
                 }
@@ -126,38 +99,23 @@ class SearchResultFragment : Fragment() {
                 // 병원 정보에 존재하는 의사 정보 객체를 추출하여 별도 객체 리스트로 저장한다
 //                val doctors = hospitals.flatMap { it.doctors ?: emptyList() }
 
-                if (!query.isNullOrBlank()) {
-                    // <<병원 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-                    // <<의사 목록 중 이름이 완전/부분적으로 일치하는 병원들만 가져오는 코드>>
-//                    val filteredHospitals = hospitals.filter { it.name.contains(query, ignoreCase = true) }
-//
-//                    // 병원 정보와 의사 정보를 모두 담을 수 있는 SearchResultItem 객체의 리스트 형태를 가진 객체를 선언한다
-//                    val allResults = mutableListOf<SearchResultItem>().apply {
-//                        addAll(filteredHospitals)
-//                    }
-
+                if (query.isNullOrBlank()) {
+                    // 👉 검색어가 없으면 내 위치 기준으로 전체 병원 로드
+                    loadHospitalsByLocation(distanceKm = 5.0)
+                } else {
+                    // 👉 검색어가 있으면 기존 검색 로직
                     val hospital = hospitalRepository.getSearchedHospitals(query)
-//
-                    // 검색 결과가 없을 경우 안내 메시지를 표시한다
                     if (hospital.isEmpty()) {
                         binding.searchResultErrorText.visibility = View.VISIBLE
                         binding.searchResultRecyclerView.visibility = View.GONE
                     } else {
                         binding.searchResultErrorText.visibility = View.GONE
                         binding.searchResultRecyclerView.visibility = View.VISIBLE
-
-                        // 병원/의사 목록을 출력할 어댑터를 호출한다
-                        binding.searchResultRecyclerView.adapter = SearchResultListAdapter(hospital, requireActivity())
-                        // 병원/의사 목록은 LinearLayout 형태로 출력한다
-                        binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                        binding.searchResultRecyclerView.adapter =
+                            SearchResultListAdapter(hospital, requireActivity())
+                        binding.searchResultRecyclerView.layoutManager =
+                            LinearLayoutManager(requireContext())
                     }
-
-
-                } else {
-                    // 하단 네비게이션을 통해 처음 검색 결과 뷰로 넘어온 경우
-                    binding.searchResultRecyclerView.visibility = View.GONE
-                    binding.searchResultErrorText.visibility = View.GONE
-//                    binding.searchResultRecentSearchText.visibility = View.VISIBLE
                 }
 
                 // <<검색창에서 병원 이름을 자동 완성하는 부분>>
@@ -277,6 +235,57 @@ class SearchResultFragment : Fragment() {
         binding.searchResultDoctorFilterButton.setOnClickListener {
             binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right_selected)
             binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left)
+        }
+    }
+
+    // 위치 기반으로 병원 리스트 가져와서 표시
+    private fun loadHospitalsByLocation(distanceKm: Double = 5.0) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 로딩 UI가 있다면 여기서 표시
+            try {
+                val loc = locationVM.location.value
+                if (loc == null) {
+                    // 위치 없으면 안내 + 위치 설정 유도
+                    binding.searchResultErrorText.text = getString(R.string.need_location_message)
+                    binding.searchResultErrorText.visibility = View.VISIBLE
+                    binding.searchResultRecyclerView.visibility = View.GONE
+                    binding.btnLocationSetting.visibility = View.VISIBLE
+                    return@launch
+                }
+
+                val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
+                    lat = loc.lat,
+                    lng = loc.lng,
+                    distance = distanceKm,               // km
+                    specialties = null,                  // 전체
+                    selectedDays = null,
+                    startTime = null,
+                    endTime = null,
+                    sortBy = "distance",
+                    page = 0,
+                    size = 30
+                )
+
+                if (hospitals.isEmpty()) {
+                    binding.searchResultErrorText.text = getString(R.string.no_results_in_range)
+                    binding.searchResultErrorText.visibility = View.VISIBLE
+                    binding.searchResultRecyclerView.visibility = View.GONE
+                } else {
+                    binding.searchResultErrorText.visibility = View.GONE
+                    binding.searchResultRecyclerView.visibility = View.VISIBLE
+                    binding.searchResultRecyclerView.adapter =
+                        SearchResultListAdapter(hospitals, requireActivity())
+                    binding.searchResultRecyclerView.layoutManager =
+                        LinearLayoutManager(requireContext())
+                }
+            } catch (e: Exception) {
+                Log.e("API_ERROR", "위치 기반 병원 조회 실패: ${e.message}", e)
+                binding.searchResultErrorText.text = getString(R.string.fetch_error_message)
+                binding.searchResultErrorText.visibility = View.VISIBLE
+                binding.searchResultRecyclerView.visibility = View.GONE
+            } finally {
+                // 로딩 종료 UI가 있다면 여기서 숨김
+            }
         }
     }
 

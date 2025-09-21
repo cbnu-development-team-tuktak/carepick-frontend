@@ -24,10 +24,14 @@ import com.example.carepick.databinding.FragmentLocationSettingBinding
 import com.example.carepick.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.button.MaterialButtonToggleGroup
 
 import com.bumptech.glide.Priority
+import com.example.carepick.network.KakaoRetrofitClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.jar.Manifest
 
 private const val KEY_SELECTED_ADDRESS = "key_selected_address"
@@ -44,6 +48,12 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
     private var selectedUmd:  String? = null
 
     private enum class Mode { SEARCH, ADMIN, GPS }
+
+    private val locationVM: LocationSharedViewModel by activityViewModels {
+        LocationVMFactory(requireContext().applicationContext)
+    }
+
+
 
     private fun View.show(show: Boolean) {
         visibility = if (show) View.VISIBLE else View.GONE
@@ -103,12 +113,25 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
 
     private val viewModel by lazy { LocationViewModel(restKey = "4bde7a7235a24839479023ff8eb22347") }
     private val adapter = LocationAdapter { doc ->
-        // 클릭 시 좌표/주소 사용 예시
         val lat = doc.y?.toDoubleOrNull()
         val lon = doc.x?.toDoubleOrNull()
         val road = doc.road_address?.address_name
         val jibun = doc.address?.address_name ?: doc.address_name
-        // TODO: 선택 결과 처리 (예: 상세 페이지 이동, 지도 표시, 폼에 채우기 등)
+        val addressText = road ?: jibun ?: "알 수 없는 주소"
+
+        if (lat != null && lon != null) {
+            // 전역 저장
+            locationVM.setLocation(lat, lon, addressText)
+
+            // 홈으로 결과 전달(기존 result flow 유지)
+            val fm = requireActivity().supportFragmentManager
+            fm.setFragmentResult(KEY_SELECTED_ADDRESS, Bundle().apply {
+                putString(ARG_ADDRESS, addressText)
+            })
+            fm.popBackStack()
+        } else {
+            Toast.makeText(requireContext(), "좌표를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -191,10 +214,22 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
         // 확인/취소
         binding.btnConfirmSelection.setOnClickListener {
             val addr = buildAddress()
-            val fm = requireActivity().supportFragmentManager
-            val bundle = Bundle().apply { putString(ARG_ADDRESS, addr) }
-            fm.setFragmentResult(KEY_SELECTED_ADDRESS, bundle)
-            fm.popBackStack()
+            viewLifecycleOwner.lifecycleScope.launch {
+                val pair = geocodeAddress(addr)
+                if (pair != null) {
+                    val (lat, lng) = pair
+                    locationVM.setLocation(lat, lng, addr)
+
+                    // 기존 result flow로 텍스트도 전달
+                    val fm = requireActivity().supportFragmentManager
+                    fm.setFragmentResult(KEY_SELECTED_ADDRESS, Bundle().apply {
+                        putString(ARG_ADDRESS, addr)
+                    })
+                    fm.popBackStack()
+                } else {
+                    Toast.makeText(requireContext(), "주소 좌표 변환에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
         binding.btnCancelSelection.setOnClickListener {
             selectedUmd = null
@@ -243,6 +278,18 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private suspend fun geocodeAddress(fullAddress: String): Pair<Double, Double>? = withContext(
+        Dispatchers.IO) {
+        runCatching {
+            // Kakao REST API 예시(RetrofitClient에 address search가 있다고 가정)
+            val res = KakaoRetrofitClient.kakaoService.searchAddress(fullAddress, page = 1, size = 1)
+            val first = res.documents.firstOrNull()
+            val lat = first?.y?.toDoubleOrNull()
+            val lng = first?.x?.toDoubleOrNull()
+            if (lat != null && lng != null) lat to lng else null
+        }.getOrNull()
     }
 
     private fun setupModeToggle(initial: Mode) = with(binding) {

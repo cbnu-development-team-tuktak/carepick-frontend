@@ -70,4 +70,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

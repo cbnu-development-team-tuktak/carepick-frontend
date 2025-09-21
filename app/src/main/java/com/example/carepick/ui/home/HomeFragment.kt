@@ -8,10 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.MainActivity
@@ -24,9 +27,12 @@ import com.example.carepick.adapter.ServiceListAdapter
 import com.example.carepick.dto.doctor.DoctorDetailsResponse
 import com.example.carepick.dto.hospital.HospitalDetailsResponse
 import com.example.carepick.repository.HospitalRepository
+import com.example.carepick.ui.location.LocationSharedViewModel
+import com.example.carepick.ui.location.LocationVMFactory
 import com.example.carepick.ui.search.SearchResultFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 // 홈화면의 기능을 구현한 Fragment
 // - 메인 뷰의 검색창을 제공하며, 사용자가 입력한 키워드에 대해 병원/의사 이름 자동완성 목록을 제공한다.
@@ -44,6 +50,10 @@ class HomeFragment: Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private var searchJob: Job? = null
+
+    private val locationVM: LocationSharedViewModel by activityViewModels {
+        LocationVMFactory(requireContext().applicationContext)
+    }
 
 
     // <<프래그먼트에서 사용할 리포지토리를 가져오는 부분>>
@@ -110,6 +120,20 @@ class HomeFragment: Fragment() {
             view.setPadding(0, statusBarHeight, 0, 0) // 상단 padding만 수동 적용
 
             insets
+        }
+
+        // 전역 위치 구독 → 주소 표시(상단 textView4) 갱신
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                locationVM.location.collectLatest { loc ->
+                    if (loc != null) {
+                        binding.textView4.text = loc.address
+                        // 필요 시: loc.lat, loc.lng로 근처 병원 불러오기 트리거
+                    } else {
+                        binding.textView4.text = getString(R.string.home_set_location_hint)
+                    }
+                }
+            }
         }
 
         // 이 내부의 코드는 HomeFragment의 생명주기를 따른다
@@ -183,7 +207,7 @@ class HomeFragment: Fragment() {
             binding.hospitalCardView.setOnClickListener {
                 (requireActivity() as? MainActivity)?.updateNavIcons(-1)
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, com.example.carepick.ui.hospital.HospitalListFragment())
+                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
                     .addToBackStack("hospitalSearch")
                     .commit()
             }
@@ -191,59 +215,78 @@ class HomeFragment: Fragment() {
             binding.doctorCardView.setOnClickListener {
                 (requireActivity() as? MainActivity)?.updateNavIcons(-1)
                 requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, com.example.carepick.ui.doctor.DoctorListFragment())
+                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
                     .addToBackStack("doctorSearch")
                     .commit()
             }
 
 
             // 검색창 입력 이벤트 처리
-            binding.searchView.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//            binding.searchView.addTextChangedListener(object : TextWatcher {
+//                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//
+//                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                    val keyword = s?.toString()?.trim() ?: ""
+//
+//                    // 키워드가 1글자 이상일 때만 검색
+//                    if (keyword.length >= 1) {
+//                        // 이전 검색 작업 취소 (debounce 효과)
+//                        searchJob?.cancel()
+//
+//                        // 300ms 대기 후 검색 (네트워크 부하 감소)
+//                        searchJob = lifecycleScope.launch {
+//                            delay(300)
+//
+//                            if (!isAdded) return@launch
+//
+//                            try {
+//                                val hospitals = hospitalRepository.getSearchedHospitals(keyword)
+//
+//                                // 병원 이름들 추출
+//                                val hospitalNames = hospitals.map { it.name }
+//
+//                                // 로그로 확인
+//                                Log.d("AutoComplete", "names: $hospitalNames")
+//
+//                                if (hospitalNames.isNotEmpty() && isAdded) {
+//                                    // 어댑터 설정
+//                                    val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
+//                                    binding.searchView.setAdapter(autoCompleteAdapter)
+//
+//                                    // 한 글자만 입력해도 자동완성이 되도록 설정
+//                                    binding.searchView.threshold = 1
+//
+//                                    // 어댑터 갱신 (필수)
+//                                    autoCompleteAdapter.notifyDataSetChanged()
+//                                }
+//                            } catch (e: Exception) {
+//                                Log.e("SearchError", "Error occurred while searching", e)
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                override fun afterTextChanged(s: Editable?) {}
+//            })
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    val keyword = s?.toString()?.trim() ?: ""
-
-                    // 키워드가 1글자 이상일 때만 검색
-                    if (keyword.length >= 1) {
-                        // 이전 검색 작업 취소 (debounce 효과)
-                        searchJob?.cancel()
-
-                        // 300ms 대기 후 검색 (네트워크 부하 감소)
-                        searchJob = lifecycleScope.launch {
-                            delay(300)
-
-                            if (!isAdded) return@launch
-
-                            try {
-                                val hospitals = hospitalRepository.getSearchedHospitals(keyword)
-
-                                // 병원 이름들 추출
-                                val hospitalNames = hospitals.map { it.name }
-
-                                // 로그로 확인
-                                Log.d("AutoComplete", "names: $hospitalNames")
-
-                                if (hospitalNames.isNotEmpty() && isAdded) {
-                                    // 어댑터 설정
-                                    val autoCompleteAdapter = AutoCompleteAdapter(requireContext(), hospitalNames)
-                                    binding.searchView.setAdapter(autoCompleteAdapter)
-
-                                    // 한 글자만 입력해도 자동완성이 되도록 설정
-                                    binding.searchView.threshold = 1
-
-                                    // 어댑터 갱신 (필수)
-                                    autoCompleteAdapter.notifyDataSetChanged()
-                                }
-                            } catch (e: Exception) {
-                                Log.e("SearchError", "Error occurred while searching", e)
-                            }
+            // 검색 결과 화면 이동 시 위치가 없으면 안내
+            binding.searchView.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    val query = binding.searchView.text.toString()
+                    if (query.isNotBlank()) {
+                        // 위치가 세팅되어 있지 않으면 위치 설정 유도
+                        val hasLocation = locationVM.location.value != null
+                        if (!hasLocation) {
+                            Toast.makeText(requireContext(), "먼저 위치를 설정해주세요.", Toast.LENGTH_SHORT).show()
+                            // 위치 설정 화면으로 바로 이동
+                            binding.constraintLayout2.performClick()
+                            return@setOnEditorActionListener true
                         }
+                        navigateToSearchResult(query)
                     }
-                }
-
-                override fun afterTextChanged(s: Editable?) {}
-            })
+                    true
+                } else false
+            }
 
             // 검색 버튼 클릭 이벤트
             binding.searchView.setOnEditorActionListener { _, actionId, _ ->

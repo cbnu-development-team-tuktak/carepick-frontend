@@ -10,35 +10,39 @@ import retrofit2.http.Query
 import java.time.LocalTime
 
 interface HospitalApiService {
+
+    // (기존 동기 Call 유지 시) -- 필요 없다면 삭제 가능
     @GET("/api/hospitals")
-    fun getAllHospitals(
+    suspend fun getAllHospitals(
         @Query("page") page: Int,
         @Query("size") size: Int
-    ): Call<HospitalPageResponse<HospitalDetailsResponse>> // 변경된 부분
+    ): HospitalPageResponse<HospitalDetailsResponse>
 
     @GET("/api/hospitals/search")
-    fun getSearchedHospitals(
+    suspend fun getSearchedHospitals(
         @Query("keyword") keyword: String,
         @Query("page") page: Int,
         @Query("size") size: Int
-    ): Call<HospitalPageResponse<HospitalDetailsResponse>>
+    ): HospitalPageResponse<HospitalDetailsResponse>
 
     @GET("/api/hospitals/{id}")
-    fun getHospitalById(
+    suspend fun getHospitalById(
         @Path("id") hospitalId: String
-    ): Call<HospitalDetailsResponse>
+    ): HospitalDetailsResponse
 
-    @GET("api/hospitals/filter")
-    fun getFilteredHospitals(
-        @Query("lat") lat: Double?,
-        @Query("lng") lng: Double?,
-        @Query("distance") distance: Double?,
-        @Query("specialties") specialties: List<String>?,
-        @Query("selectedDays") selectedDays: List<String>?,
-        @Query("startTime") startTime: LocalTime?,
-        @Query("endTime") endTime: LocalTime?,
-        @Query("sortBy") sortBy: String?,
+    // ✅ 좌표 기반(+필터) 통합 엔드포인트
+    // keyword는 백엔드에서 optional이므로 필요하면 추가해서 쓰면 됨 (여기선 생략)
+    @GET("/api/hospitals/filter")
+    suspend fun getFilteredHospitals(
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double,
+        @Query("distance") distanceKm: Double? = null,           // km 단위(서버와 약속)
+        @Query("specialties") specialties: List<String>? = null, // ex) ["피부과","내과"]
+        @Query("selectedDays") selectedDays: List<String>? = null, // ex) ["월","화"]
+        @Query("startTime") startTime: String? = null,           // "09:00"
+        @Query("endTime") endTime: String? = null,               // "18:00"
+        @Query("sortBy") sortBy: String = "distance",            // "distance" | "name"
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
-    ): Call<HospitalPageResponse<HospitalDetailsResponse>>
+    ): HospitalPageResponse<HospitalDetailsResponse>
 }
