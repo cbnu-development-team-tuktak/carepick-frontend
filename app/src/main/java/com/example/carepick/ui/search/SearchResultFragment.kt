@@ -220,18 +220,14 @@ class SearchResultFragment : Fragment() {
                 .commit()
         }
 
-        // 위치 설정 버튼 클릭 시 LocationSettingFragment로 전환
-        binding.btnLocationSetting.setOnClickListener {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, LocationSettingFragment())
-                .addToBackStack(null)
-                .commit()
-        }
+
         // 병원 / 의사 토글 버튼 클릭 처리
         binding.searchResultHospitalFilterButton.setOnClickListener {
             binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left_selected)
             binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right)
         }
+
+
         binding.searchResultDoctorFilterButton.setOnClickListener {
             binding.searchResultDoctorFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_right_selected)
             binding.searchResultHospitalFilterButton.setBackgroundResource(R.drawable.bg_search_result_filter_left)
@@ -249,7 +245,6 @@ class SearchResultFragment : Fragment() {
                     binding.searchResultErrorText.text = getString(R.string.need_location_message)
                     binding.searchResultErrorText.visibility = View.VISIBLE
                     binding.searchResultRecyclerView.visibility = View.GONE
-                    binding.btnLocationSetting.visibility = View.VISIBLE
                     return@launch
                 }
 

@@ -1,9 +1,9 @@
 package com.example.carepick.model
 
 data class DiagnosisResult(
-    val text: String? = null,
-    val predictions: List<Prediction> = emptyList(),
-    val topK: Int? = null
+    val message: String,
+    val suggestedSymptoms: List<String> = emptyList(),
+    val suggestedSpecialties: List<String> = emptyList()
 )
 
 data class Prediction(

@@ -39,7 +39,6 @@ class SelfDiagnosisViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val res = RetrofitClient.selfCheckService.getDiseasePrediction(text, k)
-                Log.d(TAG, "✔️ Success: predictions=${res.predictions.size}")
                 _state.value = UiState.Success(res)
             } catch (e: HttpException) {
                 val code = e.code()
