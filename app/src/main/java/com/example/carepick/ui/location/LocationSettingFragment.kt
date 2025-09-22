@@ -24,15 +24,22 @@ import com.example.carepick.databinding.FragmentLocationSettingBinding
 import com.example.carepick.network.RetrofitClient
 import kotlinx.coroutines.launch
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import com.google.android.material.button.MaterialButtonToggleGroup
-
-import com.bumptech.glide.Priority
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.provider.ContactsContract
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import android.net.Uri
+import android.provider.Settings
+import androidx.fragment.app.activityViewModels
 import com.example.carepick.network.KakaoRetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.jar.Manifest
 
 private const val KEY_SELECTED_ADDRESS = "key_selected_address"
 private const val ARG_ADDRESS = "address"
@@ -53,92 +60,6 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
         LocationVMFactory(requireContext().applicationContext)
     }
 
-
-
-    private fun View.show(show: Boolean) {
-        visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-//    private val locationPermissionLauncher = registerForActivityResult(
-//        ActivityResultContracts.RequestMultiplePermissions()
-//    ) { result ->
-//        val granted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
-//        if (granted) fetchAndSetLocation()
-//        else Toast.makeText(requireContext(), "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-//    }
-
-
-    private val sidoAdapter by lazy {
-        SidoAdapter { sido ->
-            selectedSido = sido.name
-            Log.d(TAG, "Sido clicked: ${sido.name} (${sido.type})")
-            fetchSggs(sido.name)
-        }
-    }
-
-
-
-    private val sggAdapter by lazy {
-        SggAdapter(
-            currentSido = { selectedSido ?: "시/도" },
-            onBackClick = {
-                // SGG → SIDO
-                binding.rvSggGrid.visibility = View.GONE
-                binding.rvSidoGrid.visibility = View.VISIBLE
-            },
-            onItemClick = { sgg ->
-                selectedSgg = sgg.name
-                fetchUmds(sgg.name)
-            }
-        )
-    }
-
-    private val umdAdapter by lazy {
-        UmdAdapter(
-            currentSgg = { selectedSgg ?: "시/군/구" },
-            onBackClick = {
-                // UMD → SGG
-                binding.rvUmdGrid.visibility = View.GONE
-                binding.rvSggGrid.visibility = View.VISIBLE
-            },
-            onItemClick = { umd ->
-                selectedUmd = umd.name
-                showConfirmation()
-            }
-        )
-    }
-
-
-
-
-    private val viewModel by lazy { LocationViewModel(restKey = "4bde7a7235a24839479023ff8eb22347") }
-    private val adapter = LocationAdapter { doc ->
-        val lat = doc.y?.toDoubleOrNull()
-        val lon = doc.x?.toDoubleOrNull()
-        val road = doc.road_address?.address_name
-        val jibun = doc.address?.address_name ?: doc.address_name
-        val addressText = road ?: jibun ?: "알 수 없는 주소"
-
-        if (lat != null && lon != null) {
-            // 전역 저장
-            locationVM.setLocation(lat, lon, addressText)
-
-            // 홈으로 결과 전달(기존 result flow 유지)
-            val fm = requireActivity().supportFragmentManager
-            fm.setFragmentResult(KEY_SELECTED_ADDRESS, Bundle().apply {
-                putString(ARG_ADDRESS, addressText)
-            })
-            fm.popBackStack()
-        } else {
-            Toast.makeText(requireContext(), "좌표를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-
-
-
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentLocationSettingBinding.bind(view)
@@ -148,6 +69,11 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             parentFragmentManager.popBackStack()
         }
 
+        // 🔘 모드 토글 적용 (초기값: 검색)
+        setupModeToggle(initial = Mode.SEARCH)
+
+
+        // === 주소 검색 ===
         // 검색 리스트 & 페이징
         binding.recycler.adapter = adapter
         if (binding.recycler.layoutManager == null) {
@@ -193,6 +119,9 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             }
         }
 
+
+
+        // === 행정구역 선택 ===
         // 행정구역 그리드 초기화
         binding.rvSidoGrid.apply {
             layoutManager = GridLayoutManager(requireContext(), 3)
@@ -249,30 +178,38 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             if (sidoAdapter.itemCount == 0) fetchSidos()
         }
 
-        // 🔘 모드 토글 적용 (초기값: 검색)
-        setupModeToggle(initial = Mode.SEARCH)
 
+
+
+        // === GPS 사용 ===
         // GPS 섹션 버튼
-//        binding.btnRequestGps.setOnClickListener {
-//            locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
-//        }
+        binding.btnRequestGps.setOnClickListener {
+            when {
+                isFineLocationGranted() -> {
+                    // 이미 허용됨
+                    fetchAndSetLocation()
+                }
+                shouldShowLocationRationale() -> {
+                    // 이전에 거부했지만 "다시 묻지 않음"은 아님 — 설명 후 재요청
+                    showRationaleAndRequest()
+                }
+                else -> {
+                    // 최초 요청 or "다시 묻지 않음"을 선택했을 수도 있음 → 우선 요청
+                    locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+                }
+            }
+        }
 
-//        // 검색 버튼 (바인딩 통해 접근!)
-//        binding.btnSearch.setOnClickListener {
-//            val q = binding.searchEdit.text?.toString().orEmpty()
-//            viewModel.search(q, resetPage = true)
-//        }
-
-//        // 상태 구독 (오타 수정 + viewLifecycleOwner 사용)
-//        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-//            viewModel.ui.collect { state ->
+        // 상태 구독 (오타 수정 + viewLifecycleOwner 사용)
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.ui.collect { state ->
 //                binding.progress.isVisible = state.loading
 //                binding.txtError.isVisible = state.error != null
 //                binding.txtError.text = state.error
-//                adapter.submit(state.items)
+                adapter.submit(state.items)
 //                binding.emptyView.isVisible = !state.loading && state.items.isEmpty() && state.error == null
-//            }
-//        }
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -290,6 +227,118 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
             val lng = first?.x?.toDoubleOrNull()
             if (lat != null && lng != null) lat to lng else null
         }.getOrNull()
+    }
+
+
+    private fun View.show(show: Boolean) {
+        visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        val granted = result[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        if (granted) {
+            fetchAndSetLocation()
+        } else {
+            // 여기서 ‘다시 묻지 않음’ 여부 판단
+            if (!shouldShowLocationRationale()) {
+                // 사용자가 "다시 묻지 않음"을 체크했거나 정책상 rationale 표시 불가
+                showGoToSettingsDialog()
+            } else {
+                Toast.makeText(requireContext(), "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    private val sidoAdapter by lazy {
+        SidoAdapter { sido ->
+            selectedSido = sido.name
+            Log.d(TAG, "Sido clicked: ${sido.name} (${sido.type})")
+            fetchSggs(sido.name)
+        }
+    }
+
+
+
+    private val sggAdapter by lazy {
+        SggAdapter(
+            currentSido = { selectedSido ?: "시/도" },
+            onBackClick = {
+                // SGG → SIDO
+                binding.rvSggGrid.visibility = View.GONE
+                binding.rvSidoGrid.visibility = View.VISIBLE
+            },
+            onItemClick = { sgg ->
+                selectedSgg = sgg.name
+                fetchUmds(sgg.name)
+            }
+        )
+    }
+
+    private val umdAdapter by lazy {
+        UmdAdapter(
+            currentSgg = { selectedSgg ?: "시/군/구" },
+            onBackClick = {
+                // UMD → SGG
+                binding.rvUmdGrid.visibility = View.GONE
+                binding.rvSggGrid.visibility = View.VISIBLE
+            },
+            onItemClick = { umd ->
+                selectedUmd = umd.name
+                showConfirmation()
+            }
+        )
+    }
+
+
+
+
+    private val viewModel by lazy { LocationViewModel(restKey = "4bde7a7235a24839479023ff8eb22347") }
+    private val adapter = LocationAdapter { doc ->
+        // 클릭 시 좌표/주소 사용 예시
+        val lat = doc.y?.toDoubleOrNull()
+        val lon = doc.x?.toDoubleOrNull()
+        val road = doc.road_address?.address_name
+        val jibun = doc.address?.address_name ?: doc.address_name
+        // TODO: 선택 결과 처리 (예: 상세 페이지 이동, 지도 표시, 폼에 채우기 등)
+    }
+
+    private fun isFineLocationGranted(): Boolean =
+        ContextCompat.checkSelfPermission(
+            requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+    private fun shouldShowLocationRationale(): Boolean =
+        shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)
+
+    private fun openAppSettings() {
+        val intent = Intent (
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", requireContext().packageName, null)
+        )
+        startActivity(intent)
+    }
+
+    private fun showGoToSettingsDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("위치 권한이 필요해요")
+            .setMessage("현재 위치로 자동 설정하려면 위치 권한을 허용해 주세요.\n설정 > 앱 > Carepick > 권한에서 ‘위치’를 허용으로 변경하세요.")
+            .setPositiveButton("설정으로 이동") { _, _ -> openAppSettings() }
+            .setNegativeButton("취소", null)
+            .show()
+    }
+
+    private fun showRationaleAndRequest() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("위치 권한 요청")
+            .setMessage("현재 위치를 사용하여 주소를 자동으로 설정합니다. 권한을 허용해 주세요.")
+            .setPositiveButton("허용") { _, _ ->
+                locationPermissionLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION))
+            }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     private fun setupModeToggle(initial: Mode) = with(binding) {
@@ -315,29 +364,86 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
         )
     }
 
-//    @SuppressLint("MissingPermission")
-//    private fun fetchAndSetLocation() {
-//        val client = LocationServices.getFusedLocationProviderClient(requireContext())
-//        client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, /* cancellationToken */ null)
-//            .addOnSuccessListener { loc ->
-//                if (loc == null) {
-//                    Toast.makeText(requireContext(), "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
-//                    return@addOnSuccessListener
-//                }
-//                // TODO: 역지오코딩(카카오/네이버/구글)으로 행정구역 변환
-//                // 임시로 좌표 표기
-//                val msg = "위도 ${"%.5f".format(loc.latitude)}, 경도 ${"%.5f".format(loc.longitude)}"
-//                binding.tvSelectedAddress.text = msg
-//                binding.confirmBar.show(true)
-//
-//                // 필요하면 자동으로 행정구역 모드로 전환해서 해당 구역을 세팅:
-//                // binding.toggleModes.check(R.id.btnModeAdmin)
-//                // 이후 selectedSido/selectedSgg/selectedUmd 값을 역지오코딩 결과로 채우고 showConfirmation()
-//            }
-//            .addOnFailureListener {
-//                Toast.makeText(requireContext(), "위치 조회 실패: ${it.message}", Toast.LENGTH_SHORT).show()
-//            }
-//    }
+    @SuppressLint("MissingPermission")
+    private fun fetchAndSetLocation() {
+        val client = LocationServices.getFusedLocationProviderClient(requireContext())
+        client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+            .addOnSuccessListener { loc ->
+                if (loc == null) {
+                    Toast.makeText(requireContext(), "현재 위치를 가져올 수 없습니다.", Toast.LENGTH_SHORT)
+                        .show()
+                    return@addOnSuccessListener
+                }
+
+                // 카카오 역지오코딩으로 행정구역 얻기
+                viewLifecycleOwner.lifecycleScope.launch {
+                    runCatching {
+                        // x = lon(경도), y = lat(위도) !!!
+                        Log.d("KakaoAPI", "coord2region x(lon)=${loc.longitude}, y(lat)=${loc.latitude}")
+
+                        var lon = loc.longitude
+                        var lat = loc.latitude
+
+                        if (!isInKorea(lat, lon)) {
+                            lon = 127.0276
+                            lat = 37.4979
+                        }
+
+                        KakaoRetrofitClient.kakaoService.getRegionByCoord(
+                            lon = lon,
+                            lat = lat
+                        )
+                    }.onSuccess { res ->
+                        val best =
+                            res.documents.firstOrNull { it.regionType == "B" } // 법정동 우선
+                                ?: res.documents.firstOrNull()                  // 없으면 아무거나
+
+                        if (best != null) {
+                            val sido = best.region1DepthName
+                            val sgg  = best.region2DepthName
+                            val umd  = when (best.regionType) {
+                                "B"  -> best.region3DepthName
+                                "H"  -> best.region3DepthHName ?: best.region3DepthName
+                                else -> best.region3DepthName ?: best.region3DepthHName
+                            } ?: ""
+
+                            // UI 반영
+                            val full = listOfNotNull(sido, sgg, umd.ifBlank { null }).joinToString(" ")
+                            binding.tvSelectedAddress.text = full
+                            binding.confirmBar.show(true)
+
+                            // 필요하면 ‘행정구역 모드’로 전환 + 선택 완료 UX
+                            selectedSido = sido
+                            selectedSgg = sgg
+                            selectedUmd = umd
+//                            binding.toggleModes.check(R.id.btnModeAdmin)
+//                            showConfirmation()
+                            binding.tvSelectedAddress.text = full
+                            binding.confirmBar.show(true)
+                        } else {
+                            // 실패 시 좌표 문자열 표시
+                            binding.tvSelectedAddress.text =
+                                "위도 ${"%.5f".format(loc.latitude)}, 경도 ${"%.5f".format(loc.longitude)}"
+                            binding.confirmBar.show(true)
+                        }
+                    }.onFailure { e ->
+                        if (e is retrofit2.HttpException) {
+                            val body = e.response()?.errorBody()?.string()
+                            Log.e("KakaoAPI", "HTTP ${e.code()} body=$body")
+                        } else {
+                            Log.e("KakaoAPI", "call failed", e)
+                        }
+                        Log.e("LocationSetting", "Reverse geocoding 실패: ${e.message}", e)
+                        binding.tvSelectedAddress.text =
+                            "위도 ${"%.5f".format(loc.latitude)}, 경도 ${"%.5f".format(loc.longitude)}"
+                        binding.confirmBar.show(true)
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "위치 조회 실패: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 
     private fun applyMode(mode: Mode) = with(binding) {
         val isSearch = mode == Mode.SEARCH
@@ -432,5 +538,12 @@ class LocationSettingFragment : Fragment(R.layout.fragment_location_setting) {
         textView.layoutParams = params
 
         return textView
+    }
+
+    private fun isInKorea(lat: Double, lon: Double): Boolean {
+        // 대략적인 한반도 경계 (느슨하게 잡음)
+        val latOk = lat in 33.0..39.5
+        val lonOk = lon in 124.0..132.0
+        return latOk && lonOk
     }
 }

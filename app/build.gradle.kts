@@ -68,7 +68,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

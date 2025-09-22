@@ -1,6 +1,7 @@
 package com.example.carepick.network
 
 import com.example.carepick.network.KakaoLocalApi
+import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -16,6 +17,9 @@ object KakaoRetrofitClient {
                 .build()
             chain.proceed(req)
         }
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        })
         .build()
 
     private val retrofit: Retrofit = Retrofit.Builder()

@@ -57,7 +57,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="검색"
+            android:text="주소 검색"
             android:checkable="true" />
 
         <com.google.android.material.button.MaterialButton
@@ -66,7 +66,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="행정구역"
+            android:text="행정구역 선택"
             android:checkable="true" />
 
         <com.google.android.material.button.MaterialButton
@@ -75,7 +75,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="GPS"
+            android:text="GPS 사용"
             android:checkable="true" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -156,7 +156,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_admin_region"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/confirmBar" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSggGrid"
@@ -169,7 +169,7 @@
         app:layout_constraintTop_toBottomOf="@id/btn_admin_region"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/confirmBar" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvUmdGrid"
@@ -182,17 +182,28 @@
         app:layout_constraintTop_toBottomOf="@id/btn_admin_region"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/confirmBar" />
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- 현재 보이는 섹션(검색/행정구역 버튼/ GPS)들의 "아래"를 대표하는 바리어 -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/sectionBottomBarrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="searchContainer,btn_admin_region,gpsContainer" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/confirmBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/sectionBottomBarrier">
 
         <TextView
             android:id="@+id/tvSelectedAddress"
@@ -259,7 +270,7 @@
                 android:id="@+id/tvGpsDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="현재 위치를 사용해 읍/면/동을 자동으로 설정합니다."
+                android:text="GPS를 이용해 현재 위치를 자동으로 설정합니다"
                 android:textSize="16sp"/>
 
             <com.google.android.material.button.MaterialButton
