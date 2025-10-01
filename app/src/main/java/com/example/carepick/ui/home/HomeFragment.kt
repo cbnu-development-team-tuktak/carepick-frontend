@@ -205,19 +205,19 @@ class HomeFragment: Fragment() {
             }
 
             binding.hospitalCardView.setOnClickListener {
-                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
-                    .addToBackStack("hospitalSearch")
-                    .commit()
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
+//                requireActivity().supportFragmentManager.beginTransaction()
+//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
+//                    .addToBackStack("hospitalSearch")
+//                    .commit()
             }
 
             binding.doctorCardView.setOnClickListener {
-                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
-                    .addToBackStack("doctorSearch")
-                    .commit()
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
+//                requireActivity().supportFragmentManager.beginTransaction()
+//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
+//                    .addToBackStack("doctorSearch")
+//                    .commit()
             }
 
 
@@ -305,7 +305,11 @@ class HomeFragment: Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as? MainActivity)?.updateNavIcons(R.id.nav_home)
+        // ✅ MainActivity에 아이콘 상태 업데이트 및 현재 프래그먼트가 활성 상태임을 알림
+        (activity as? MainActivity)?.let { mainActivity ->
+            mainActivity.updateNavIcons(R.id.nav_home)
+            mainActivity.updateActiveFragment(this)
+        }
 
         if (_binding != null) {
             Log.d("ResultFlow",

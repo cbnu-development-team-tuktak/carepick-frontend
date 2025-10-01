@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,20 +29,17 @@ import com.example.carepick.adapter.MessageAdapter
 import com.example.carepick.databinding.FragmentSelfCheckBinding
 import com.example.carepick.model.ChatMessage
 import com.example.carepick.model.DiagnosisResult
+import com.example.carepick.model.PredictionSummary
 import kotlinx.coroutines.launch
 
 class SelfCheckFragment : Fragment() {
     private var _binding: FragmentSelfCheckBinding? = null
     private val binding get() = _binding!!
 
-    // messages 타입은 sealed class 리스트
-    private val messages = mutableListOf<ChatMessage>()
     private lateinit var adapter: MessageAdapter
 
-
-    private val vm: SelfDiagnosisViewModel by viewModels()
+    private val vm: SelfDiagnosisViewModel by activityViewModels { SelfDiagnosisViewModelFactory() }
     private var hasScrolledOnKeyboardOpen = false
-
     private val TAG = "SelfCheckFragment"
 
     override fun onCreateView(
@@ -59,9 +57,7 @@ class SelfCheckFragment : Fragment() {
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             val imeHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             val navBarHeight = 80.dpToPx(requireContext())
-
             rootView.setPadding(0, statusBarHeight, 0, 0)
-
             val bottomPadding = if (imeHeight > 0) imeHeight - navBarHeight else 0
             binding.inputContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
                 bottomMargin = bottomPadding.coerceAtLeast(0)
@@ -69,9 +65,12 @@ class SelfCheckFragment : Fragment() {
             insets
         }
 
-        adapter = MessageAdapter(messages)
+        // ✅ Initialize adapter with an empty list.
+        adapter = MessageAdapter(mutableListOf()) // Pass an empty mutable list initially
         binding.messageRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.messageRecyclerView.adapter = adapter
+
+
 
         binding.selfCheckInput.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_DONE) {
@@ -85,22 +84,21 @@ class SelfCheckFragment : Fragment() {
         }
 
         binding.root.viewTreeObserver.addOnGlobalLayoutListener {
-            val safeBinding = _binding ?: return@addOnGlobalLayoutListener
+            val safe = _binding ?: return@addOnGlobalLayoutListener
             val rect = Rect()
-            safeBinding.root.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = safeBinding.root.rootView.height
+            safe.root.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = safe.root.rootView.height
             val keypadHeight = screenHeight - rect.bottom
-
             if (keypadHeight > screenHeight * 0.15) {
-                if (messages.isNotEmpty() && !hasScrolledOnKeyboardOpen) {
-                    safeBinding.messageRecyclerView.post {
-                        safeBinding.messageRecyclerView.scrollToPosition(messages.size - 1)
+                // ✅ ViewModel의 StateFlow에서 현재 값(.value)을 직접 가져옵니다.
+                if (vm.messages.value.isNotEmpty() && !hasScrolledOnKeyboardOpen) {
+                    safe.messageRecyclerView.post {
+                        // ✅ 여기도 동일하게 수정합니다.
+                        safe.messageRecyclerView.scrollToPosition(vm.messages.value.size - 1)
                         hasScrolledOnKeyboardOpen = true
                     }
                 }
-            } else {
-                hasScrolledOnKeyboardOpen = false
-            }
+            } else hasScrolledOnKeyboardOpen = false
         }
 
         val backButton = view.findViewById<ImageButton>(R.id.btn_back)
@@ -109,30 +107,28 @@ class SelfCheckFragment : Fragment() {
             if (manager.backStackEntryCount > 0) manager.popBackStack() else requireActivity().finish()
         }
 
-        // ✅ 상태 수집 로그
+        // ✅ ViewModel의 상태(로딩/에러) 수집
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 vm.state.collect { state ->
                     Log.d(TAG, "state=$state")
-                    when (state) {
-                        is UiState.Idle -> Unit
-                        is UiState.Loading -> binding.selfCheckSendButton.isEnabled = false
-                        is UiState.Success -> {
-                            binding.selfCheckSendButton.isEnabled = true
-                            // ✅ 타이핑 제거
-                            adapter.removeLastIfTyping()
+                    // 로딩 중일 때만 버튼 비활성화
+                    binding.selfCheckSendButton.isEnabled = state !is UiState.Loading
+                    if (state is UiState.Error) {
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
 
-                            // ✅ 서버 message에서 Top-3 파싱 → 봇 메시지 추가
-                            val botText = buildTop3Text(state.result)
-                            adapter.add(ChatMessage.Bot(botText))
-                            binding.messageRecyclerView.scrollToPosition(messages.size - 1)
-                        }
-                        is UiState.Error -> {
-                            binding.selfCheckSendButton.isEnabled = true
-                            // ✅ 타이핑 제거
-                            adapter.removeLastIfTyping()
-
-                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+        // ✅ ViewModel의 메시지 리스트를 구독하여 어댑터에 반영
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                vm.messages.collect { messageList ->
+                    adapter.updateMessages(messageList) // 어댑터에 새 리스트 전달
+                    if (messageList.isNotEmpty()) {
+                        binding.messageRecyclerView.post {
+                            binding.messageRecyclerView.scrollToPosition(messageList.size - 1)
                         }
                     }
                 }
@@ -148,86 +144,19 @@ class SelfCheckFragment : Fragment() {
             return
         }
 
-        // 1) 내 메시지(오른쪽)
-        adapter.add(ChatMessage.User(text))
-        binding.messageRecyclerView.scrollToPosition(messages.size - 1)
-
-        // 2) 입력창 정리 + 키보드 내림
+        // 1. Clear input and hide keyboard
         binding.selfCheckInput.text?.clear()
         hideKeyboard()
         hasScrolledOnKeyboardOpen = false
 
-        // 3) 타이핑 말풍선(왼쪽) 추가
-        adapter.add(ChatMessage.Typing)
-        binding.messageRecyclerView.scrollToPosition(messages.size - 1)
-
-        // 4) 호출
-        vm.requestDiagnosis(text, k = 3)
+        // 2. ✅ Delegate the entire process to the ViewModel
+        vm.sendMessage(text, k = 3)
     }
-
-
-
-    // ✅ Top-3만 추출해서 보기 좋게 렌더링
-    private fun buildTop3Text(result: DiagnosisResult): String {
-        // 1) 백엔드 message에서 라인 파싱
-        val msg = result.message.orEmpty()
-        val extracted = extractTopKFromMessage(msg) // ["알레르기 비염 (0.1106)", "감기 (0.069)", "비염 (0.0626)"]
-
-        // 2) 없으면 message 전체 출력(보호)
-        if (extracted.isEmpty()) return msg.ifBlank { "예측 결과가 비어있어요." }
-
-        val sb = StringBuilder()
-        sb.appendLine("예측 결과 Top-3")
-        extracted.forEachIndexed { i, line ->
-            sb.appendLine("${i + 1}. $line")
-        }
-        // (선택) 진료과도 하단에 붙임
-        if (result.suggestedSpecialties.isNotEmpty()) {
-            sb.appendLine().append("권장 진료과: ").append(result.suggestedSpecialties.joinToString(", "))
-        }
-        return sb.toString().trimEnd()
-    }
-
-
-    // ✅ “- XXX (score)” 형태 라인만 추출
-    private fun extractTopKFromMessage(message: String): List<String> {
-        // "예측된 질병 Top-3:" 이후의 줄 중 "- "로 시작하는 라인만 추출
-        val lines = message.lines()
-        val startIdx = lines.indexOfFirst { it.contains("예측된 질병 Top-") }
-        if (startIdx == -1) return emptyList()
-
-        val result = mutableListOf<String>()
-        for (i in (startIdx + 1) until lines.size) {
-            val line = lines[i].trim()
-            if (line.startsWith("- ")) {
-                result.add(line.removePrefix("- ").trim())
-            } else if (line.isNotBlank() && !line.startsWith("- ")) {
-                // 리스트 영역이 끝난 것으로 간주
-                break
-            }
-        }
-        return result
-    }
-
-
 
     private fun hideKeyboard() {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         view?.let { v -> imm.hideSoftInputFromWindow(v.windowToken, 0) }
     }
-
-
-
-//    private fun formatPredictions(result: DiagnosisResult): String {
-//        if (result.predictions.isEmpty()) return "진단 결과가 비어있어요."
-//        val sb = StringBuilder("예측 결과 Top-${result.predictions.size}\n")
-//        result.predictions.forEachIndexed { idx, p ->
-//            val prob = String.format("%.1f%%", p.probability * 100)
-//            val dept = p.department?.let { " / 과: $it" } ?: ""
-//            sb.append("${idx + 1}. ${p.disease} ($prob)$dept\n")
-//        }
-//        return sb.toString().trimEnd()
-//    }
 
     override fun onDestroyView() {
         super.onDestroyView()

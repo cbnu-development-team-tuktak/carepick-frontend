@@ -30,12 +30,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// 검색 결과 화면을 구현한 Fragment
-// - 검색창을 제공하며 검색창에는 사용자가 검색했던 키워드를 넣는다 -> 구현할 예정
-// - 검색창에서 새로운 병원 이름/ 의사 이름을 검색할 수 있다 -> 구현할 예정
-// - 필터 버튼을 제공하고 별도의 모달창을 제공해서 필터 기준을 정할 수 있어야 한다 -> 구현할 예정
-// - 사용자가 입력했던 키워드와 이름이 완전/부분적으로 일치하는 병원, 의사 목록을 출력한다
-// - 각각의 병원과 의사 목록에서 하나를 선택할 경우 상세 페이지로 이동해야 한다
 class SearchResultFragment : Fragment() {
 
     // fragment_search_result.xml을 사용할 것임을 명시하였다
@@ -55,7 +49,6 @@ class SearchResultFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
-        // fragment_search_result.xml 레이아웃에 데이터를 바인딩하여 넣을 예정임을 나타내었다.
         _binding = FragmentSearchResultBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -307,7 +300,11 @@ class SearchResultFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as? MainActivity)?.updateNavIcons(R.id.nav_search)
+        // MainActivity에 아이콘 상태 업데이트 및 현재 프래그먼트가 활성 상태임을 알림
+        (activity as? MainActivity)?.let { mainActivity ->
+            mainActivity.updateNavIcons(R.id.nav_search)
+            mainActivity.updateActiveFragment(this)
+        }
     }
 
     override fun onDestroyView() {

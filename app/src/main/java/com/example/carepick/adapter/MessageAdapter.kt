@@ -43,6 +43,12 @@ class MessageAdapter(
         }
     }
 
+    fun updateMessages(newMessages: List<ChatMessage>) {
+        items.clear()
+        items.addAll(newMessages)
+        notifyDataSetChanged() // Simple, but works. For better performance, use DiffUtil.
+    }
+
     fun add(message: ChatMessage) {
         items.add(message)
         notifyItemInserted(items.size - 1)

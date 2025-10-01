@@ -13,42 +13,90 @@ import com.example.carepick.ui.search.SearchResultFragment
 
 class MainActivity : AppCompatActivity() {
 
+    // ✅ 각 프래그먼트의 인스턴스를 저장할 변수 선언
+    private val homeFragment = HomeFragment()
+    val searchResultFragment = SearchResultFragment()
+    val favoriteFragment = FavoriteFragment()
+    val userProfileFragment = UserProfileFragment()
+
+    // ✅ 현재 활성화된 프래그먼트를 추적할 변수
+    private var activeFragment: Fragment = homeFragment
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // 메인 액티비티가 ui를 가질 경우 특정 프래그먼트를 불러올 때 화면이 겹치는 문제가 발생한다
-        // 따라서 메인 액티비티는 자체 ui를 가지지 않고 바로 HomeFragment를 불러오도록 하였다
+        // ✅ 앱이 처음 시작될 때 모든 프래그먼트를 추가(add)하고, 홈 화면만 보여줌(show)
         if (savedInstanceState == null) {
-            loadFragment(HomeFragment())
+            supportFragmentManager.beginTransaction().apply {
+                add(R.id.fragment_container, userProfileFragment, "4").hide(userProfileFragment)
+                add(R.id.fragment_container, favoriteFragment, "3").hide(favoriteFragment)
+                add(R.id.fragment_container, searchResultFragment, "2").hide(searchResultFragment)
+                // 홈 프래그먼트는 마지막에 추가하고 보여줌
+                add(R.id.fragment_container, homeFragment, "1")
+            }.commit()
         }
 
         findViewById<ConstraintLayout>(R.id.nav_home).setOnClickListener {
-            loadFragment(HomeFragment())
+            switchFragment(homeFragment)
             updateNavIcons(R.id.nav_home)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_search).setOnClickListener {
-            loadFragment(SearchResultFragment())
+            switchFragment(searchResultFragment)
             updateNavIcons(R.id.nav_search)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_recommand).setOnClickListener {
-            loadFragment(FavoriteFragment())
+            switchFragment(favoriteFragment)
             updateNavIcons(R.id.nav_recommand)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_profile).setOnClickListener {
-            loadFragment(UserProfileFragment())
+            switchFragment(userProfileFragment)
             updateNavIcons(R.id.nav_profile)
         }
     }
 
-    private fun loadFragment(fragment: Fragment) {
+    // ✅ 새로운 프래그먼트 전환 함수
+    private fun switchFragment(fragment: Fragment) {
+        // 이미 활성화된 프래그먼트를 다시 누른 경우 아무것도 하지 않음
+        if (fragment == activeFragment) return
+
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+            .hide(activeFragment) // 현재 활성화된 프래그먼트는 숨기고
+            .show(fragment)       // 선택된 프래그먼트는 보여줌
             .commit()
+        activeFragment = fragment // 활성 프래그먼트 교체
+    }
+
+    /** ✅ HomeFragment에서 탭 전환을 요청할 때 사용할 함수 */
+    fun navigateToTab(tabId: Int, args: Bundle? = null) {
+        val targetFragment = when (tabId) {
+            R.id.nav_home -> homeFragment
+            R.id.nav_search -> {
+                // 검색어 등 전달된 인자가 있으면 SearchResultFragment에 설정
+                searchResultFragment.arguments = args
+                searchResultFragment
+            }
+            R.id.nav_recommand -> favoriteFragment
+            R.id.nav_profile -> userProfileFragment
+            else -> null
+        }
+
+        if (targetFragment != null) {
+            switchFragment(targetFragment)
+            updateNavIcons(tabId)
+        }
+    }
+
+    /** ✅ 프래그먼트가 자신을 활성 프래그먼트로 등록할 수 있도록 하는 함수 */
+    fun updateActiveFragment(fragment: Fragment) {
+        // 메인 탭 프래그먼트 중 하나일 경우에만 activeFragment 참조를 업데이트
+        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is FavoriteFragment || fragment is UserProfileFragment) {
+            activeFragment = fragment
+        }
     }
 
     fun updateNavIcons(activeId: Int) {
