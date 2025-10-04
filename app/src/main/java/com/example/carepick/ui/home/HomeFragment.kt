@@ -1,8 +1,6 @@
 package com.example.carepick.ui.home
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,23 +13,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.MainActivity
 import com.example.carepick.R
-import com.example.carepick.adapter.AutoCompleteAdapter
+import com.example.carepick.common.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
-import com.example.carepick.repository.ServiceListRepository
-import com.example.carepick.adapter.HospitalCardAdapter
-import com.example.carepick.adapter.ServiceListAdapter
-import com.example.carepick.dto.doctor.DoctorDetailsResponse
-import com.example.carepick.dto.hospital.HospitalDetailsResponse
-import com.example.carepick.repository.HospitalRepository
-import com.example.carepick.ui.location.LocationSharedViewModel
-import com.example.carepick.ui.location.LocationVMFactory
-import com.example.carepick.ui.search.SearchResultFragment
+import com.example.carepick.data.repository.ServiceListRepository
+import com.example.carepick.data.repository.HospitalRepository
+import com.example.carepick.ui.location.viewModel.UserLocationViewModel
+import com.example.carepick.ui.location.viewModelFactory.UserLocationViewModelFactory
+import com.example.carepick.ui.search.result.SearchResultFragment
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 // 홈화면의 기능을 구현한 Fragment
@@ -51,8 +42,8 @@ class HomeFragment: Fragment() {
     private val binding get() = _binding!!
     private var searchJob: Job? = null
 
-    private val locationVM: LocationSharedViewModel by activityViewModels {
-        LocationVMFactory(requireContext().applicationContext)
+    private val locationVM: UserLocationViewModel by activityViewModels {
+        UserLocationViewModelFactory(requireContext().applicationContext)
     }
 
 
@@ -197,17 +188,18 @@ class HomeFragment: Fragment() {
             }
 
             binding.selfCheckCardView.setOnClickListener {
-                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, com.example.carepick.ui.selfcheck.SelfCheckFragment())
-                    .addToBackStack("SelfCheck")
-                    .commit()
+//                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+//                requireActivity().supportFragmentManager.beginTransaction()
+//                    .replace(R.id.fragment_container, com.example.carepick.ui.selfcheck.SelfDiagnosisFragment())
+//                    .addToBackStack("SelfCheck")
+//                    .commit()
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_self_diagnosis)
             }
 
             binding.hospitalCardView.setOnClickListener {
                 (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
 //                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
+//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.result.SearchResultFragment())
 //                    .addToBackStack("hospitalSearch")
 //                    .commit()
             }
@@ -215,7 +207,7 @@ class HomeFragment: Fragment() {
             binding.doctorCardView.setOnClickListener {
                 (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
 //                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.SearchResultFragment())
+//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.result.SearchResultFragment())
 //                    .addToBackStack("doctorSearch")
 //                    .commit()
             }

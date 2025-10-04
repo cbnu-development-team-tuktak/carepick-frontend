@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="60dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp">
+
+    <TextView
+        android:id="@+id/specialtyButton1"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bot_message"
+        android:clickable="true"
+        android:drawablePadding="8dp"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="버튼 1"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:drawableEndCompat="@drawable/ic_chevron_right" />
+
+    <TextView
+        android:id="@+id/specialtyButton2"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_bot_message"
+        android:clickable="true"
+        android:drawablePadding="8dp"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="버튼 2"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:drawableEndCompat="@drawable/ic_chevron_right" />
+
+    <TextView
+        android:id="@+id/specialtyButton3"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_bot_message"
+        android:clickable="true"
+        android:drawablePadding="8dp"
+        android:focusable="true"
+        android:padding="16dp"
+        android:text="버튼 3"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:drawableEndCompat="@drawable/ic_chevron_right" />
+
+</LinearLayout>

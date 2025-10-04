@@ -78,7 +78,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/nav_recommand"
+                app:layout_constraintEnd_toStartOf="@id/nav_self_diagnosis"
                 app:layout_constraintStart_toEndOf="@id/nav_home">
 
                 <ImageView
@@ -107,7 +107,7 @@
 
             <!-- 즐겨찾기 버튼 -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nav_recommand"
+                android:id="@+id/nav_self_diagnosis"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -115,7 +115,7 @@
                 app:layout_constraintStart_toEndOf="@id/nav_search">
 
                 <ImageView
-                    android:id="@+id/nav_recommand_icon"
+                    android:id="@+id/nav_self_diagnosis_icon"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_marginTop="8dp"
@@ -125,17 +125,17 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/nav_recommand_label"
+                    android:id="@+id/nav_self_diagnosis_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/pretendard_regular"
-                    android:text="추천"
+                    android:text="자가진단"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/nav_recommand_icon" />
+                    app:layout_constraintTop_toBottomOf="@id/nav_self_diagnosis_icon" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- 프로필 버튼 -->
@@ -145,7 +145,7 @@
                 android:layout_height="match_parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/nav_recommand">
+                app:layout_constraintStart_toEndOf="@id/nav_self_diagnosis">
 
                 <ImageView
                     android:id="@+id/nav_profile_icon"

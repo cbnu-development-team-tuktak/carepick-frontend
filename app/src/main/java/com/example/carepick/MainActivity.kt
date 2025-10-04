@@ -6,17 +6,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import com.example.carepick.ui.favorite.FavoriteFragment
 import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
 import com.example.carepick.ui.profile.UserProfileFragment
-import com.example.carepick.ui.search.SearchResultFragment
+import com.example.carepick.ui.search.result.SearchResultFragment
+import com.example.carepick.ui.selfDiagnosis.SelfDiagnosisFragment
 
 class MainActivity : AppCompatActivity() {
 
     // ✅ 각 프래그먼트의 인스턴스를 저장할 변수 선언
     private val homeFragment = HomeFragment()
     val searchResultFragment = SearchResultFragment()
-    val favoriteFragment = FavoriteFragment()
+    val selfDiagnosisFragment = SelfDiagnosisFragment()
     val userProfileFragment = UserProfileFragment()
 
     // ✅ 현재 활성화된 프래그먼트를 추적할 변수
@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().apply {
                 add(R.id.fragment_container, userProfileFragment, "4").hide(userProfileFragment)
-                add(R.id.fragment_container, favoriteFragment, "3").hide(favoriteFragment)
+                add(R.id.fragment_container, selfDiagnosisFragment, "3").hide(selfDiagnosisFragment)
                 add(R.id.fragment_container, searchResultFragment, "2").hide(searchResultFragment)
                 // 홈 프래그먼트는 마지막에 추가하고 보여줌
                 add(R.id.fragment_container, homeFragment, "1")
@@ -48,9 +48,9 @@ class MainActivity : AppCompatActivity() {
             updateNavIcons(R.id.nav_search)
         }
 
-        findViewById<ConstraintLayout>(R.id.nav_recommand).setOnClickListener {
-            switchFragment(favoriteFragment)
-            updateNavIcons(R.id.nav_recommand)
+        findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
+            switchFragment(selfDiagnosisFragment)
+            updateNavIcons(R.id.nav_self_diagnosis)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_profile).setOnClickListener {
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 searchResultFragment.arguments = args
                 searchResultFragment
             }
-            R.id.nav_recommand -> favoriteFragment
+            R.id.nav_self_diagnosis -> selfDiagnosisFragment
             R.id.nav_profile -> userProfileFragment
             else -> null
         }
@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
     /** ✅ 프래그먼트가 자신을 활성 프래그먼트로 등록할 수 있도록 하는 함수 */
     fun updateActiveFragment(fragment: Fragment) {
         // 메인 탭 프래그먼트 중 하나일 경우에만 activeFragment 참조를 업데이트
-        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is FavoriteFragment || fragment is UserProfileFragment) {
+        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is SelfDiagnosisFragment || fragment is UserProfileFragment) {
             activeFragment = fragment
         }
     }
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         // 모든 아이콘을 비활성화된 상태로 초기화
         findViewById<ImageView>(R.id.nav_home_icon).setImageResource(R.drawable.ic_home_deactivated)
         findViewById<ImageView>(R.id.nav_search_icon).setImageResource(R.drawable.ic_search_deactivated)
-        findViewById<ImageView>(R.id.nav_recommand_icon).setImageResource(R.drawable.ic_recommand_deactivated)
+        findViewById<ImageView>(R.id.nav_self_diagnosis_icon).setImageResource(R.drawable.ic_recommand_deactivated)
         findViewById<ImageView>(R.id.nav_profile_icon).setImageResource(R.drawable.ic_profile_deactivated)
 
         // -1이면 아무것도 활성화하지 않음
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_search -> findViewById<ImageView>(R.id.nav_search_icon)
                 .setImageResource(R.drawable.ic_search_activated)
 
-            R.id.nav_recommand -> findViewById<ImageView>(R.id.nav_recommand_icon)
+            R.id.nav_self_diagnosis -> findViewById<ImageView>(R.id.nav_self_diagnosis_icon)
                 .setImageResource(R.drawable.ic_recommand_activated)
 
             R.id.nav_profile -> findViewById<ImageView>(R.id.nav_profile_icon)

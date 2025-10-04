@@ -57,8 +57,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checkable="true"
             android:text="주소 검색"
-            android:checkable="true" />
+            android:textColor="#000000"
+            app:iconTint="#84EBC2" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModeAdmin"
@@ -66,8 +68,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checkable="true"
             android:text="행정구역 선택"
-            android:checkable="true" />
+            app:iconTint="#84EBC2" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModeGps"
@@ -75,8 +78,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checkable="true"
             android:text="GPS 사용"
-            android:checkable="true" />
+            app:iconTint="#84EBC2" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- 🔍 검색 섹션 컨테이너 -->
@@ -141,9 +145,38 @@
         app:icon="@drawable/ic_location"
         app:iconGravity="textStart"
         app:iconPadding="8dp"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchContainer"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:backgroundTint="#84EBC2" />
+
+    <LinearLayout
+        android:id="@+id/sggHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone">
+
+        <ImageButton
+            android:id="@+id/btnBackToSido"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:id="@+id/sggTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="시/군/구 선택"
+            android:textSize="18sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSidoGrid"
@@ -232,11 +265,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="확인"
+            android:textColor="#000000"
             style="@style/Widget.MaterialComponents.Button"
             app:layout_constraintTop_toBottomOf="@id/tvSelectedAddress"
             app:layout_constraintStart_toEndOf="@id/btnCancelSelection"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintWidth_percent="0.5" />
+            app:layout_constraintWidth_percent="0.5"
+            android:backgroundTint="#84EBC2"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- ⛳ 행정구역 섹션을 한 번에 토글하기 위한 Group -->
