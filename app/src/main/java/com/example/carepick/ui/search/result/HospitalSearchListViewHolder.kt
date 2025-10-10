@@ -1,7 +1,5 @@
 package com.example.carepick.ui.search.result
 
-import android.os.Bundle
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -9,7 +7,6 @@ import com.example.carepick.R
 import com.example.carepick.ui.selfDiagnosis.adapter.SpecialtyAdapter
 import com.example.carepick.databinding.SearchListBinding
 import com.example.carepick.data.model.HospitalDetailsResponse
-import com.example.carepick.common.ui.HospitalDetailFragment
 
 class HospitalSearchListViewHolder(
     val binding: SearchListBinding

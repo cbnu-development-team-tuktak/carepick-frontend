@@ -1,4 +1,4 @@
-package com.example.carepick.common.ui
+package com.example.carepick.ui.hospital
 
 import android.os.Bundle
 import android.util.Log

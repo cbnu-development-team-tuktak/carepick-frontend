@@ -9,7 +9,7 @@ import com.example.carepick.R
 import com.example.carepick.ui.selfDiagnosis.adapter.SpecialtyAdapter
 import com.example.carepick.databinding.HospitalCardBinding
 import com.example.carepick.data.model.HospitalDetailsResponse
-import com.example.carepick.common.ui.HospitalDetailFragment
+import com.example.carepick.ui.hospital.HospitalDetailFragment
 
 // 병원 즐겨찾기용
 // hospital_card.xml 레이아웃을 바인딩한 객체에 속성으로 접근하여 데이터를 넣는 코드

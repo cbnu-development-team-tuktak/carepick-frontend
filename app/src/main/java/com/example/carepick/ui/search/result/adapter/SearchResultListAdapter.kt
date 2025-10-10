@@ -1,12 +1,15 @@
-package com.example.carepick.ui.search.result
+package com.example.carepick.ui.search.result.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.example.carepick.databinding.SearchListBinding
 import com.example.carepick.data.model.DoctorDetailsResponse
 import com.example.carepick.data.model.HospitalDetailsResponse
+import com.example.carepick.databinding.SearchListBinding
+import com.example.carepick.ui.search.result.DoctorSearchListViewHolder
+import com.example.carepick.ui.search.result.HospitalSearchListViewHolder
+import com.example.carepick.data.model.SearchResultItem
 
 // 검색 결과 화면에서 병원과 의사 정보에서 데이터를 읽어서 레이아웃에 바인딩하는 코드
 class SearchResultListAdapter(

@@ -64,6 +64,41 @@ class SelfDiagnosisFragment : Fragment() {
             insets
         }
 
+        // 💡 WindowInsets을 사용하여 프래그먼트의 루트 뷰에 동적으로 패딩 적용
+//        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            // 루트 뷰 자체에 패딩을 줘서 전체 컨텐츠를 위로 올림
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+//            insets
+//        }
+
+//        // 기존 WindowInsetsListener를 모두 지우고 아래 코드로 교체해주세요.
+//        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+//            // 1. 네비게이션 바의 실제 높이를 가져옵니다.
+//            val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+//
+//            // 2. inputContainer를 네비게이션 바 높이만큼 위로 올립니다 (margin 사용).
+//            binding.inputContainer.updateLayoutParams<ConstraintLayout.LayoutParams> {
+//                bottomMargin = navBarHeight
+//            }
+//
+//            // 3. RecyclerView의 마지막 메시지가 inputContainer에 가려지지 않도록 패딩을 설정합니다.
+//            //    (inputContainer의 실제 높이 + 네비게이션 바 높이) 만큼 패딩을 줍니다.
+//            binding.inputContainer.post { // inputContainer의 높이가 측정된 후 실행되도록 post 사용
+//                val inputContainerHeight = binding.inputContainer.height
+//                binding.messageRecyclerView.setPadding(
+//                    binding.messageRecyclerView.paddingLeft,
+//                    binding.messageRecyclerView.paddingTop,
+//                    binding.messageRecyclerView.paddingRight,
+//                    navBarHeight + inputContainerHeight
+//                )
+//            }
+//
+//            // Insets을 소비하지 않고 반환하여 다른 뷰들도 Insets 정보를 받을 수 있게 합니다.
+//            insets
+//        }
+
+
         // ✅ Initialize adapter with an empty list.
         messageAdapter = MessageAdapter(chatMessageList) { specialty ->
             // 이 코드는 MessageAdapter의 ButtonsVH에서 버튼이 클릭될 때 실행됩니다.

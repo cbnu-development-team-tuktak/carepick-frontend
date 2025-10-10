@@ -1,7 +1,7 @@
 package com.example.carepick.data.model
 
 import android.os.Parcelable
-import com.example.carepick.ui.search.result.SearchResultItem
+import com.example.carepick.data.model.SearchResultItem
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

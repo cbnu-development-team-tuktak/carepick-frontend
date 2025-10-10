@@ -1,7 +1,7 @@
 package com.example.carepick.data.model
 
 import android.os.Parcelable
-import com.example.carepick.ui.search.result.SearchResultItem
+import com.example.carepick.data.model.SearchResultItem
 import kotlinx.parcelize.Parcelize
 
 // 서버에서 받는 병원 정보는 다음과 같은 형태를 가진다

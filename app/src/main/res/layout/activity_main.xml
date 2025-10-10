@@ -28,6 +28,15 @@
 
         </FrameLayout>
 
+<!--        <FrameLayout-->
+<!--            android:id="@+id/fragment_container"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent">-->
+<!--        </FrameLayout>-->
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_bar"
             android:layout_width="match_parent"
@@ -35,8 +44,7 @@
             android:background="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_container">
+            app:layout_constraintStart_toStartOf="parent">
 
             <!-- 홈 버튼 -->
             <androidx.constraintlayout.widget.ConstraintLayout

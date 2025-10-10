@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -19,9 +20,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.carepick.MainActivity
 import com.example.carepick.R
 import com.example.carepick.common.adapter.AutoCompleteAdapter
-import com.example.carepick.common.ui.HospitalDetailFragment
+import com.example.carepick.ui.hospital.HospitalDetailFragment
 import com.example.carepick.data.model.DoctorDetailsResponse
 import com.example.carepick.data.model.HospitalDetailsResponse
+import com.example.carepick.data.model.SearchResultItem
 import com.example.carepick.databinding.FragmentSearchResultBinding
 import com.example.carepick.data.repository.HospitalRepository
 import com.example.carepick.ui.location.repository.UserLocation
@@ -29,6 +31,7 @@ import com.example.carepick.ui.location.viewModel.UserLocationViewModel
 import com.example.carepick.ui.location.viewModelFactory.UserLocationViewModelFactory
 import com.example.carepick.ui.search.filter.FilterFragment
 import com.example.carepick.ui.search.filter.SortFilterBottomSheetFragment
+import com.example.carepick.ui.search.result.adapter.SearchResultListAdapter
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -76,10 +79,30 @@ class SearchResultFragment : Fragment() {
                 updateSearchSortButton()
                 // 거리순 정렬이면 현재 위치 기준으로 다시 로드 (위치 값은 collect를 통해 이미 확보됨)
                 if (selectedSortText.contains("거리", ignoreCase = true)) {
-                    userLocationVM.location.value?.let { loadHospitalsByLocation(it) }
+                    userLocationVM.location.value?.let { loadFilteredHospitals(it) }
                 }
             }
         }
+
+        // ⬇️ 필터 화면으로부터 결과를 수신하는 리스너를 추가합니다 ⬇️
+        parentFragmentManager.setFragmentResultListener("filter_apply_request", viewLifecycleOwner) { _, bundle ->
+            // Bundle에서 진료과 목록을 꺼냅니다. 없으면 빈 리스트를 사용합니다.
+            val receivedSpecialties = bundle.getStringArrayList("selected_specialties") ?: emptyList()
+
+            // 1. ViewModel에서 현재 위치 값을 가져옵니다.
+            val currentLocation = userLocationVM.location.value
+
+            // 2. 위치 값이 null이 아닌지 확인하고, null이 아닐 때만 API를 호출합니다.
+            if (currentLocation != null) {
+                showLoading()
+                // 받은 진료과 목록과 현재 위치로 병원 데이터를 다시 로드합니다.
+                loadFilteredHospitals(location = currentLocation, specialties = receivedSpecialties)
+            } else {
+                // 위치 정보가 없는 경우 사용자에게 알림
+                Toast.makeText(requireContext(), "현재 위치를 알 수 없어 필터를 적용할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
         // 검색창 자동완성 및 검색 실행 리스너
         // 검색창 입력 이벤트 처리
@@ -151,7 +174,7 @@ class SearchResultFragment : Fragment() {
         binding.searchResultFilterButton.setOnClickListener {
             val filterFragment = FilterFragment()
             parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, filterFragment)
+                .add(R.id.fragment_container, filterFragment)
                 .addToBackStack(null)
                 .commit()
         }
@@ -174,7 +197,7 @@ class SearchResultFragment : Fragment() {
 
                 if (query.isNullOrBlank()) { // 검색어 없음 -> 위치 기반 검색
                     if (location != null) {
-                        loadHospitalsByLocation(location)
+                        loadFilteredHospitals(location)
                     } else {
                         showError(getString(R.string.need_location_message))
                     }
@@ -187,22 +210,28 @@ class SearchResultFragment : Fragment() {
     }
 
     // ✨ 3. 위치 기반 검색 함수 수정
-    private fun loadHospitalsByLocation(location: UserLocation, distanceKm: Double = 5.0) {
-        showLoading(true)
+    private fun loadFilteredHospitals(
+        location: UserLocation,
+        distanceKm: Double = 5.0,
+        specialties: List<String>? = null // 👈 진료과 목록 파라미터 추가
+    ) {
         viewLifecycleOwner.lifecycleScope.launch {
             try {
+                // 2. hospitalRepository 호출 시 specialties 파라미터를 넘겨줍니다.
                 val hospitals = hospitalRepository.getHospitalsWithExtendedFilter(
                     lat = location.lat,
                     lng = location.lng,
                     distance = distanceKm,
-                    specialties = null,
-                    selectedDays = null,
+                    specialties = specialties, // 👈 여기에 전달받은 진료과 목록을 사용
+                    selectedDays = null, // (다른 필터들도 필요하다면 이런 방식으로 추가)
                     startTime = null,
                     endTime = null,
-                    sortBy = "distance",
+                    sortBy = "distance", // (정렬 기준도 파라미터로 받을 수 있음)
                     page = 0,
                     size = 30
                 )
+
+                // 3. 결과를 RecyclerView에 업데이트하는 로직 (기존과 동일)
                 if (hospitals.isEmpty()) {
                     showError(getString(R.string.no_results_in_range))
                 } else {
@@ -211,15 +240,13 @@ class SearchResultFragment : Fragment() {
             } catch (e: Exception) {
                 Log.e("API_ERROR", "위치 기반 병원 조회 실패: ${e.message}", e)
                 showError(getString(R.string.fetch_error_message))
-            } finally {
-                showLoading(false)
             }
         }
     }
 
     // ✨ 4. 키워드 검색 함수 분리
     private fun performKeywordSearch(query: String) {
-        showLoading(true)
+        showLoading()
         viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val hospitals = hospitalRepository.getSearchedHospitals(query)
@@ -232,26 +259,31 @@ class SearchResultFragment : Fragment() {
                 Log.e("API_ERROR", "키워드 검색 실패: ${e.message}", e)
                 showError(getString(R.string.fetch_error_message))
             } finally {
-                showLoading(false)
+                showLoading()
             }
         }
     }
 
     // ✨ 5. UI 상태 변경 함수들 분리
-    private fun showLoading(isLoading: Boolean) {
-        // binding.progressBar.isVisible = isLoading // 프로그레스바가 있다면 활용
+    private fun showLoading() {
+        binding.loadingIndicator.visibility = View.VISIBLE
+        binding.searchResultRecyclerView.visibility = View.GONE
+        binding.searchResultErrorText.visibility = View.GONE
     }
 
     private fun showError(message: String) {
-        binding.searchResultErrorText.text = message
-        binding.searchResultErrorText.visibility = View.VISIBLE
+        binding.loadingIndicator.visibility = View.GONE
         binding.searchResultRecyclerView.visibility = View.GONE
+        binding.searchResultErrorText.visibility = View.VISIBLE
+        binding.searchResultErrorText.text = message
     }
 
-    private fun showContent(results: List<SearchResultItem>) {
-        binding.searchResultErrorText.visibility = View.GONE
+    private fun showContent(hospitals: List<HospitalDetailsResponse>) {
+        binding.loadingIndicator.visibility = View.GONE
         binding.searchResultRecyclerView.visibility = View.VISIBLE
-        setupRecyclerView(results)
+        binding.searchResultErrorText.visibility = View.GONE
+        // 콘텐츠를 보여주기 직전에 새 데이터로 어댑터를 설정합니다.
+        setupRecyclerView(hospitals)
     }
 
     // 추가: 필터 체크박스 선택/해제 시 리스트 업데이트
@@ -304,10 +336,12 @@ class SearchResultFragment : Fragment() {
                 is HospitalDetailsResponse -> HospitalDetailFragment().apply {
                     arguments = Bundle().apply { putString("hospitalId", item.id) }
                 }
+
                 is DoctorDetailsResponse -> {
                     // DoctorDetailFragment().apply { ... } // 의사 상세 화면 로직
                     null
                 }
+
                 else -> null
             }
 

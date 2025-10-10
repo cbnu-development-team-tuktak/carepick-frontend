@@ -13,12 +13,16 @@ import com.example.carepick.R
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.carepick.ui.search.FilterViewModel
+import com.example.carepick.ui.search.filter.adapter.SpecialtyAdapter
 import java.util.*
 
 class FilterFragment : Fragment() {
 
-    private val selectedDiseaseTags = mutableSetOf<String>()
-    private val selectedDepartmentTags = mutableSetOf<String>()
+    private val filterVM: FilterViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +42,27 @@ class FilterFragment : Fragment() {
             v.updatePadding(top = topInset + 12) // 기존 padding 유지
             insets
         }
+
+        // 🩺 진료과 선택
+        val specialtyList = listOf(
+            "가정의학과", "감염내과", "내분비대사내과", "류마티스내과", "마취통증의학과", "비뇨의학과", "산부인과",
+            "성형외과", "소아청소년과", "소화기내과", "순환기내과", "신경과", "신경외과", "신장내과", "안과", "영상의학과",
+            "외과", "응급의학과", "이비인후과", "재활의학과", "정신건강의학과", "정형외과", "치과", "피부과", "혈액종양내과",
+            "호흡기내과", "흉부외과"
+        )
+
+        val specialtyRecyclerView = view.findViewById<RecyclerView>(R.id.specialty_recycler_view)
+        // 💡 WindowInsets을 사용하여 네비게이션 바 높이만큼 동적으로 패딩 적용
+        ViewCompat.setOnApplyWindowInsetsListener(specialtyRecyclerView) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, systemBars.bottom)
+            insets
+        }
+        specialtyRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        val specialtyAdapter = SpecialtyAdapter(specialtyList, filterVM.selectedSpecialties)
+        specialtyRecyclerView.adapter = specialtyAdapter
+
 
         // 🔙 뒤로가기 버튼
         view.findViewById<View>(R.id.btn_back)?.setOnClickListener {
@@ -187,77 +212,6 @@ class FilterFragment : Fragment() {
             }
         }
 
-        // ✅ 질병 검색 및 태그 추가
-        setupSearchTagging(
-            view,
-            searchInputId = R.id.search_input,
-            suggestionBoxId = R.id.suggestion_box,
-            suggestionIds = listOf(R.id.suggestion_1, R.id.suggestion_2, R.id.suggestion_3),
-            tagContainerId = R.id.selected_tags_container,
-            sampleSuggestions = listOf("감기", "기흉", "각막염"),
-            selectedSet = selectedDiseaseTags
-        )
-
-        // ✅ 진료과 검색 및 태그 추가
-        setupSearchTagging(
-            view,
-            searchInputId = R.id.department_search_input,
-            suggestionBoxId = R.id.department_suggestion_box,
-            suggestionIds = listOf(R.id.suggestion_1, R.id.suggestion_2, R.id.suggestion_3),
-            tagContainerId = R.id.department_selected_tags_container,
-            sampleSuggestions = listOf("이비인후과", "안과", "가정의학과"),
-            selectedSet = selectedDepartmentTags
-        )
-    }
-
-    private fun setupSearchTagging(
-        root: View,
-        searchInputId: Int,
-        suggestionBoxId: Int,
-        suggestionIds: List<Int>,
-        tagContainerId: Int,
-        sampleSuggestions: List<String>,
-        selectedSet: MutableSet<String>
-    ) {
-        val searchInput = root.findViewById<EditText>(searchInputId)
-        val suggestionBox = root.findViewById<LinearLayout>(suggestionBoxId)
-        val suggestions = suggestionIds.map { root.findViewById<TextView>(it) }
-        val tagContainer = root.findViewById<LinearLayout>(tagContainerId)
-
-        searchInput.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                if (s.toString().isNotEmpty()) {
-                    suggestionBox.visibility = View.VISIBLE
-                    suggestions.zip(sampleSuggestions).forEach { (tv, text) ->
-                        tv.text = text
-                        tv.visibility = View.VISIBLE
-                    }
-                } else {
-                    suggestionBox.visibility = View.GONE
-                    suggestions.forEach { it.visibility = View.GONE }
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        suggestions.forEach { suggestion ->
-            suggestion.setOnClickListener {
-                val text = suggestion.text.toString()
-                if (selectedSet.add(text)) {
-                    val tagView = LayoutInflater.from(context).inflate(R.layout.tag_item, tagContainer, false)
-                    val tagText = tagView.findViewById<TextView>(R.id.tag_text)
-                    val tagClose = tagView.findViewById<ImageView>(R.id.tag_close)
-                    tagText.text = text
-                    tagClose.setOnClickListener {
-                        tagContainer.removeView(tagView)
-                        selectedSet.remove(text)
-                    }
-                    tagContainer.addView(tagView)
-                }
-            }
-        }
     }
 
     private fun updateDayButtonUI(dayButtons: Map<String, TextView>, selectedDays: Set<String>) {
@@ -272,5 +226,15 @@ class FilterFragment : Fragment() {
     private fun <T> MutableSet<T>.setAll(vararg items: T) {
         clear()
         addAll(items)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        val resultBundle = Bundle().apply {
+            // ViewModel에 저장된 최신 진료과 목록을 가져와서 전달합니다.
+            putStringArrayList("selected_specialties", ArrayList(filterVM.selectedSpecialties))
+        }
+        parentFragmentManager.setFragmentResult("filter_apply_request", resultBundle)
     }
 }
