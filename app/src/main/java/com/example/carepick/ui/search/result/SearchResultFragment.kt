@@ -127,6 +127,7 @@ class SearchResultFragment : Fragment() {
                 val newQuery = binding.searchResultSearchView.text.toString()
                 if (newQuery.isNotBlank()) {
                     hideKeyboard()
+                    viewModel.invalidateCache() // ✅ 새로운 검색이므로 캐시 초기화
                     viewModel.searchByKeyword(newQuery)
                 }
                 return@setOnEditorActionListener true
@@ -141,6 +142,7 @@ class SearchResultFragment : Fragment() {
 
             val currentLocation = userLocationVM.location.value
             if (currentLocation != null) {
+                viewModel.invalidateCache() // ✅ 새로운 필터가 적용되므로 캐시 초기화
                 viewModel.searchByLocation(currentLocation, receivedSpecialties.toList())
             } else {
                 Toast.makeText(requireContext(), "위치 정보가 없어 필터를 적용할 수 없습니다.", Toast.LENGTH_SHORT).show()

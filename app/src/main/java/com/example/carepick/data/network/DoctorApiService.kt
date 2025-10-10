@@ -11,7 +11,7 @@ interface DoctorApiService {
     @GET("/api/doctors")
     suspend fun getAllDoctors(
         @Query("page") page: Int = 0,
-        @Query("size") size: Int = 100
+        @Query("size") size: Int = 10
     ): DoctorPageResponse<DoctorDetailsResponse>
 
     // 의사 ID로 의사 정보를 조회

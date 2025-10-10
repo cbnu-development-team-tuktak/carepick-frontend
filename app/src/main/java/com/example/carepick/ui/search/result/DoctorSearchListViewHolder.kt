@@ -17,7 +17,7 @@ class DoctorSearchListViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(doctor: DoctorDetailsResponse, onItemClicked: (DoctorDetailsResponse) -> Unit) {
         binding.searchListName.text = doctor.name
-        binding.searchListAddress.text = "병원 이름이 들어가야 함"
+        binding.searchListAddress.text = doctor.hospitalName
 
         // url을 통해 의사 이미지를 불러온다
         val imageUrl = doctor.profileImage?: ""

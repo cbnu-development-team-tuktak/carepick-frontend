@@ -20,9 +20,3 @@ data class HospitalDetailsResponse(
     val additionalInfo: HospitalAdditionalInfo?, // 병원 추가 정보
     var location: LatLng? // 변환된 병원 좌표
 ) : Parcelable, SearchResultItem
-
-@Parcelize
-data class LatLng(
-    val latitude: Double,
-    val longitude: Double
-) : Parcelable
