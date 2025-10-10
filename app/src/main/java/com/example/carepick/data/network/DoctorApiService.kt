@@ -19,4 +19,5 @@ interface DoctorApiService {
     fun getDoctorById(
         @Path("id") doctorId: String
     ): Call<DoctorDetailsResponse>
+
 }
