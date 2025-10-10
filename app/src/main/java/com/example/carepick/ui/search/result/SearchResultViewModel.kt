@@ -95,9 +95,9 @@ class SearchResultViewModel(
                         lat = location.lat, lng = location.lng, specialties = specialties
                     )
                     SearchMode.DOCTOR -> {
-                        // TODO: DoctorRepository에 위치 기반 검색 기능 추가 필요
-                        // 현재는 전체 의사 목록을 반환
-                        doctorRepository.getAllDoctors()
+                        doctorRepository.getNearbyDoctors(
+                            lat = location.lat, lng = location.lng
+                        )
                     }
                 }
                 if (results.isEmpty()) {

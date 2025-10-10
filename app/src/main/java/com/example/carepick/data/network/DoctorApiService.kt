@@ -20,4 +20,11 @@ interface DoctorApiService {
         @Path("id") doctorId: String
     ): Call<DoctorDetailsResponse>
 
+    @GET("/api/doctors/sort/distance")
+    suspend fun getDoctorsSortedByDistance(
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): DoctorPageResponse<DoctorDetailsResponse>
 }

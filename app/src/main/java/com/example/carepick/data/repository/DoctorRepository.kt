@@ -41,4 +41,16 @@ class DoctorRepository {
         // 실제 의사 목록인 content만 추출하여 반환합니다.
         return doctorApiService.getAllDoctors().content
     }
+
+    // ✅ [신규] 위도, 경도를 받아 주변 의사 목록을 요청하는 메소드
+    suspend fun getNearbyDoctors(lat: Double, lng: Double): List<DoctorDetailsResponse> {
+        return try {
+            // ApiService의 새 함수를 호출하고, 결과의 content(실제 의사 목록)만 반환
+            doctorApiService.getDoctorsSortedByDistance(lat = lat, lng = lng).content
+        } catch (e: Exception) {
+            // 에러 발생 시 로그를 남기고 빈 리스트를 반환
+            Log.e("API_ERROR", "getNearbyDoctors failed", e)
+            emptyList()
+        }
+    }
 }
