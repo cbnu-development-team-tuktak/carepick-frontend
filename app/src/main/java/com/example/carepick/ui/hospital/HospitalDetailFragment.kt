@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.carepick.MainActivity
 import com.example.carepick.R
+import com.example.carepick.TabOwner
 import com.example.carepick.common.adapter.DoctorCardAdapter
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.example.carepick.data.model.DoctorDetailsResponse
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
 // - 병원에 대한 기본 정보를 출력한다
 // - 병원에 대한 추가 정보를 출력한다
 // - 해당 병원에 소속된 의사 목록을 출력한다
-class HospitalDetailFragment : Fragment() {
+class HospitalDetailFragment : Fragment(), TabOwner {
 
     // 이 프래그먼트는 fragment_hospital_detail.xml 레이아웃을 사용함을 명시한다
     private var _binding: FragmentHospitalDetailBinding? = null
@@ -40,6 +41,9 @@ class HospitalDetailFragment : Fragment() {
     private val doctorRepository = DoctorRepository()
 
     private var doctors = mutableListOf<DoctorDetailsResponse>()
+
+    // 이 상세 페이지도 '검색' 탭의 일부임을 명시합니다.
+    override fun getNavId(): Int = R.id.nav_search // 👈 메소드 추가
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -166,7 +170,10 @@ class HospitalDetailFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+
+        if (this is TabOwner) {
+            (activity as? MainActivity)?.updateNavIcons(getNavId())
+        }
     }
 
     override fun onDestroyView() {

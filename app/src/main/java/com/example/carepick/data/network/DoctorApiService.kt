@@ -27,4 +27,12 @@ interface DoctorApiService {
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): DoctorPageResponse<DoctorDetailsResponse>
+
+    // ✅ 의사 이름으로 검색하는 API 추가
+    @GET("/api/doctors/search")
+    suspend fun searchDoctors(
+        @Query("keyword") keyword: String,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): DoctorPageResponse<DoctorDetailsResponse>
 }

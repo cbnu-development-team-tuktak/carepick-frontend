@@ -2,6 +2,7 @@ package com.example.carepick.data.repository
 
 import android.util.Log
 import com.example.carepick.data.model.HospitalDetailsResponse
+import com.example.carepick.data.model.HospitalPageResponse
 import com.example.carepick.data.network.RetrofitClient
 import com.example.carepick.data.network.HospitalApiService
 
@@ -24,13 +25,9 @@ class HospitalRepository(
             null
         }
 
-    suspend fun getSearchedHospitals(keyword: String): MutableList<HospitalDetailsResponse> =
-        try {
-            api.getSearchedHospitals(keyword, page = 0, size = 10).content.toMutableList()
-        } catch (e: Exception) {
-            Log.e("API_ERROR", "getSearchedHospitals failed", e)
-            mutableListOf()
-        }
+    suspend fun getSearchedHospitals(query: String, page: Int): HospitalPageResponse<HospitalDetailsResponse> {
+        return api.getSearchedHospitals(keyword = query, page = page, size = 10)
+    }
 
     // 좌표 기반(검색어 없이) 반경 내 병원 조회
     suspend fun getHospitalsByLocationOnly(
@@ -70,13 +67,10 @@ class HospitalRepository(
         sortBy: String = "distance",
         page: Int = 0,
         size: Int = 10
-    ): MutableList<HospitalDetailsResponse> =
-        try {
-            api.getFilteredHospitals(
-                lat, lng, distance, specialties, selectedDays, startTime, endTime, sortBy, page, size
-            ).content.toMutableList()
-        } catch (e: Exception) {
-            Log.e("API_ERROR", "getHospitalsWithExtendedFilter failed", e)
-            mutableListOf()
-        }
+    ): HospitalPageResponse<HospitalDetailsResponse> {
+        return api.getFilteredHospitals(
+            lat, lng, distance, specialties, selectedDays, startTime, endTime, sortBy, page, size
+        )
+    }
+
 }

@@ -1,9 +1,9 @@
 package com.example.carepick.data.model
 
 data class HospitalPageResponse<T>(
-    val content: List<T>,  // 실제 데이터 리스트
-    val totalPages: Int,
-    val totalElements: Int,
-    val last: Boolean,
+    override val content: List<T>,  // 실제 데이터 리스트
+    override val last: Boolean,
+    override val totalPages: Int,
+    override val totalElements: Long,
     val first: Boolean
-)
+): PageResponse<T>

@@ -6,6 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
 import com.example.carepick.ui.profile.UserProfileFragment
 import com.example.carepick.ui.search.result.SearchResultFragment
@@ -24,6 +25,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
@@ -40,35 +42,72 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<ConstraintLayout>(R.id.nav_home).setOnClickListener {
             switchFragment(homeFragment)
-            updateNavIcons(R.id.nav_home)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_search).setOnClickListener {
-            switchFragment(searchResultFragment)
-            updateNavIcons(R.id.nav_search)
+            if (activeFragment == searchResultFragment && supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                // ✅ 백스택을 비운 후, '검색' 아이콘을 명시적으로 활성화합니다.
+                updateNavIcons(R.id.nav_search)
+            } else {
+                switchFragment(searchResultFragment)
+            }
         }
 
         findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
             switchFragment(selfDiagnosisFragment)
-            updateNavIcons(R.id.nav_self_diagnosis)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_profile).setOnClickListener {
             switchFragment(userProfileFragment)
-            updateNavIcons(R.id.nav_profile)
         }
+
+//        // ✅ 프래그먼트 스택에 변경이 있을 때마다 감지하는 리스너 추가
+//        supportFragmentManager.addOnBackStackChangedListener {
+//            updateNavSelection()
+//        }
+//
+//        // 초기 아이콘 상태 설정
+//        updateNavSelection()
+
     }
 
     // ✅ 새로운 프래그먼트 전환 함수
     private fun switchFragment(fragment: Fragment) {
-        // 이미 활성화된 프래그먼트를 다시 누른 경우 아무것도 하지 않음
-        if (fragment == activeFragment) return
+        if (fragment == activeFragment && supportFragmentManager.backStackEntryCount == 0) return
 
+        // 1. ✅ 백스택을 모두 비워서 상세 페이지 등을 모두 닫습니다.
+        // 'inclusive' 플래그는 지정된 트랜잭션까지 포함하여 제거하라는 의미입니다.
+        // 여기서는 null을 주어 가장 처음까지의 모든 스택을 비웁니다.
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+
+        // 2. ✅ 기존의 hide/show 로직을 실행합니다.
         supportFragmentManager.beginTransaction()
-            .hide(activeFragment) // 현재 활성화된 프래그먼트는 숨기고
-            .show(fragment)       // 선택된 프래그먼트는 보여줌
+            .hide(activeFragment)
+            .show(fragment)
             .commit()
-        activeFragment = fragment // 활성 프래그먼트 교체
+
+        activeFragment = fragment
+
+        if (fragment is TabOwner) {
+            updateNavIcons(fragment.getNavId())
+        }
+    }
+
+    /** ✅ 현재 화면의 프래그먼트를 확인하고, 그에 맞는 탭 아이콘을 활성화하는 중앙 제어 함수 */
+    private fun updateNavSelection() {
+        // 현재 화면에 보이는 프래그먼트를 찾습니다.
+        val visibleFragment = supportFragmentManager.fragments.lastOrNull { it.isVisible }
+
+        // 보이는 프래그먼트가 TabOwner 인터페이스를 구현했다면
+        if (visibleFragment is TabOwner) {
+            // 해당 프래그먼트가 알려주는 탭 ID로 아이콘을 업데이트합니다.
+            updateNavIcons(visibleFragment.getNavId())
+        } else {
+            // TabOwner가 아닌 프래그먼트(예: 시스템 다이얼로그)가 위에 떠 있다면
+            // 어떤 아이콘도 활성화하지 않을 수 있습니다. (선택적)
+            // updateNavIcons(-1)
+        }
     }
 
     /** ✅ HomeFragment에서 탭 전환을 요청할 때 사용할 함수 */
@@ -76,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         val targetFragment = when (tabId) {
             R.id.nav_home -> homeFragment
             R.id.nav_search -> {
-                // 검색어 등 전달된 인자가 있으면 SearchResultFragment에 설정
                 searchResultFragment.arguments = args
                 searchResultFragment
             }
@@ -86,8 +124,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (targetFragment != null) {
+            // ✅ navigateToTab에서도 switchFragment를 호출하도록 통일합니다.
             switchFragment(targetFragment)
-            updateNavIcons(tabId)
         }
     }
 

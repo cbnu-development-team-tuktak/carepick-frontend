@@ -2,6 +2,7 @@ package com.example.carepick.data.repository
 
 import android.util.Log
 import com.example.carepick.data.model.DoctorDetailsResponse
+import com.example.carepick.data.model.DoctorPageResponse
 import com.example.carepick.data.network.DoctorApiService
 import com.example.carepick.data.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
@@ -36,21 +37,17 @@ class DoctorRepository {
         }
     }
 
-    suspend fun getAllDoctors(): List<DoctorDetailsResponse> {
-        // API 응답이 DoctorPageResponse<DoctorDetailsResponse> 형태이므로,
-        // 실제 의사 목록인 content만 추출하여 반환합니다.
-        return doctorApiService.getAllDoctors().content
+    suspend fun getAllDoctors(page: Int): DoctorPageResponse<DoctorDetailsResponse> { // ✅ 변경
+        return doctorApiService.getAllDoctors(page = page, size = 10)
     }
 
     // ✅ [신규] 위도, 경도를 받아 주변 의사 목록을 요청하는 메소드
-    suspend fun getNearbyDoctors(lat: Double, lng: Double): List<DoctorDetailsResponse> {
-        return try {
-            // ApiService의 새 함수를 호출하고, 결과의 content(실제 의사 목록)만 반환
-            doctorApiService.getDoctorsSortedByDistance(lat = lat, lng = lng).content
-        } catch (e: Exception) {
-            // 에러 발생 시 로그를 남기고 빈 리스트를 반환
-            Log.e("API_ERROR", "getNearbyDoctors failed", e)
-            emptyList()
-        }
+    suspend fun getNearbyDoctors(lat: Double, lng: Double, page: Int): DoctorPageResponse<DoctorDetailsResponse> {
+        return doctorApiService.getDoctorsSortedByDistance(lat = lat, lng = lng, page = page)
+    }
+
+    // ✅ 의사 이름으로 검색하는 함수 추가
+    suspend fun searchDoctors(query: String, page: Int): DoctorPageResponse<DoctorDetailsResponse> {
+        return doctorApiService.searchDoctors(keyword = query, page = page)
     }
 }

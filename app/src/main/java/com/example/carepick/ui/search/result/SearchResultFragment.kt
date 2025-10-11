@@ -18,8 +18,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.carepick.MainActivity
 import com.example.carepick.R
+import com.example.carepick.TabOwner
 import com.example.carepick.common.adapter.AutoCompleteAdapter
 import com.example.carepick.common.ui.DoctorDetailFragment
 import com.example.carepick.ui.hospital.HospitalDetailFragment
@@ -44,7 +46,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
-class SearchResultFragment : Fragment() {
+class SearchResultFragment : Fragment(), TabOwner {
 
     // fragment_search_result.xml을 사용할 것임을 명시하였다
     private var _binding: FragmentSearchResultBinding? = null
@@ -57,6 +59,12 @@ class SearchResultFragment : Fragment() {
     }
     private val filterVM: FilterViewModel by activityViewModels()
 
+    // 자신이 '검색' 탭에 속한다고 알려줍니다.
+    override fun getNavId(): Int = R.id.nav_search
+
+
+
+
     // 프래그먼트가 생성되었을 때 실행할 코드
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -65,15 +73,41 @@ class SearchResultFragment : Fragment() {
         return binding.root
     }
 
+
+
+
+
     // 프래그먼트가 생성되고 위젯들이 배치된 후 실행할 코드
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ RecyclerView에 어댑터와 레이아웃 매니저를 한 번만 설정합니다.
+        binding.searchResultRecyclerView.adapter = searchResultAdapter
+        binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        // ✅ 스크롤 리스너도 여기서 한 번만 설정합니다.
+        binding.searchResultRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
+
+                if (totalItemCount > 0 && lastVisibleItemPosition >= totalItemCount - 5) {
+                    viewModel.loadNextPage()
+                }
+            }
+        })
 
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
         loadInitialData() // ✅ 초기 데이터 로딩 함수
     }
+
+
+
+
 
     private fun loadInitialData() {
         val query = arguments?.getString("search_query")
@@ -98,14 +132,47 @@ class SearchResultFragment : Fragment() {
         }
     }
 
+    // ✅ 변경된 생성자에 맞춰 수정
+    private val searchResultAdapter by lazy {
+        SearchResultListAdapter(requireActivity()) { item ->
+            when (item) {
+                is HospitalDetailsResponse -> {
+                    val detailFragment = HospitalDetailFragment()
+                    detailFragment.arguments = Bundle().apply { putString("hospitalId", item.id) }
+                    parentFragmentManager.beginTransaction()
+                        .add(R.id.fragment_container, detailFragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+                is DoctorDetailsResponse -> {
+                    val detailFragment = DoctorDetailFragment()
+                    detailFragment.arguments = Bundle().apply { putString("doctorId", item.id) }
+                    parentFragmentManager.beginTransaction()
+                        .add(R.id.fragment_container, detailFragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
+        }
+    }
+
     // ✅ ViewModel의 상태 변화를 감지하고 UI 업데이트
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
+                // ✅ 어댑터의 로딩 상태를 UI 상태에 맞춰 제어
+                searchResultAdapter.setLoading(state is SearchResultUiState.LoadingNextPage)
+
                 when (state) {
                     is SearchResultUiState.Loading -> showLoading()
                     is SearchResultUiState.Success -> showContent(state.items)
                     is SearchResultUiState.Error -> showError(state.message)
+                    is SearchResultUiState.LoadingNextPage -> {
+                        // 다음 페이지 로딩 중일 때는 기존 목록을 그대로 보여줍니다.
+                        // 어댑터가 알아서 맨 아래에 로딩 스피너를 추가할 것입니다.
+                        binding.searchResultRecyclerView.visibility = View.VISIBLE
+                        searchResultAdapter.submitList(state.items)
+                    }
                 }
             }
         }
@@ -203,33 +270,9 @@ class SearchResultFragment : Fragment() {
         binding.loadingIndicator.visibility = View.GONE
         binding.searchResultRecyclerView.visibility = View.VISIBLE
         binding.searchResultErrorText.visibility = View.GONE
-        setupRecyclerView(items)
-    }
 
-    // RecyclerView 설정
-    private fun setupRecyclerView(items: List<SearchResultItem>) {
-        val myAdapter = SearchResultListAdapter(items, requireActivity()) { item ->
-            when (item) {
-                is HospitalDetailsResponse -> {
-                    val detailFragment = HospitalDetailFragment()
-                    detailFragment.arguments = Bundle().apply { putString("hospitalId", item.id) }
-                    parentFragmentManager.beginTransaction()
-                        .add(R.id.fragment_container, detailFragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-                is DoctorDetailsResponse -> {
-                    val detailFragment = DoctorDetailFragment()
-                    detailFragment.arguments = Bundle().apply { putString("doctorId", item.id) }
-                    parentFragmentManager.beginTransaction()
-                        .add(R.id.fragment_container, detailFragment)
-                        .addToBackStack(null)
-                        .commit()
-                }
-            }
-        }
-        binding.searchResultRecyclerView.adapter = myAdapter
-        binding.searchResultRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // ✅ 어댑터를 새로 만드는 대신, submitList로 데이터만 전달합니다.
+        searchResultAdapter.submitList(items)
     }
 
     private fun setupWindowInsets() {
@@ -247,10 +290,8 @@ class SearchResultFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // MainActivity에 아이콘 상태 업데이트 및 현재 프래그먼트가 활성 상태임을 알림
-        (activity as? MainActivity)?.let { mainActivity ->
-            mainActivity.updateNavIcons(R.id.nav_search)
-            mainActivity.updateActiveFragment(this)
+        if (this is TabOwner) {
+            (activity as? MainActivity)?.updateNavIcons(getNavId())
         }
     }
 

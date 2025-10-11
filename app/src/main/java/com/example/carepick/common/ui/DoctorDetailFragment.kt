@@ -12,16 +12,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.carepick.MainActivity
 import com.example.carepick.R
+import com.example.carepick.TabOwner
 import com.example.carepick.ui.selfDiagnosis.adapter.SpecialtyAdapter
 import com.example.carepick.databinding.FragmentDoctorDetailBinding
 import com.example.carepick.data.repository.DoctorRepository
 import kotlinx.coroutines.launch
 
-class DoctorDetailFragment: Fragment() {
+class DoctorDetailFragment: Fragment(), TabOwner {
     private var _binding: FragmentDoctorDetailBinding? = null
     private val binding get() = _binding!!
 
     private val doctorRepository = DoctorRepository()
+
+    // 이 상세 페이지도 '검색' 탭의 일부임을 명시합니다.
+    override fun getNavId(): Int = R.id.nav_search // 👈 메소드 추가
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,7 +83,10 @@ class DoctorDetailFragment: Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (requireActivity() as? MainActivity)?.updateNavIcons(-1)
+
+        if (this is TabOwner) {
+            (activity as? MainActivity)?.updateNavIcons(getNavId())
+        }
     }
 
     override fun onDestroyView() {

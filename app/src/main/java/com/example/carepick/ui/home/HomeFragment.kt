@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.carepick.MainActivity
 import com.example.carepick.R
+import com.example.carepick.TabOwner
 import com.example.carepick.common.adapter.AutoCompleteAdapter
 import com.example.carepick.databinding.FragmentHomeBinding
 import com.example.carepick.data.repository.ServiceListRepository
@@ -35,7 +36,7 @@ private const val KEY_SELECTED_ADDRESS = "key_selected_address"
 private const val ARG_ADDRESS = "address"
 
 
-class HomeFragment: Fragment() {
+class HomeFragment: Fragment(), TabOwner {
 
     // fragment_home.xml 을 객체처럼 취급하여 binding 변수에 저장할 것임을 선언한다
     private var _binding: FragmentHomeBinding? = null
@@ -45,6 +46,8 @@ class HomeFragment: Fragment() {
     private val locationVM: UserLocationViewModel by activityViewModels {
         UserLocationViewModelFactory(requireContext().applicationContext)
     }
+
+    override fun getNavId(): Int = R.id.nav_home
 
 
     // <<프래그먼트에서 사용할 리포지토리를 가져오는 부분>>
@@ -298,9 +301,8 @@ class HomeFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         // ✅ MainActivity에 아이콘 상태 업데이트 및 현재 프래그먼트가 활성 상태임을 알림
-        (activity as? MainActivity)?.let { mainActivity ->
-            mainActivity.updateNavIcons(R.id.nav_home)
-            mainActivity.updateActiveFragment(this)
+        if (this is TabOwner) {
+            (activity as? MainActivity)?.updateNavIcons(getNavId())
         }
 
         if (_binding != null) {

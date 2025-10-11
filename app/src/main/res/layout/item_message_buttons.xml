@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/specialtyButton1"
-        android:layout_width="250dp"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_bot_message"
         android:clickable="true"
@@ -25,7 +25,7 @@
 
     <TextView
         android:id="@+id/specialtyButton2"
-        android:layout_width="250dp"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="@drawable/bg_bot_message"
@@ -40,7 +40,7 @@
 
     <TextView
         android:id="@+id/specialtyButton3"
-        android:layout_width="250dp"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:background="@drawable/bg_bot_message"
