@@ -170,8 +170,21 @@ class SelfDiagnosisFragment : Fragment(), TabOwner {
     private fun Int.dpToPx(context: Context): Int = (this * context.resources.displayMetrics.density).toInt()
 
     private fun navigateToHospitalSearch(specialty: String) {
-        // 병원 검색 화면으로 이동하는 로직
-        Toast.makeText(requireContext(), "'${specialty}' 검색을 시작합니다.", Toast.LENGTH_SHORT).show()
-        // ... Fragment transaction 코드 ...
+        // 1. 전달할 데이터를 Bundle에 담습니다.
+        //    FilterFragment와 동일한 키("selected_specialties")를 사용합니다.
+        val resultBundle = Bundle().apply {
+            // 단일 진료과를 ArrayList에 담아서 전달
+            putStringArrayList("selected_specialties", arrayListOf(specialty))
+        }
+
+        // 2. ✅ 'filter_apply_request' 라는 키로 결과를 미리 설정합니다.
+        //    SearchResultFragment가 이 결과를 받게 됩니다.
+        parentFragmentManager.setFragmentResult("filter_apply_request", resultBundle)
+
+        // 3. ✅ 그 다음에 '검색' 탭으로 이동만 합니다. (Bundle 전달은 이제 필요 없음)
+        (activity as? MainActivity)?.navigateToTab(R.id.nav_search)
+
+        // Toast 메시지는 그대로 유지하거나 필요에 따라 수정
+        Toast.makeText(requireContext(), "'주변의 ${specialty}' 병원을 검색합니다.", Toast.LENGTH_SHORT).show()
     }
 }

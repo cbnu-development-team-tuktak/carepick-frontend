@@ -102,7 +102,7 @@ class SearchResultFragment : Fragment(), TabOwner {
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
-        loadInitialData() // ✅ 초기 데이터 로딩 함수
+//        loadInitialData() // ✅ 초기 데이터 로딩 함수
     }
 
 
@@ -111,10 +111,14 @@ class SearchResultFragment : Fragment(), TabOwner {
 
     private fun loadInitialData() {
         val query = arguments?.getString("search_query")
-        binding.searchResultSearchView.setText(query) // 검색창에 이전 검색어 설정
+        binding.searchResultSearchView.setText(query)
 
-        if (query.isNullOrBlank()) {
-            // 위치 기반 검색 시작
+        // ✅ 검색어(query)가 있으면 키워드 검색을 실행합니다.
+        if (!query.isNullOrBlank()) {
+            viewModel.searchByKeyword(query)
+        } else {
+            // ✅ 검색어가 없으면, 기본 위치 기반 검색을 실행합니다.
+            //    (진료과 필터는 이제 FragmentResultListener가 전담합니다.)
             lifecycleScope.launch {
                 showLoading()
                 try {
@@ -126,10 +130,9 @@ class SearchResultFragment : Fragment(), TabOwner {
                     showError(getString(R.string.need_location_message))
                 }
             }
-        } else {
-            // 키워드 기반 검색 시작
-            viewModel.searchByKeyword(query)
         }
+        // ✅ 한 번 사용한 arguments는 깨끗이 비워줍니다.
+        arguments = null
     }
 
     // ✅ 변경된 생성자에 맞춰 수정

@@ -115,7 +115,12 @@ class MainActivity : AppCompatActivity() {
         val targetFragment = when (tabId) {
             R.id.nav_home -> homeFragment
             R.id.nav_search -> {
-                searchResultFragment.arguments = args
+                // ✅ arguments를 여기서 설정하는 대신, SearchResultFragment가
+                //    필요할 때 직접 arguments를 설정하고 이 함수를 호출하도록 합니다.
+                //    예: HomeFragment에서 검색어를 입력하고 넘어올 때
+                if (args != null) {
+                    searchResultFragment.arguments = args
+                }
                 searchResultFragment
             }
             R.id.nav_self_diagnosis -> selfDiagnosisFragment
