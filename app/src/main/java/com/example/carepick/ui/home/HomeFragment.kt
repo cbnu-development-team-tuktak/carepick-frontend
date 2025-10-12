@@ -191,28 +191,21 @@ class HomeFragment: Fragment(), TabOwner {
             }
 
             binding.selfCheckCardView.setOnClickListener {
-//                (requireActivity() as? MainActivity)?.updateNavIcons(-1)
-//                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, com.example.carepick.ui.selfcheck.SelfDiagnosisFragment())
-//                    .addToBackStack("SelfCheck")
-//                    .commit()
                 (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_self_diagnosis)
             }
 
             binding.hospitalCardView.setOnClickListener {
-                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
-//                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.result.SearchResultFragment())
-//                    .addToBackStack("hospitalSearch")
-//                    .commit()
+                val bundle = Bundle().apply {
+                    putString("initial_search_mode", "HOSPITAL")
+                }
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search, bundle)
             }
 
             binding.doctorCardView.setOnClickListener {
-                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search)
-//                requireActivity().supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, com.example.carepick.ui.search.result.SearchResultFragment())
-//                    .addToBackStack("doctorSearch")
-//                    .commit()
+                val bundle = Bundle().apply {
+                    putString("initial_search_mode", "DOCTOR")
+                }
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search, bundle)
             }
 
 

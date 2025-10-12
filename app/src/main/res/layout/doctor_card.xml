@@ -7,9 +7,9 @@
     android:padding="12dp" >
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:background="#F4FBF8"
         android:layout_width="160dp"
-        android:layout_height="260dp">
+        android:layout_height="270dp"
+        android:background="#F4FBF8">
 
         <ImageView
             android:id="@+id/doctorImage"
@@ -55,7 +55,7 @@
             android:singleLine="true"
             android:text="소속 병원"
             android:textAlignment="center"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

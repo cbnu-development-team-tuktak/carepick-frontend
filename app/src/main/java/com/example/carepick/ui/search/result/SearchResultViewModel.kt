@@ -7,6 +7,7 @@ import com.example.carepick.data.model.SearchResultItem
 import com.example.carepick.data.repository.DoctorRepository
 import com.example.carepick.data.repository.HospitalRepository
 import com.example.carepick.ui.location.repository.UserLocation
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -42,66 +43,122 @@ class SearchResultViewModel(
     private var currentLocation: UserLocation? = null
     private var currentSpecialties: List<String>? = null
 
-    // 키워드 검색
-    fun searchByKeyword(query: String) {
-        resetPagination()
-        currentQuery = query
-        currentLocation = null
+    // ✅ [추가] 현재 진행 중인 데이터 로딩 작업을 추적하기 위한 Job
+    private var searchJob: Job? = null
 
-        _uiState.value = SearchResultUiState.Loading
-        viewModelScope.launch {
-            try {
-                // ✅ 이제 response 변수는 PageResponse<SearchResultItem> 타입으로 안전하게 추론됩니다.
-                val response: PageResponse<out SearchResultItem> = when (currentSearchMode) {
-                    SearchMode.HOSPITAL -> hospitalRepository.getSearchedHospitals(query, page = 0)
-                    SearchMode.DOCTOR -> doctorRepository.searchDoctors(query, page = 0) // ✅ 새로 만든 함수 호출
-                }
+    // [수정] ✅ 검색 모드 변경 시, 직접 데이터 로딩까지 처리하도록 변경
+    fun changeSearchMode(
+        newMode: SearchMode,
+        query: String?,
+        location: UserLocation?
+    ) {
+        // 모드가 같으면 아무것도 안 함
+        if (currentSearchMode == newMode) return
 
-                // ✅ 에러 없이 정상적으로 접근 가능
-                isLastPage = response.last
-                val results = response.content
+        currentSearchMode = newMode
+        // 새로운 검색을 시작하므로, 이전 검색 작업(Job)을 취소합니다.
+        searchJob?.cancel()
 
-                if (results.isEmpty()) {
-                    _uiState.value = SearchResultUiState.Error("'$query'에 대한 검색 결과가 없습니다.")
-                } else {
-                    _uiState.value = SearchResultUiState.Success(results)
-                }
-            } catch (e: Exception) {
-                _uiState.value = SearchResultUiState.Error("데이터를 불러오는 데 실패했습니다.")
+        // 새로운 검색 작업을 시작하고 Job에 할당합니다.
+        searchJob = viewModelScope.launch {
+            // 캐시를 초기화하고 새로운 검색 시작
+            invalidateCache()
+
+            // Fragment의 loadInitialData 로직을 ViewModel로 가져옴
+            if (!query.isNullOrBlank()) {
+                searchByKeyword(query)
+            } else if (location != null) {
+                searchByLocation(location)
+            } else {
+                // 검색어와 위치가 모두 없는 경우 (예: 위치 권한 거부)
+                _uiState.value = SearchResultUiState.Error("검색 조건(검색어 또는 위치)이 없습니다.")
             }
         }
     }
 
+    // ✅ 초기 로딩, 모드 변경 등 모든 데이터 로딩 요청을 처리하는 단일 진입점 함수
+    fun loadData(
+        newMode: SearchMode = currentSearchMode, // 모드 변경이 없으면 현재 모드 유지
+        query: String? = null,
+        location: UserLocation? = null,
+        forceReload: Boolean = false // 강제로 새로고침할지 여부
+    ) {
+        // 모드가 같고, 강제 새로고침이 아니면 아무것도 안 함 (예: 탭 중복 클릭)
+        if (currentSearchMode == newMode && !forceReload) return
+
+        currentSearchMode = newMode
+        searchJob?.cancel() // 이전 작업 취소
+
+        searchJob = viewModelScope.launch {
+            invalidateCache()
+            _uiState.value = SearchResultUiState.Loading
+
+            if (!query.isNullOrBlank()) {
+                searchByKeyword(query)
+            } else if (location != null) {
+                searchByLocation(location)
+            } else {
+                _uiState.value = SearchResultUiState.Error("검색 조건이 없습니다.")
+            }
+        }
+    }
+
+    // 키워드 검색
+    suspend fun searchByKeyword(query: String) {
+        resetPagination()
+        currentQuery = query
+        currentLocation = null
+        _uiState.value = SearchResultUiState.Loading
+
+        try {
+            // ✅ 이제 response 변수는 PageResponse<SearchResultItem> 타입으로 안전하게 추론됩니다.
+            val response: PageResponse<out SearchResultItem> = when (currentSearchMode) {
+                SearchMode.HOSPITAL -> hospitalRepository.getSearchedHospitals(query, page = 0)
+                SearchMode.DOCTOR -> doctorRepository.searchDoctors(query, page = 0) // ✅ 새로 만든 함수 호출
+            }
+
+            // ✅ 에러 없이 정상적으로 접근 가능
+            isLastPage = response.last
+            val results = response.content
+
+            if (results.isEmpty()) {
+                _uiState.value = SearchResultUiState.Error("'$query'에 대한 검색 결과가 없습니다.")
+            } else {
+                _uiState.value = SearchResultUiState.Success(results)
+            }
+        } catch (e: Exception) {
+            _uiState.value = SearchResultUiState.Error("데이터를 불러오는 데 실패했습니다.")
+        }
+    }
+
     // 위치 기반 검색
-    fun searchByLocation(location: UserLocation, specialties: List<String>? = null) {
+    suspend fun searchByLocation(location: UserLocation, specialties: List<String>? = null) {
         resetPagination()
         currentLocation = location // [수정] ✅ 현재 위치 저장
         currentSpecialties = specialties // 현재 진료과 저장
         currentQuery = null // 키워드 검색 조건 초기화
 
         _uiState.value = SearchResultUiState.Loading
-        viewModelScope.launch {
-            try {
-                val response = when (currentSearchMode) {
-                    SearchMode.HOSPITAL -> hospitalRepository.getHospitalsWithExtendedFilter(
-                        lat = location.lat, lng = location.lng, specialties = specialties, page = 0
-                    )
-                    SearchMode.DOCTOR -> doctorRepository.getNearbyDoctors(
-                        lat = location.lat, lng = location.lng, page = 0
-                    )
-                }
-
-                isLastPage = response.last // [수정] ✅
-                val results = response.content // [수정] ✅
-
-                if (results.isEmpty()) {
-                    _uiState.value = SearchResultUiState.Error("주변에 해당하는 결과가 없습니다.")
-                } else {
-                    _uiState.value = SearchResultUiState.Success(results)
-                }
-            } catch (e: Exception) {
-                _uiState.value = SearchResultUiState.Error("데이터를 불러오는 데 실패했습니다.")
+        try {
+            val response = when (currentSearchMode) {
+                SearchMode.HOSPITAL -> hospitalRepository.getHospitalsWithExtendedFilter(
+                    lat = location.lat, lng = location.lng, specialties = specialties, page = 0
+                )
+                SearchMode.DOCTOR -> doctorRepository.getNearbyDoctors(
+                    lat = location.lat, lng = location.lng, page = 0
+                )
             }
+
+            isLastPage = response.last // [수정] ✅
+            val results = response.content // [수정] ✅
+
+            if (results.isEmpty()) {
+                _uiState.value = SearchResultUiState.Error("주변에 해당하는 결과가 없습니다.")
+            } else {
+                _uiState.value = SearchResultUiState.Success(results)
+            }
+        } catch (e: Exception) {
+            _uiState.value = SearchResultUiState.Error("데이터를 불러오는 데 실패했습니다.")
         }
     }
 

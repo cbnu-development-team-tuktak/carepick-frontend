@@ -16,7 +16,9 @@ class DoctorSearchListViewHolder(
     val binding: SearchListBinding
 ) : RecyclerView.ViewHolder(binding.root) {
     fun bind(doctor: DoctorDetailsResponse, onItemClicked: (DoctorDetailsResponse) -> Unit) {
-        binding.searchListName.text = doctor.name
+        val cleanName = doctor.name.replace("\\[.*\\]".toRegex(), "").trim()
+
+        binding.searchListName.text = cleanName // ✅ 깔끔하게 정리된 이름을 출력
         binding.searchListAddress.text = doctor.hospitalName
 
         // url을 통해 의사 이미지를 불러온다

@@ -102,36 +102,71 @@ class SearchResultFragment : Fragment(), TabOwner {
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
-//        loadInitialData() // ✅ 초기 데이터 로딩 함수
     }
 
 
 
 
 
+    // ✅ [추가] 프래그먼트가 보여지거나 숨겨질 때 호출되는 콜백
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        if (!hidden) {
+            // 프래그먼트가 다시 화면에 나타날 때, 초기 데이터 로딩을 시작합니다.
+            loadInitialData()
+        }
+    }
+
+
     private fun loadInitialData() {
-        val query = arguments?.getString("search_query")
+
+        // arguments가 없으면(예: 그냥 탭만 눌러서 들어온 경우) 아무것도 하지 않고 현재 상태를 유지할 수 있습니다.
+        // 또는 기본 로딩을 할 수도 있습니다. 여기서는 arguments가 있을 때만 동작하도록 합니다.
+        val args = arguments ?: return
+
+        // 1. arguments에서 모든 초기 조건을 한 번에 읽어옵니다.
+        val query = args.getString("search_query")
+        val initialModeString = args.getString("initial_search_mode")
+        val initialSpecialty = args.getString("initial_specialty_filter")
+
+        // 2. 초기 모드를 결정하고 UI와 ViewModel 상태를 업데이트합니다.
+        val mode = if (initialModeString == "DOCTOR") SearchMode.DOCTOR else SearchMode.HOSPITAL
+        viewModel.changeSearchMode(mode)
+        updateToggleUI(mode)
+
+        // 3. 자가진단에서 넘어온 진료과가 있다면, 공유 FilterViewModel의 상태도 동기화합니다.
+        //    이렇게 해야 나중에 필터 화면을 열었을 때 해당 진료과가 선택된 상태로 보입니다.
+        if (initialSpecialty != null) {
+            filterVM.updateSpecialties(setOf(initialSpecialty))
+        }
+
+        // 4. 검색창 텍스트를 설정합니다.
         binding.searchResultSearchView.setText(query)
 
-        // ✅ 검색어(query)가 있으면 키워드 검색을 실행합니다.
+        // 5. 최종 조건에 따라 ViewModel에 데이터 로딩을 '한 번만' 요청합니다.
+        // 키워드 검색이 최우선입니다.
         if (!query.isNullOrBlank()) {
-            viewModel.searchByKeyword(query)
+            lifecycleScope.launch {
+                viewModel.searchByKeyword(query)
+            }
         } else {
-            // ✅ 검색어가 없으면, 기본 위치 기반 검색을 실행합니다.
-            //    (진료과 필터는 이제 FragmentResultListener가 전담합니다.)
+            // 키워드가 없으면 위치 기반 검색을 합니다.
             lifecycleScope.launch {
                 showLoading()
                 try {
                     withTimeout(5000L) {
                         val location = userLocationVM.location.first { it != null }
-                        viewModel.searchByLocation(location!!)
+                        // 자가진단에서 받은 진료과(initialSpecialty)가 있으면 필터 조건으로 사용합니다.
+                        val specialties = if (initialSpecialty != null) listOf(initialSpecialty) else null
+                        viewModel.searchByLocation(location!!, specialties = specialties)
                     }
                 } catch (e: TimeoutCancellationException) {
                     showError(getString(R.string.need_location_message))
                 }
             }
         }
-        // ✅ 한 번 사용한 arguments는 깨끗이 비워줍니다.
+
+        // 6. 모든 처리가 끝났으므로 arguments를 비워 다음 호출에 영향을 주지 않도록 합니다.
         arguments = null
     }
 
@@ -197,8 +232,11 @@ class SearchResultFragment : Fragment(), TabOwner {
                 val newQuery = binding.searchResultSearchView.text.toString()
                 if (newQuery.isNotBlank()) {
                     hideKeyboard()
-                    viewModel.invalidateCache() // ✅ 새로운 검색이므로 캐시 초기화
-                    viewModel.searchByKeyword(newQuery)
+                    // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewModel.invalidateCache()
+                        viewModel.searchByKeyword(newQuery)
+                    }
                 }
                 return@setOnEditorActionListener true
             }
@@ -207,13 +245,24 @@ class SearchResultFragment : Fragment(), TabOwner {
 
         // 필터 화면 결과 리스너
         parentFragmentManager.setFragmentResultListener("filter_apply_request", viewLifecycleOwner) { _, bundle ->
+
+            // ✅ [추가] Bundle에 검색 모드 정보가 있는지 먼저 확인합니다.
+            val modeString = bundle.getString("initial_search_mode")
+            if (modeString == "HOSPITAL") {
+                // ViewModel과 UI의 상태를 '병원' 모드로 강제 변경합니다.
+                viewModel.changeSearchMode(SearchMode.HOSPITAL)
+                updateToggleUI(SearchMode.HOSPITAL)
+            }
+
             val receivedSpecialties = bundle.getStringArrayList("selected_specialties")?.toSet() ?: emptySet()
             filterVM.updateSpecialties(receivedSpecialties) // 공유 ViewModel 상태 업데이트
 
             val currentLocation = userLocationVM.location.value
             if (currentLocation != null) {
-                viewModel.invalidateCache() // ✅ 새로운 필터가 적용되므로 캐시 초기화
-                viewModel.searchByLocation(currentLocation, receivedSpecialties.toList())
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.invalidateCache() // ✅ 새로운 필터가 적용되므로 캐시 초기화
+                    viewModel.searchByLocation(currentLocation, receivedSpecialties.toList())
+                }
             } else {
                 Toast.makeText(requireContext(), "위치 정보가 없어 필터를 적용할 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
@@ -237,12 +286,10 @@ class SearchResultFragment : Fragment(), TabOwner {
     }
 
     private fun handleSearchModeChange(newMode: SearchMode) {
-        if (viewModel.currentSearchMode == newMode) return // 이미 선택된 모드이면 아무것도 안 함
-
         updateToggleUI(newMode)
-        viewModel.changeSearchMode(newMode)
-        // 모드 변경 후, 현재 조건(검색어/위치)에 맞춰 데이터 다시 로드
-        loadInitialData()
+        val query = binding.searchResultSearchView.text.toString()
+        val location = userLocationVM.location.value
+        viewModel.loadData(newMode = newMode, query = query, location = location)
     }
 
     private fun updateToggleUI(mode: SearchMode) {
