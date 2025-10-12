@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -18,6 +19,9 @@ import com.example.carepick.TabOwner
 import com.example.carepick.common.adapter.DoctorCardAdapter
 import com.example.carepick.databinding.FragmentHospitalDetailBinding
 import com.example.carepick.data.model.DoctorDetailsResponse
+import com.example.carepick.data.model.Hospital
+import com.example.carepick.data.model.HospitalDetailsResponse
+import com.example.carepick.data.model.HospitalOperatingHours
 import com.example.carepick.data.repository.DoctorRepository
 import com.example.carepick.data.repository.HospitalRepository
 import com.naver.maps.geometry.LatLng
@@ -25,6 +29,10 @@ import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.overlay.Marker
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 // 병원 상세 페이지를 구현하는 코드
 // - 지도 화면을 불러와서 병원 위치로 이동시키고, 병원 좌표에 마커를 찍는다
@@ -69,101 +77,177 @@ class HospitalDetailFragment : Fragment(), TabOwner {
 
         viewLifecycleOwner.lifecycleScope.launch {
             val hospitalId = requireArguments().getString("hospitalId") ?: error("Hospital ID is required")
-
             val hospital = hospitalRepository.getHospitalById(hospitalId)
 
-            // 레이아웃에 데이터를 바인딩한다
-            // 이때 데이터가 존재하지 않으면 "데이터 없음" 으로 데이터를 넣는다
-            binding.hospitalDetailName.text = hospital?.name ?: "데이터 없음"
-            binding.hospitalDetailAddress.text = hospital?.address ?: "데이터 없음"
-            binding.hospitalDetailPhone.text = hospital?.phoneNumber ?: "데이터 없음"
-            // 이미지 url을 받아서 로드한다
-            Glide.with(binding.root)
-                .load(hospital?.images?.firstOrNull()?.url)
-                .placeholder(R.drawable.sand_clock)
-                .error(R.drawable.hospital_placeholder)
-                .into(binding.hospitalDetailImage)
+            if (hospital != null) {
+                // 기본 정보 바인딩
+                binding.hospitalDetailName.text = hospital.name ?: "데이터 없음"
+                binding.hospitalDetailAddress.text = hospital.address ?: "데이터 없음"
+                binding.hospitalDetailPhone.text = hospital.phoneNumber ?: "데이터 없음"
 
-            // 월요일 데이터 추출 및 바인딩
-//            val mondayHours = hospital?.operatingHours?.get("월")
-//            val timeText = if (mondayHours != null) {
-//                "${mondayHours.first} - ${mondayHours.second}"
-//            } else {
-//                "운영시간 정보 없음"
-//            }
-//            binding.hospitalDetailTimeWeekDayText.text = timeText
-//
-//            val holidayHours = hospital?.operatingHours?.get("공휴일")
-//            val holidayText = when (holidayHours?.first) {
-//                "휴진" -> "휴진"
-//                else -> "${holidayHours?.first ?: "-"} - ${holidayHours?.second ?: "-"}"
-//            }
+                Glide.with(binding.root)
+                    .load(hospital.images?.firstOrNull()?.url)
+                    .placeholder(R.drawable.sand_clock)
+                    .error(R.drawable.hospital_placeholder)
+                    .into(binding.hospitalDetailImage)
 
-//            binding.hospitalDetailTimeWeekendText.text = holidayText
+                // ▼▼▼▼▼ 운영 시간 처리 로직 추가 ▼▼▼▼▼
+                setupOperatingHours(hospital)
+                // ▲▲▲▲▲ 운영 시간 처리 로직 추가 ▲▲▲▲▲
 
-            // 병원 추가 정보 표시
-            if (hospital?.additionalInfo != null) {
-                addInfoCheck(requireContext(), binding, hospital.additionalInfo) // 추가 정보가 비어있지 않다면 추가 정보 중 true 값인 것을 찾아서 텍스트 색을 바꾼다
-            }
-
-            // 의사 목록 로드
-            doctors = hospital?.doctors?.mapNotNull { doctorId ->
-                try {
-                    val doctor = doctorRepository.getDoctorById(doctorId)
-                    if (doctor != null) {
-                        doctor
-                    } else {
-                        Log.e("DoctorLoadError", "Doctor with ID $doctorId not found")
-                        null
-                    }
-                } catch (e: Exception) {
-                    Log.e("DoctorLoadError", "Failed to load doctor with ID: $doctorId", e)
-                    null
+                // 병원 추가 정보 표시
+                hospital.additionalInfo?.let {
+                    addInfoCheck(requireContext(), binding, it)
                 }
-            }?.toMutableList() ?: mutableListOf()
 
-            // 의사 목록이 비어 있으면 안내 메시지를 보여줌
-            if (doctors.isEmpty()) {
-                binding.doctorListEmptyText.visibility = View.VISIBLE
+                // 의사 목록 로드
+                loadDoctors(hospital.doctors)
+
+                // 지도 설정
+                setupMap(hospital.location?.latitude, hospital.location?.longitude)
             } else {
-                binding.doctorListEmptyText.visibility = View.GONE
-                binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
-            }
-
-            // 의사 카드들은 좌우 스크롤을 할 수 있도록 수평 배치한다
-            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-            val fm = childFragmentManager
-            var mapFragment = fm.findFragmentById(R.id.map) as? MapFragment
-            val latitude = hospital?.location?.latitude ?: 0.0
-            val longitude = hospital?.location?.longitude ?: 0.0
-
-            if (mapFragment == null) {
-                mapFragment = MapFragment.newInstance()
-                fm.beginTransaction().add(R.id.map, mapFragment!!).commit()
-            }
-
-            mapFragment.getMapAsync { naverMap ->
-                val location = LatLng(latitude, longitude)
-
-                // 병원 위치로 이동
-                naverMap.moveCamera(CameraUpdate.scrollTo(location))
-
-                // 마커 생성 및 지도에 추가
-                val marker = Marker()
-                marker.position = location
-                marker.map = naverMap
+                // 병원 정보가 없을 경우 처리
+                // (예: 에러 메시지 표시)
             }
         }
 
-        // include된 헤더 내의 뒤로가기 버튼
-        val backButton = view.findViewById<ImageButton>(R.id.btn_back)
-        backButton.setOnClickListener {
-            val manager = requireActivity().supportFragmentManager
-            if (manager.backStackEntryCount > 0) {
-                manager.popBackStack()
+        // 뒤로가기 버튼 설정
+        view.findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
+            parentFragmentManager.popBackStack()
+        }
+    }
+
+    private fun setupOperatingHours(hospital: HospitalDetailsResponse) {
+        val operatingHours = hospital.operatingHours
+
+        if (operatingHours.isNullOrEmpty()) {
+            binding.hospitalDetailTimeTodayLabel.text = "정보 없음"
+            binding.hospitalDetailTimeText.text = "운영 정보 없음"
+            binding.fullOperatingHoursText.text = "운영 정보 없음"
+            binding.btnOperatingHoursToggle.visibility = View.GONE
+            return
+        }
+
+
+        // 1. 현재 요일에 맞는 운영시간 표시
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val todayKorean = when (today) {
+            Calendar.MONDAY -> "월"
+            Calendar.TUESDAY -> "화"
+            Calendar.WEDNESDAY -> "수"
+            Calendar.THURSDAY -> "목"
+            Calendar.FRIDAY -> "금"
+            Calendar.SATURDAY -> "토"
+            Calendar.SUNDAY -> "일"
+            else -> ""
+        }
+        val todayHours = operatingHours.find { it.day == todayKorean }
+
+        // 2. 현재 운영 상태 확인 및 UI 업데이트
+        val status = checkOperatingStatus(todayHours) // 상태와 색상을 한 번에 받아옴
+        binding.hospitalDetailTimeTodayLabel.text = status
+
+        // 3. 오늘 운영 시간 텍스트 설정
+        binding.hospitalDetailTimeText.text = formatOperatingHours(todayHours)
+
+        // 2. 전체 운영시간 텍스트 생성
+        val fullHoursText = StringBuilder()
+        // 요일 순서대로 정렬
+        val dayOrder = listOf("월", "화", "수", "목", "금", "토", "일", "공휴일")
+        operatingHours.sortedBy { dayOrder.indexOf(it.day) }.forEach { hour ->
+            fullHoursText.append("${hour.day}: ${formatOperatingHours(hour)}\n")
+        }
+        binding.fullOperatingHoursText.text = fullHoursText.toString().trim()
+
+        // 3. 드롭다운 버튼 클릭 리스너 설정
+        binding.btnOperatingHoursToggle.setOnClickListener {
+            val fullHoursLayout = binding.fullOperatingHoursLayout
+            if (fullHoursLayout.visibility == View.VISIBLE) {
+                fullHoursLayout.visibility = View.GONE
+                binding.btnOperatingHoursToggle.setImageResource(R.drawable.ic_arrow_down) // 아래 화살표
             } else {
-                requireActivity().finish() // or moveTaskToBack(true)
+                fullHoursLayout.visibility = View.VISIBLE
+                binding.btnOperatingHoursToggle.setImageResource(R.drawable.ic_arrow_up) // 위 화살표 (ic_arrow_up 추가 필요)
+            }
+        }
+
+    }
+
+    private fun checkOperatingStatus(operatingHour: HospitalOperatingHours?): String {
+        // 휴진이거나 시간 정보가 없으면 "운영 종료" 반환
+        if (operatingHour?.startTime == null || operatingHour.endTime == null) {
+            return "운영 종료"
+        }
+
+        try {
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val now = sdf.parse(sdf.format(Date()))
+            val start = sdf.parse(operatingHour.startTime)
+            val end = sdf.parse(operatingHour.endTime)
+
+            // 현재 시간이 시작 시간과 종료 시간 사이에 있는지 확인
+            return if (now.after(start) && now.before(end)) {
+                "운영 중"
+            } else {
+                "운영 종료"
+            }
+        } catch (e: Exception) {
+            // 시간 포맷 파싱 중 에러 발생 시
+            Log.e("TimeParseError", "Could not parse operating hours", e)
+            return "운영 종료"
+        }
+    }
+
+    private fun formatOperatingHours(hours: HospitalOperatingHours?): String {
+        return if (hours?.startTime != null && hours.endTime != null) {
+            "${hours.startTime} - ${hours.endTime}"
+        } else {
+            "휴진" // startTime 또는 endTime이 null이면 휴진으로 간주
+        }
+    }
+
+    /**
+     * 의사 목록을 로드하고 RecyclerView에 설정하는 함수
+     */
+    private suspend fun loadDoctors(doctorIds: List<String>?) {
+        doctors = doctorIds?.mapNotNull { doctorId ->
+            try {
+                doctorRepository.getDoctorById(doctorId)
+            } catch (e: Exception) {
+                Log.e("DoctorLoadError", "Failed to load doctor with ID: $doctorId", e)
+                null
+            }
+        }?.toMutableList() ?: mutableListOf()
+
+        if (doctors.isEmpty()) {
+            binding.doctorListEmptyText.visibility = View.VISIBLE
+            binding.doctorListRecyclerView.visibility = View.GONE
+        } else {
+            binding.doctorListEmptyText.visibility = View.GONE
+            binding.doctorListRecyclerView.visibility = View.VISIBLE
+            binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
+            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        }
+    }
+
+    /**
+     * 지도를 설정하고 마커를 표시하는 함수
+     */
+    private fun setupMap(latitude: Double?, longitude: Double?) {
+        if (latitude == null || longitude == null) return
+
+        val fm = childFragmentManager
+        val mapFragment = fm.findFragmentById(R.id.map) as? MapFragment
+            ?: MapFragment.newInstance().also {
+                fm.beginTransaction().add(R.id.map, it).commit()
+            }
+
+        mapFragment.getMapAsync { naverMap ->
+            val location = LatLng(latitude, longitude)
+            naverMap.moveCamera(CameraUpdate.scrollTo(location))
+            Marker().apply {
+                position = location
+                map = naverMap
             }
         }
     }
