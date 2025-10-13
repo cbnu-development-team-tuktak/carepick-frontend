@@ -27,6 +27,7 @@ import com.example.carepick.common.ui.DoctorDetailFragment
 import com.example.carepick.ui.hospital.HospitalDetailFragment
 import com.example.carepick.data.model.DoctorDetailsResponse
 import com.example.carepick.data.model.HospitalDetailsResponse
+import com.example.carepick.data.model.LoadingItem
 import com.example.carepick.data.model.SearchResultItem
 import com.example.carepick.data.repository.DoctorRepository
 import com.example.carepick.databinding.FragmentSearchResultBinding
@@ -99,14 +100,26 @@ class SearchResultFragment : Fragment(), TabOwner {
             }
         })
 
+        // 2. ✅ 사용자 위치가 변경될 때마다 어댑터에 알려주는 로직을 추가합니다.
+        observeUserLocation()
+
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
     }
 
 
-
-
+    // 3. ✅ 위치 정보를 구독하고 어댑터를 업데이트하는 함수를 추가합니다.
+    private fun observeUserLocation() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            userLocationVM.location.collect { location ->
+                // location이 null이 아닐 때마다 어댑터의 위치 정보를 갱신합니다.
+                if (location != null) {
+                    searchResultAdapter.updateUserLocation(location)
+                }
+            }
+        }
+    }
 
     // ✅ [추가] 프래그먼트가 보여지거나 숨겨질 때 호출되는 콜백
     override fun onHiddenChanged(hidden: Boolean) {
@@ -116,7 +129,6 @@ class SearchResultFragment : Fragment(), TabOwner {
             loadInitialData()
         }
     }
-
 
     private fun loadInitialData() {
 
@@ -190,6 +202,9 @@ class SearchResultFragment : Fragment(), TabOwner {
                         .addToBackStack(null)
                         .commit()
                 }
+                is LoadingItem -> {
+                    // 로딩 아이템은 클릭해도 아무 동작도 하지 않습니다.
+                }
             }
         }
     }
@@ -198,16 +213,15 @@ class SearchResultFragment : Fragment(), TabOwner {
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                // ✅ 어댑터의 로딩 상태를 UI 상태에 맞춰 제어
-                searchResultAdapter.setLoading(state is SearchResultUiState.LoadingNextPage)
-
                 when (state) {
                     is SearchResultUiState.Loading -> showLoading()
                     is SearchResultUiState.Success -> showContent(state.items)
                     is SearchResultUiState.Error -> showError(state.message)
                     is SearchResultUiState.LoadingNextPage -> {
-                        // 다음 페이지 로딩 중일 때는 기존 목록을 그대로 보여줍니다.
-                        // 어댑터가 알아서 맨 아래에 로딩 스피너를 추가할 것입니다.
+                        // LoadingNextPage 상태일 때, 기존 목록을 보여줍니다.
+                        // searchResultAdapter.setLoading(true)가 호출되어 어댑터는 자동으로 맨 아래에 로딩 UI를 표시합니다.
+                        binding.loadingIndicator.visibility = View.GONE
+                        binding.searchResultErrorText.visibility = View.GONE
                         binding.searchResultRecyclerView.visibility = View.VISIBLE
                         searchResultAdapter.submitList(state.items)
                     }
@@ -273,15 +287,34 @@ class SearchResultFragment : Fragment(), TabOwner {
             // TODO: 정렬 로직 ViewModel로 이동 및 구현
         }
 
-        // 필터/정렬 버튼 클릭 리스너
+        // 필터 버튼 클릭 리스너
         binding.searchResultFilterButton.setOnClickListener {
+            val filterFragment = FilterFragment()
+            filterFragment.arguments = Bundle().apply {
+                putString("current_search_mode", viewModel.currentSearchMode.name)
+            }
             parentFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, FilterFragment())
+                .add(R.id.fragment_container, filterFragment)
                 .addToBackStack(null)
                 .commit()
         }
+
+        // 정렬 버튼 클릭 리스너
         binding.searchResultSortButton.setOnClickListener {
-            SortFilterBottomSheetFragment().show(parentFragmentManager, "SortFilter")
+            // 1. BottomSheet 인스턴스를 생성합니다.
+            val bottomSheet = SortFilterBottomSheetFragment()
+
+            // 2. 현재 ViewModel의 검색 모드를 Bundle에 담습니다.
+            val bundle = Bundle().apply {
+                // Enum의 이름을 String으로 변환하여 전달
+                putString("current_search_mode", viewModel.currentSearchMode.name)
+            }
+
+            // 3. 생성한 BottomSheet에 arguments로 Bundle을 설정합니다.
+            bottomSheet.arguments = bundle
+
+            // 4. BottomSheet를 보여줍니다.
+            bottomSheet.show(parentFragmentManager, "SortFilter")
         }
     }
 

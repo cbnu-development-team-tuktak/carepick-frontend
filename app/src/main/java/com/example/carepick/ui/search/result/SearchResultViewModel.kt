@@ -2,6 +2,7 @@ package com.example.carepick.ui.search.result
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.carepick.data.model.LoadingItem
 import com.example.carepick.data.model.PageResponse
 import com.example.carepick.data.model.SearchResultItem
 import com.example.carepick.data.repository.DoctorRepository
@@ -166,10 +167,11 @@ class SearchResultViewModel(
         if (isLoading || isLastPage) return
         isLoading = true
 
-        // [수정] ✅ 현재 UI 상태에서 아이템 목록 가져오기
-        val currentItems = (_uiState.value as? SearchResultUiState.Success)?.items ?:
-        (_uiState.value as? SearchResultUiState.LoadingNextPage)?.items ?: return
-        _uiState.value = SearchResultUiState.LoadingNextPage(currentItems)
+        // ✅ 현재 아이템 리스트를 가져옵니다.
+        val currentItems = (_uiState.value as? SearchResultUiState.Success)?.items ?: return
+
+        // ✅ 로딩 아이템을 추가한 리스트를 Success 상태로 먼저 방출합니다.
+        _uiState.value = SearchResultUiState.Success(currentItems + LoadingItem)
 
         viewModelScope.launch {
             try {

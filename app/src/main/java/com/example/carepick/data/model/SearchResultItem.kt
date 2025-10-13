@@ -1,4 +1,6 @@
 package com.example.carepick.data.model
 
-interface SearchResultItem {
+sealed interface SearchResultItem {
 }
+
+data object LoadingItem : SearchResultItem

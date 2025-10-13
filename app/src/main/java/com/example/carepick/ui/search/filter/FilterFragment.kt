@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.carepick.ui.search.FilterViewModel
 import com.example.carepick.ui.search.filter.adapter.SpecialtyAdapter
+import com.example.carepick.ui.search.result.SearchMode
 import java.util.*
 
 class FilterFragment : Fragment() {
@@ -41,6 +42,20 @@ class FilterFragment : Fragment() {
             val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             v.updatePadding(top = topInset + 12) // 기존 padding 유지
             insets
+        }
+
+        // ✅ 검색 모드를 arguments로부터 가져옵니다.
+        val modeString = arguments?.getString("current_search_mode")
+        val currentMode = if (modeString == "DOCTOR") SearchMode.DOCTOR else SearchMode.HOSPITAL
+
+        // ✅ 의사 모드일 경우, 운영 시간 섹션을 숨깁니다.
+        val operationTimeSection = view.findViewById<View>(R.id.operation_time_section)
+        val dividerSpecialtySection = view.findViewById<View>(R.id.divider_specialty_section)
+        if (currentMode == SearchMode.DOCTOR) {
+            operationTimeSection.visibility = View.GONE
+            dividerSpecialtySection.visibility = View.GONE
+        } else {
+            operationTimeSection.visibility = View.VISIBLE
         }
 
         // 🩺 진료과 선택
