@@ -61,29 +61,84 @@ class SelfDiagnosisViewModel(
             // 1. Repository를 통해 API 호출
             val summary = repo.getDiseaseAndSpecialtyTopK(text, k)
 
-            // 2. API 결과로 봇 텍스트 메시지 생성
-            val botTextMessage = ChatMessage.Bot(buildBothText(summary))
+            // ======================= [ 디버깅 로그 추가 ] =======================
+            // API 호출 직후, summary 객체에 어떤 데이터가 들어있는지 확인합니다.
+            // Logcat에서 "Debug_Summary" 태그로 검색해보세요.
+            Log.d("Debug_Summary", "Diseases: ${summary.diseases}")
+            Log.d("Debug_Summary", "Specialties: ${summary.specialties}")
+            // =================================================================
 
-            // 3. 추천 진료과 목록 추출
-            val specialties = summary.specialties.map { it.name }
+            // 2. 채팅창에 추가할 메시지들을 담을 리스트 준비
+            val newMessages = mutableListOf<ChatMessage>()
 
-            // 4. 메시지 리스트 업데이트: '입력 중' 제거 -> 봇 응답 추가 -> 버튼 그룹 추가
-            _messages.update { currentList ->
-                val listWithoutTyping = currentList.filterNot { it is ChatMessage.Typing }
-
-                // 진료과가 있을 때만 버튼 메시지를 추가
-                if (specialties.isNotEmpty()) {
-                    listWithoutTyping + botTextMessage + ChatMessage.SystemSpecialtyButtons(specialties)
-                } else {
-                    listWithoutTyping + botTextMessage
-                }
+            // 3. 질병 예측 결과가 성공적으로 왔을 때만 (null이나 비어있지 않을 때) 질병 메시지를 추가
+            if (!summary.diseases.isNullOrEmpty()) {
+                val diseaseText = buildDiseaseText(summary.diseases, k)
+                newMessages.add(ChatMessage.Bot(diseaseText))
+                Log.d(TAG, "Disease prediction successful.")
+            } else {
+                Log.d(TAG, "Disease prediction timed out or returned empty.")
             }
+
+            // 4. 진료과 예측 결과는 항상 추가 (신뢰할 수 있다고 가정)
+            if (summary.specialties.isNotEmpty()) {
+                val specialtyText = buildSpecialtyText(summary.specialties, k)
+                val specialtyNames = summary.specialties.map { it.name }
+
+                newMessages.add(ChatMessage.Bot(specialtyText))
+                newMessages.add(ChatMessage.SystemSpecialtyButtons(specialtyNames))
+            } else {
+                newMessages.add(ChatMessage.Bot("추천 진료과를 찾지 못했습니다. 증상을 더 자세히 설명해주세요."))
+            }
+
+            // 5. 메시지 리스트를 한 번에 업데이트하여 UI 깜빡임 방지
+            _messages.update { currentList ->
+                currentList.filterNot { it is ChatMessage.Typing } + newMessages
+            }
+//            // 2. API 결과로 봇 텍스트 메시지 생성
+//            val botTextMessage = ChatMessage.Bot(buildBothText(summary))
+//
+//            // 3. 추천 진료과 목록 추출
+//            val specialties = summary.specialties.map { it.name }
+//
+//            // 4. 메시지 리스트 업데이트: '입력 중' 제거 -> 봇 응답 추가 -> 버튼 그룹 추가
+//            _messages.update { currentList ->
+//                val listWithoutTyping = currentList.filterNot { it is ChatMessage.Typing }
+//
+//                // 진료과가 있을 때만 버튼 메시지를 추가
+//                if (specialties.isNotEmpty()) {
+//                    listWithoutTyping + botTextMessage + ChatMessage.SystemSpecialtyButtons(specialties)
+//                } else {
+//                    listWithoutTyping + botTextMessage
+//                }
+//            }
 
             _state.value = UiState.Idle // 상태를 다시 Idle로 변경
 
         } catch (e: Exception) {
             handleException(e) // 에러 처리 로직 호출
         }
+    }
+
+    /** 질병 예측 결과 텍스트 생성 헬퍼 함수 */
+    private fun buildDiseaseText(diseases: List<TopItem>, k: Int): String {
+        return buildString {
+            appendLine("다음의 질병일 가능성이 있어요.")
+            appendLine("예측된 상위 ${diseases.size.coerceAtMost(k)}개의 질병이에요.")
+            diseases.take(k).forEach { item ->
+                appendLine("- ${item.name} (${formatScore(item.score)})")
+            }
+        }.trimEnd()
+    }
+
+    /** 진료과 예측 결과 텍스트 생성 헬퍼 함수 */
+    private fun buildSpecialtyText(specialties: List<TopItem>, k: Int): String {
+        return buildString {
+            appendLine("지금 증상에 알맞은 진료과는 다음과 같아요.")
+            specialties.take(k).forEach { item ->
+                appendLine("- ${item.name} (${formatScore(item.score)})")
+            }
+        }.trimEnd()
     }
 
     /** ✨ 에러 발생 시 채팅창에도 피드백을 주도록 수정 */
@@ -112,26 +167,26 @@ class SelfDiagnosisViewModel(
         }
     }
 
-    /** ✅ Fragment에서 가져온 헬퍼 함수들 */
-    private fun buildBothText(sum: PredictionSummary): String {
-        val sb = StringBuilder()
-        if (sum.diseases.isNotEmpty()) {
-            sb.appendLine("예측된 질병 Top-${sum.diseases.size.coerceAtMost(3)}")
-            sum.diseases.take(3).forEachIndexed { i, it ->
-                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
-            }
-        }
-        if (sum.specialties.isNotEmpty()) {
-            if (sb.isNotEmpty()) sb.appendLine()
-            sb.appendLine("예측된 진료과 Top-${sum.specialties.size.coerceAtMost(3)}")
-            sum.specialties.take(3).forEachIndexed { i, it ->
-                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
-            }
-        }
-        return sb.toString().trimEnd().ifBlank { "예측 결과가 비어있어요." }
-    }
+//    /** ✅ Fragment에서 가져온 헬퍼 함수들 */
+//    private fun buildBothText(sum: PredictionSummary): String {
+//        val sb = StringBuilder()
+//        if (sum.diseases.isNotEmpty()) {
+//            sb.appendLine("예측된 질병 Top-${sum.diseases.size.coerceAtMost(3)}")
+//            sum.diseases.take(3).forEachIndexed { i, it ->
+//                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
+//            }
+//        }
+//        if (sum.specialties.isNotEmpty()) {
+//            if (sb.isNotEmpty()) sb.appendLine()
+//            sb.appendLine("예측된 진료과 Top-${sum.specialties.size.coerceAtMost(3)}")
+//            sum.specialties.take(3).forEachIndexed { i, it ->
+//                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
+//            }
+//        }
+//        return sb.toString().trimEnd().ifBlank { "예측 결과가 비어있어요." }
+//    }
 
     private fun formatScore(score: Double): String {
-        return score.toString()
+        return String.format("%.1f%%", score * 100)
     }
 }

@@ -195,9 +195,17 @@ class LocationSettingViewModel : ViewModel() {
     fun processGpsLocation(lat: Double, lng: Double) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val address = reverseGeocode(lat, lng)
+            // ✨ [수정] 한국 내 좌표인지 확인하고, 아니면 기본 좌표(강남역)로 변경
+            var finalLat = lat
+            var finalLng = lng
+            if (!isInKorea(lat, lng)) {
+                finalLat = 37.4979 // 강남역 위도
+                finalLng = 127.0276 // 강남역 경도
+            }
+
+            val address = reverseGeocode(finalLat, finalLng)
             if (address != null) {
-                val location = UserLocation(address = address, lat = lat, lng = lng)
+                val location = UserLocation(address = address, lat = finalLat, lng = finalLng)
                 _locationResultEvent.emit(location)
             } else {
                 _uiState.update { it.copy(isLoading = false, errorMessage = "현재 위치의 주소를 찾지 못했습니다.") }
@@ -271,5 +279,13 @@ class LocationSettingViewModel : ViewModel() {
                 listOfNotNull(it.region1DepthName, it.region2DepthName, it.region3DepthName).joinToString(" ")
             }
         }.getOrNull()
+    }
+
+    // ✨ [추가] 한국 내 좌표인지 확인하는 헬퍼 함수
+    private fun isInKorea(lat: Double, lon: Double): Boolean {
+        // 대략적인 한반도 경계 (제주도, 울릉도 포함)
+        val latOk = lat in 33.0..39.0
+        val lonOk = lon in 125.0..132.0
+        return latOk && lonOk
     }
 }

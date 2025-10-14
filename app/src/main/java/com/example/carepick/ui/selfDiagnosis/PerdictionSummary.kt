@@ -6,7 +6,7 @@ data class TopItem(
 )
 
 data class PredictionSummary(
-    val diseases: List<TopItem>,
+    val diseases: List<TopItem>?,
     val specialties: List<TopItem>
 )
 
