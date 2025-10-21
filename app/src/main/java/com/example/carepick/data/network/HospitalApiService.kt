@@ -31,6 +31,7 @@ interface HospitalApiService {
     // keyword는 백엔드에서 optional이므로 필요하면 추가해서 쓰면 됨 (여기선 생략)
     @GET("/api/hospitals/filter")
     suspend fun getFilteredHospitals(
+        @Query("keyword") keyword: String? = null,
         @Query("lat") lat: Double,
         @Query("lng") lng: Double,
         @Query("distance") distanceKm: Double? = null,           // km 단위(서버와 약속)

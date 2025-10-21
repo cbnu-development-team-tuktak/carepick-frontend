@@ -37,17 +37,32 @@ class DoctorRepository {
         }
     }
 
-    suspend fun getAllDoctors(page: Int): DoctorPageResponse<DoctorDetailsResponse> { // ✅ 변경
-        return doctorApiService.getAllDoctors(page = page, size = 10)
-    }
-
-    // ✅ [신규] 위도, 경도를 받아 주변 의사 목록을 요청하는 메소드
-    suspend fun getNearbyDoctors(lat: Double, lng: Double, page: Int): DoctorPageResponse<DoctorDetailsResponse> {
-        return doctorApiService.getDoctorsSortedByDistance(lat = lat, lng = lng, page = page)
-    }
+//    suspend fun getAllDoctors(page: Int): DoctorPageResponse<DoctorDetailsResponse> { // ✅ 변경
+//        return doctorApiService.getAllDoctors(page = page, size = 10)
+//    }
+//
+//    // ✅ [신규] 위도, 경도를 받아 주변 의사 목록을 요청하는 메소드
+//    suspend fun getNearbyDoctors(lat: Double, lng: Double, page: Int): DoctorPageResponse<DoctorDetailsResponse> {
+//        return doctorApiService.getDoctorsSortedByDistance(lat = lat, lng = lng, page = page)
+//    }
 
     // ✅ 의사 이름으로 검색하는 함수 추가
-    suspend fun searchDoctors(query: String, page: Int): DoctorPageResponse<DoctorDetailsResponse> {
-        return doctorApiService.searchDoctors(keyword = query, page = page)
+    suspend fun getDoctors(
+        keyword: String? = null,
+        specialtyNames: List<String>? = null,
+        lat: Double,
+        lng: Double,
+        sortBy: String? = "distance",
+        page: Int = 0,
+        size: Int = 10
+    ): DoctorPageResponse<DoctorDetailsResponse> {
+        return doctorApiService.getDoctorByFilter(
+            keyword = keyword,
+            specialtyNames = specialtyNames,
+            lat = lat,
+            lng = lng,
+            sortBy = sortBy,
+            page = page,
+            size = size)
     }
 }

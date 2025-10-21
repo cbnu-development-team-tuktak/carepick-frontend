@@ -95,14 +95,14 @@ class SearchResultFragment : Fragment(), TabOwner {
                 val lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition()
 
                 if (totalItemCount > 0 && lastVisibleItemPosition >= totalItemCount - 5) {
-                    viewModel.loadNextPage()
+                    val currentLocation = userLocationVM.location.value
+                    viewModel.loadNextPage(currentLocation!!)
                 }
             }
         })
 
         // 2. ✅ 사용자 위치가 변경될 때마다 어댑터에 알려주는 로직을 추가합니다.
         observeUserLocation()
-
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
@@ -159,7 +159,17 @@ class SearchResultFragment : Fragment(), TabOwner {
         // 키워드 검색이 최우선입니다.
         if (!query.isNullOrBlank()) {
             lifecycleScope.launch {
-                viewModel.searchByKeyword(query)
+                showLoading()
+                try {
+                    withTimeout(5000L) {
+                        val location = userLocationVM.location.first { it != null }
+                        // 자가진단에서 받은 진료과(initialSpecialty)가 있으면 필터 조건으로 사용합니다.
+                        val specialties = if (initialSpecialty != null) listOf(initialSpecialty) else null
+                        viewModel.searchByKeyword(location!!, specialties = specialties, query = query)
+                    }
+                } catch (e: TimeoutCancellationException) {
+                    showError("검색 결과 없음")
+                }
             }
         } else {
             // 키워드가 없으면 위치 기반 검색을 합니다.
@@ -244,13 +254,21 @@ class SearchResultFragment : Fragment(), TabOwner {
         binding.searchResultSearchView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val newQuery = binding.searchResultSearchView.text.toString()
-                if (newQuery.isNotBlank()) {
-                    hideKeyboard()
-                    // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        viewModel.invalidateCache()
-                        viewModel.searchByKeyword(newQuery)
-                    }
+//                if (newQuery.isNotBlank()) {
+//                    hideKeyboard()
+//                    // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
+//                    viewLifecycleOwner.lifecycleScope.launch {
+//                        val location = userLocationVM.location.first { it != null }
+//                        viewModel.invalidateCache()
+//                        viewModel.searchByKeyword(location = location!!, query = newQuery)
+//                    }
+//                }
+                hideKeyboard()
+                // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
+                viewLifecycleOwner.lifecycleScope.launch {
+                    val location = userLocationVM.location.first { it != null }
+                    viewModel.invalidateCache()
+                    viewModel.searchByKeyword(location = location!!, query = newQuery)
                 }
                 return@setOnEditorActionListener true
             }

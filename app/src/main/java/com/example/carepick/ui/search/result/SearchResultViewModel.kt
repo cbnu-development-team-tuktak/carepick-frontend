@@ -66,10 +66,10 @@ class SearchResultViewModel(
             invalidateCache()
 
             // Fragment의 loadInitialData 로직을 ViewModel로 가져옴
-            if (!query.isNullOrBlank()) {
-                searchByKeyword(query)
+            if (!query.isNullOrBlank() && location != null) {
+                searchByKeyword(location = location, query = query)
             } else if (location != null) {
-                searchByLocation(location)
+                searchByLocation(location = location)
             } else {
                 // 검색어와 위치가 모두 없는 경우 (예: 위치 권한 거부)
                 _uiState.value = SearchResultUiState.Error("검색 조건(검색어 또는 위치)이 없습니다.")
@@ -94,10 +94,10 @@ class SearchResultViewModel(
             invalidateCache()
             _uiState.value = SearchResultUiState.Loading
 
-            if (!query.isNullOrBlank()) {
-                searchByKeyword(query)
+            if (!query.isNullOrBlank() && location != null) {
+                searchByKeyword(location = location, query = query)
             } else if (location != null) {
-                searchByLocation(location)
+                searchByLocation(location = location)
             } else {
                 _uiState.value = SearchResultUiState.Error("검색 조건이 없습니다.")
             }
@@ -105,17 +105,17 @@ class SearchResultViewModel(
     }
 
     // 키워드 검색
-    suspend fun searchByKeyword(query: String) {
+    suspend fun searchByKeyword(location: UserLocation, specialties: List<String>? = null, query: String) {
         resetPagination()
         currentQuery = query
-        currentLocation = null
+        currentLocation = location
         _uiState.value = SearchResultUiState.Loading
 
         try {
             // ✅ 이제 response 변수는 PageResponse<SearchResultItem> 타입으로 안전하게 추론됩니다.
             val response: PageResponse<out SearchResultItem> = when (currentSearchMode) {
-                SearchMode.HOSPITAL -> hospitalRepository.getSearchedHospitals(query, page = 0)
-                SearchMode.DOCTOR -> doctorRepository.searchDoctors(query, page = 0) // ✅ 새로 만든 함수 호출
+                SearchMode.HOSPITAL -> hospitalRepository.getHospitals(query, specialties = specialties, lat = location.lat, lng=location.lng, page = 0)
+                SearchMode.DOCTOR -> doctorRepository.getDoctors(query, specialtyNames = specialties, lat = location.lat, lng = location.lng, page = 0) // ✅ 새로 만든 함수 호출
             }
 
             // ✅ 에러 없이 정상적으로 접근 가능
@@ -142,11 +142,11 @@ class SearchResultViewModel(
         _uiState.value = SearchResultUiState.Loading
         try {
             val response = when (currentSearchMode) {
-                SearchMode.HOSPITAL -> hospitalRepository.getHospitalsWithExtendedFilter(
+                SearchMode.HOSPITAL -> hospitalRepository.getHospitals(
                     lat = location.lat, lng = location.lng, specialties = specialties, page = 0
                 )
-                SearchMode.DOCTOR -> doctorRepository.getNearbyDoctors(
-                    lat = location.lat, lng = location.lng, page = 0
+                SearchMode.DOCTOR -> doctorRepository.getDoctors(
+                    lat = location.lat, lng = location.lng, specialtyNames = specialties, page = 0
                 )
             }
 
@@ -163,7 +163,7 @@ class SearchResultViewModel(
         }
     }
 
-    fun loadNextPage() {
+    fun loadNextPage(location: UserLocation) {
         if (isLoading || isLastPage) return
         isLoading = true
 
@@ -179,12 +179,12 @@ class SearchResultViewModel(
                 // [수정] ✅ 저장된 검색 조건으로 다음 페이지 요청
                 val response = when {
                     currentQuery != null -> when (currentSearchMode) { // 키워드 검색의 다음 페이지
-                        SearchMode.HOSPITAL -> hospitalRepository.getSearchedHospitals(currentQuery!!, page = currentPage)
-                        SearchMode.DOCTOR -> doctorRepository.getAllDoctors(page = currentPage)
+                        SearchMode.HOSPITAL -> hospitalRepository.getHospitals(currentQuery!!, lat = location.lat, lng = location.lng, page = currentPage)
+                        SearchMode.DOCTOR -> doctorRepository.getDoctors(keyword = currentQuery, lat = location.lat, lng = location.lng, page = currentPage)
                     }
                     currentLocation != null -> when (currentSearchMode) { // 위치 검색의 다음 페이지
-                        SearchMode.HOSPITAL -> hospitalRepository.getHospitalsWithExtendedFilter(lat = currentLocation!!.lat, lng = currentLocation!!.lng, specialties = currentSpecialties, page = currentPage)
-                        SearchMode.DOCTOR -> doctorRepository.getNearbyDoctors(lat = currentLocation!!.lat, lng = currentLocation!!.lng, page = currentPage)
+                        SearchMode.HOSPITAL -> hospitalRepository.getHospitals(lat = currentLocation!!.lat, lng = currentLocation!!.lng, specialties = currentSpecialties, page = currentPage)
+                        SearchMode.DOCTOR -> doctorRepository.getDoctors(lat = currentLocation!!.lat, lng = currentLocation!!.lng, specialtyNames = currentSpecialties, page = currentPage)
                     }
                     else -> null // 검색 조건이 없으면 아무것도 안함
                 }

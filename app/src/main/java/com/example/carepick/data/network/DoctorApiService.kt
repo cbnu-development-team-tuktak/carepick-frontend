@@ -2,6 +2,7 @@ package com.example.carepick.data.network
 
 import com.example.carepick.data.model.DoctorDetailsResponse
 import com.example.carepick.data.model.DoctorPageResponse
+import com.example.carepick.ui.search.filter.adapter.SpecialtyAdapter
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.Call
@@ -24,6 +25,17 @@ interface DoctorApiService {
     suspend fun getDoctorsSortedByDistance(
         @Query("lat") lat: Double,
         @Query("lng") lng: Double,
+        @Query("page") page: Int = 0,
+        @Query("size") size: Int = 10
+    ): DoctorPageResponse<DoctorDetailsResponse>
+
+    @GET("/api/doctors/filter")
+    suspend fun getDoctorByFilter(
+        @Query("keyword") keyword: String? = null,
+        @Query("specialtyNames") specialtyNames: List<String>? = null,
+        @Query("lat") lat: Double,
+        @Query("lng") lng: Double,
+        @Query("sortBy") sortBy: String? = "distance",
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 10
     ): DoctorPageResponse<DoctorDetailsResponse>
