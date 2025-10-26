@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.carepick"
+    namespace = "com.tuktak.carepick"
     compileSdk = 35
 
     buildFeatures {
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.carepick"
+        applicationId = "com.tuktak.carepick"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
