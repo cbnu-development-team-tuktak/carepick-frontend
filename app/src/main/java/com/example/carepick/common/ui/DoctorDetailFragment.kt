@@ -140,7 +140,12 @@ class DoctorDetailFragment: Fragment(), TabOwner {
 
 
             // ▼▼▼▼▼ 케어픽 스코어 설정 ▼▼▼▼▼
-            binding.doctorDetailScore.text = doctor.totalEducationLicenseScore?.toString() ?: "점수 없음"
+            // 1. 점수가 null이 아니면 String.format을 사용하여 소수점 두 자리까지 형식화
+            val formattedScore = doctor.totalEducationLicenseScore?.let { score ->
+                String.format("%.2f", score)
+            } ?: "점수 없음" // 2. 점수가 null이면 "점수 없음"을 사용
+
+            binding.doctorDetailScore.text = formattedScore
             // ▲▲▲▲▲ 케어픽 스코어 설정 ▲▲▲▲▲
         }
 

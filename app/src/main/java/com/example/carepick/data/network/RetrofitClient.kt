@@ -13,7 +13,7 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    const val BASE_URL = "http://10.0.2.2:8080"
+    const val BASE_URL = "http://carepick-prod.ap-northeast-2.elasticbeanstalk.com/"
 
     // 재시도 인터셉터 (타임아웃/일시적 연결 실패 시 최대 2회 재시도, 지수 백오프)
     private val retryInterceptor = Interceptor { chain ->
@@ -64,6 +64,7 @@ object RetrofitClient {
 
     private val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
+        .client(client) // 👈 custom client 추가
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

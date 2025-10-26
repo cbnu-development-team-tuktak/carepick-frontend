@@ -70,7 +70,7 @@
                         android:id="@+id/distance_slider"
                         android:layout_width="348dp"
                         android:layout_height="20dp"
-                        android:layout_marginTop="32dp"
+                        android:layout_marginTop="36dp"
                         android:layout_marginBottom="16dp"
                         android:max="5"
                         android:paddingStart="32dp"
@@ -85,6 +85,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="top"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="4dp"
                         android:background="@drawable/bg_slider_label"
                         android:padding="4dp"
                         android:text="0km 이내"
@@ -267,6 +269,7 @@
                     <!-- 시작 시간 -->
 
                     <LinearLayout
+                        android:id="@+id/start_time_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -294,6 +297,7 @@
 
                     <!-- 종료 시간 -->
                     <LinearLayout
+                        android:id="@+id/end_time_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -322,6 +326,7 @@
 
                     <!-- 시간 범위 스피너 -->
                     <LinearLayout
+                        android:id="@+id/spinner_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -379,7 +384,7 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginEnd="12dp"
+                                android:layout_marginEnd="4dp"
                                 android:background="@drawable/bg_edittext"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
@@ -387,7 +392,7 @@
 
                                 <Spinner
                                     android:id="@+id/day_group_spinner"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="65dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:background="@android:color/transparent"

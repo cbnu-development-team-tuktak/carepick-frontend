@@ -102,10 +102,37 @@ class SearchResultFragment : Fragment(), TabOwner {
         })
 
         // 2. ✅ 사용자 위치가 변경될 때마다 어댑터에 알려주는 로직을 추가합니다.
+        observeFilterState()
         observeUserLocation()
         setupWindowInsets()
         setupListeners()
         observeUiState() // ✅ UI 상태를 구독하는 함수
+    }
+
+    private val logTag = "SearchFragDebug"
+
+    /** ✅ FilterViewModel의 isAnyFilterActive 상태를 구독하여 필터 버튼 UI를 업데이트 */
+    private fun observeFilterState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            filterVM.isAnyFilterActive.collect { isActive ->
+                Log.d(logTag, "Collected isAnyFilterActive: $isActive")
+                updateFilterButtonUI(isActive)
+            }
+        }
+    }
+
+    /** ✅ 필터 활성화 상태에 따라 필터 버튼 배경 변경 */
+    private fun updateFilterButtonUI(isActive: Boolean) {
+        if (isActive) {
+            // 필터가 활성화되었을 때 사용할 배경 (예: bg_search_result_btn_active)
+            binding.searchResultFilterButton.setBackgroundResource(R.drawable.bg_search_result_btn_active)
+            // 필요하다면 텍스트 색상 등도 변경
+            // binding.searchResultFilterButtonText.setTextColor(...)
+        } else {
+            // 필터가 비활성화되었을 때 사용할 기본 배경
+            binding.searchResultFilterButton.setBackgroundResource(R.drawable.bg_search_result_btn)
+            // binding.searchResultFilterButtonText.setTextColor(...)
+        }
     }
 
 
@@ -155,6 +182,8 @@ class SearchResultFragment : Fragment(), TabOwner {
         // 4. 검색창 텍스트를 설정합니다.
         binding.searchResultSearchView.setText(query)
 
+        val currentSortBy = filterVM.selectedSortBy
+
         // 5. 최종 조건에 따라 ViewModel에 데이터 로딩을 '한 번만' 요청합니다.
         // 키워드 검색이 최우선입니다.
         if (!query.isNullOrBlank()) {
@@ -165,7 +194,7 @@ class SearchResultFragment : Fragment(), TabOwner {
                         val location = userLocationVM.location.first { it != null }
                         // 자가진단에서 받은 진료과(initialSpecialty)가 있으면 필터 조건으로 사용합니다.
                         val specialties = if (initialSpecialty != null) listOf(initialSpecialty) else null
-                        viewModel.searchByKeyword(location!!, specialties = specialties, query = query)
+                        viewModel.searchByKeyword(location!!, specialties = specialties, query = query, sortBy = currentSortBy)
                     }
                 } catch (e: TimeoutCancellationException) {
                     showError("검색 결과 없음")
@@ -180,7 +209,7 @@ class SearchResultFragment : Fragment(), TabOwner {
                         val location = userLocationVM.location.first { it != null }
                         // 자가진단에서 받은 진료과(initialSpecialty)가 있으면 필터 조건으로 사용합니다.
                         val specialties = if (initialSpecialty != null) listOf(initialSpecialty) else null
-                        viewModel.searchByLocation(location!!, specialties = specialties)
+                        viewModel.searchByLocation(location!!, specialties = specialties, sortBy = currentSortBy)
                     }
                 } catch (e: TimeoutCancellationException) {
                     showError(getString(R.string.need_location_message))
@@ -254,21 +283,13 @@ class SearchResultFragment : Fragment(), TabOwner {
         binding.searchResultSearchView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val newQuery = binding.searchResultSearchView.text.toString()
-//                if (newQuery.isNotBlank()) {
-//                    hideKeyboard()
-//                    // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
-//                    viewLifecycleOwner.lifecycleScope.launch {
-//                        val location = userLocationVM.location.first { it != null }
-//                        viewModel.invalidateCache()
-//                        viewModel.searchByKeyword(location = location!!, query = newQuery)
-//                    }
-//                }
                 hideKeyboard()
                 // ✅ lifecycleScope.launch로 코루틴을 시작하고, 그 안에서 suspend 함수 호출
                 viewLifecycleOwner.lifecycleScope.launch {
                     val location = userLocationVM.location.first { it != null }
+                    val currentSortBy = filterVM.selectedSortBy
                     viewModel.invalidateCache()
-                    viewModel.searchByKeyword(location = location!!, query = newQuery)
+                    viewModel.searchByKeyword(location = location!!, query = newQuery, sortBy = currentSortBy)
                 }
                 return@setOnEditorActionListener true
             }
@@ -286,23 +307,64 @@ class SearchResultFragment : Fragment(), TabOwner {
                 updateToggleUI(SearchMode.HOSPITAL)
             }
 
-            val receivedSpecialties = bundle.getStringArrayList("selected_specialties")?.toSet() ?: emptySet()
-            filterVM.updateSpecialties(receivedSpecialties) // 공유 ViewModel 상태 업데이트
+            val receivedSpecialtiesSet = bundle.getStringArrayList("selected_specialties")?.toSet() ?: emptySet()
+            val receivedDays = bundle.getStringArrayList("selected_days")?.toList()
+            val receivedStartTime = bundle.getString("start_time")
+            val receivedEndTime = bundle.getString("end_time")
+            val receivedDistance = bundle.getInt("selected_distance", -1)
+
+            filterVM.updateSpecialties(receivedSpecialtiesSet) // 공유 ViewModel 상태 업데이트
+            filterVM.updateOperatingHours(receivedDays?.toSet() ?: emptySet(), receivedStartTime, receivedEndTime)
+            filterVM.updateDistance(if (receivedDistance == -1) 0 else receivedDistance)
 
             val currentLocation = userLocationVM.location.value
             if (currentLocation != null) {
-                viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.invalidateCache() // ✅ 새로운 필터가 적용되므로 캐시 초기화
-                    viewModel.searchByLocation(currentLocation, receivedSpecialties.toList())
-                }
+                viewModel.invalidateCache() // 캐시 초기화
+                viewModel.loadData(
+                    location = currentLocation,
+                    query = binding.searchResultSearchView.text.toString().ifBlank { null }, // 현재 검색어도 전달
+                    specialties = receivedSpecialtiesSet.toList(),
+                    days = receivedDays,
+                    startTime = receivedStartTime,
+                    endTime = receivedEndTime,
+                    distance = if (receivedDistance == -1) null else receivedDistance,
+                    forceReload = true // 필터 적용은 강제 리로드
+                )
             } else {
                 Toast.makeText(requireContext(), "위치 정보가 없어 필터를 적용할 수 없습니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // 정렬 BottomSheet 결과 리스너 (기능 확장 필요)
+        // 정렬 BottomSheet 결과 리스너
         parentFragmentManager.setFragmentResultListener("sort_filter_result", viewLifecycleOwner) { _, bundle ->
-            // TODO: 정렬 로직 ViewModel로 이동 및 구현
+            val sortBy = bundle.getString("selected_sort_by") ?: "distance" // Bundle에서 sortBy 값 가져오기 (없으면 기본값)
+            val buttonText = bundle.getString("selected_filter_text") ?: "정렬" // 버튼 텍스트 가져오기
+
+            // 1. ✅ FilterViewModel의 정렬 상태 업데이트
+            filterVM.updateSortBy(sortBy)
+
+            // 2. ✅ 정렬 버튼 텍스트 업데이트 (기존 updateSearchSortButton 함수 활용 또는 직접 업데이트)
+            binding.searchResultSortButtonText.text = buttonText
+            // TODO: updateSearchSortButton() 함수를 FilterViewModel 상태 기반으로 수정하거나 제거
+
+            // 3. ✅ SearchResultViewModel에 새로운 정렬 기준으로 데이터 로딩 요청
+            val currentLocation = userLocationVM.location.value
+            if (currentLocation != null) {
+                viewModel.invalidateCache() // 캐시는 초기화하는 것이 안전
+                viewModel.loadData(
+                    location = currentLocation,
+                    query = binding.searchResultSearchView.text.toString().ifBlank { null },
+                    specialties = filterVM.selectedSpecialties.toList(),
+                    days = filterVM.selectedDays.toList(),
+                    startTime = filterVM.startTime,
+                    endTime = filterVM.endTime,
+                    distance = filterVM.selectedDistance,
+                    sortBy = sortBy, // 👈 새로운 sortBy 값 전달
+                    forceReload = true // 정렬 변경은 강제 리로드
+                )
+            } else {
+                Toast.makeText(requireContext(), "위치 정보가 없어 정렬을 적용할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // 필터 버튼 클릭 리스너
@@ -340,6 +402,9 @@ class SearchResultFragment : Fragment(), TabOwner {
         updateToggleUI(newMode)
         val query = binding.searchResultSearchView.text.toString()
         val location = userLocationVM.location.value
+
+        filterVM.resetFilters()
+
         viewModel.loadData(newMode = newMode, query = query, location = location)
     }
 

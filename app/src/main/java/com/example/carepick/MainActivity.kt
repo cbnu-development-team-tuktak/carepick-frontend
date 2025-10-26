@@ -8,7 +8,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.example.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
-import com.example.carepick.ui.profile.UserProfileFragment
 import com.example.carepick.ui.search.result.SearchResultFragment
 import com.example.carepick.ui.selfDiagnosis.SelfDiagnosisFragment
 
@@ -18,7 +17,6 @@ class MainActivity : AppCompatActivity() {
     private val homeFragment = HomeFragment()
     val searchResultFragment = SearchResultFragment()
     val selfDiagnosisFragment = SelfDiagnosisFragment()
-    val userProfileFragment = UserProfileFragment()
 
     // ✅ 현재 활성화된 프래그먼트를 추적할 변수
     private var activeFragment: Fragment = homeFragment
@@ -32,7 +30,6 @@ class MainActivity : AppCompatActivity() {
         // ✅ 앱이 처음 시작될 때 모든 프래그먼트를 추가(add)하고, 홈 화면만 보여줌(show)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().apply {
-                add(R.id.fragment_container, userProfileFragment, "4").hide(userProfileFragment)
                 add(R.id.fragment_container, selfDiagnosisFragment, "3").hide(selfDiagnosisFragment)
                 add(R.id.fragment_container, searchResultFragment, "2").hide(searchResultFragment)
                 // 홈 프래그먼트는 마지막에 추가하고 보여줌
@@ -58,9 +55,6 @@ class MainActivity : AppCompatActivity() {
             switchFragment(selfDiagnosisFragment)
         }
 
-        findViewById<ConstraintLayout>(R.id.nav_profile).setOnClickListener {
-            switchFragment(userProfileFragment)
-        }
 
 //        // ✅ 프래그먼트 스택에 변경이 있을 때마다 감지하는 리스너 추가
 //        supportFragmentManager.addOnBackStackChangedListener {
@@ -124,7 +118,6 @@ class MainActivity : AppCompatActivity() {
                 searchResultFragment
             }
             R.id.nav_self_diagnosis -> selfDiagnosisFragment
-            R.id.nav_profile -> userProfileFragment
             else -> null
         }
 
@@ -137,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     /** ✅ 프래그먼트가 자신을 활성 프래그먼트로 등록할 수 있도록 하는 함수 */
     fun updateActiveFragment(fragment: Fragment) {
         // 메인 탭 프래그먼트 중 하나일 경우에만 activeFragment 참조를 업데이트
-        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is SelfDiagnosisFragment || fragment is UserProfileFragment) {
+        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is SelfDiagnosisFragment) {
             activeFragment = fragment
         }
     }
@@ -147,8 +140,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<ImageView>(R.id.nav_home_icon).setImageResource(R.drawable.ic_home_deactivated)
         findViewById<ImageView>(R.id.nav_search_icon).setImageResource(R.drawable.ic_search_deactivated)
         findViewById<ImageView>(R.id.nav_self_diagnosis_icon).setImageResource(R.drawable.ic_recommand_deactivated)
-        findViewById<ImageView>(R.id.nav_profile_icon).setImageResource(R.drawable.ic_profile_deactivated)
-
         // -1이면 아무것도 활성화하지 않음
         if (activeId == -1) return
 
@@ -162,9 +153,6 @@ class MainActivity : AppCompatActivity() {
 
             R.id.nav_self_diagnosis -> findViewById<ImageView>(R.id.nav_self_diagnosis_icon)
                 .setImageResource(R.drawable.ic_recommand_activated)
-
-            R.id.nav_profile -> findViewById<ImageView>(R.id.nav_profile_icon)
-                .setImageResource(R.drawable.ic_profile_activated)
         }
     }
 }
