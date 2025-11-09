@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.tuktak.carepick.databinding.HospitalCardBinding
 import com.tuktak.carepick.data.model.HospitalDetailsResponse
-import com.tuktak.carepick.ui.search.result.HospitalCardViewHolder
+import com.tuktak.carepick.ui.search.result.hospital.HospitalCardViewHolder
 
 // 병원 카드와 데이터를 연결하는 어댑터
 // hospital_card.xml 레이아웃과 병원 정보(HospitalDetailResponse)를 연결함을 나타낸다

@@ -177,7 +177,7 @@ class SelfDiagnosisFragment : Fragment(), TabOwner {
         }
 
         // 3. ✅ 그 다음에 '검색' 탭으로 이동만 합니다. (Bundle 전달은 이제 필요 없음)
-        (activity as? MainActivity)?.navigateToTab(R.id.nav_search, bundle)
+        (activity as? MainActivity)?.navigateToTab(R.id.nav_hospital, bundle)
 
         // Toast 메시지는 그대로 유지하거나 필요에 따라 수정
         Toast.makeText(requireContext(), "'주변의 ${specialty}' 병원을 검색합니다.", Toast.LENGTH_SHORT).show()

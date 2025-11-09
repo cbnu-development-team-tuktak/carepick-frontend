@@ -22,7 +22,7 @@ import com.tuktak.carepick.data.repository.ServiceListRepository
 import com.tuktak.carepick.data.repository.HospitalRepository
 import com.tuktak.carepick.ui.location.viewModel.UserLocationViewModel
 import com.tuktak.carepick.ui.location.viewModelFactory.UserLocationViewModelFactory
-import com.tuktak.carepick.ui.search.result.SearchResultFragment
+import com.tuktak.carepick.ui.search.result.hospital.HospitalSearchResultFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -198,14 +198,14 @@ class HomeFragment: Fragment(), TabOwner {
                 val bundle = Bundle().apply {
                     putString("initial_search_mode", "HOSPITAL")
                 }
-                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search, bundle)
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_hospital, bundle)
             }
 
             binding.doctorCardView.setOnClickListener {
                 val bundle = Bundle().apply {
                     putString("initial_search_mode", "DOCTOR")
                 }
-                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_search, bundle)
+                (requireActivity() as? MainActivity)?.navigateToTab(R.id.nav_doctor, bundle)
             }
 
 
@@ -324,7 +324,7 @@ class HomeFragment: Fragment(), TabOwner {
         }
 
         // 검색 버튼을 누를 경우 어떤 프래그먼트로 넘어갈지를 지정한다
-        val fragment = SearchResultFragment()
+        val fragment = HospitalSearchResultFragment()
         // 해당 프래그먼트에 넘길 데이터를 지정한다
         fragment.arguments = bundle
 

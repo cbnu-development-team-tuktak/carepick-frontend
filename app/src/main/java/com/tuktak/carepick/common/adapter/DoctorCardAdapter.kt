@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.tuktak.carepick.databinding.DoctorCardBinding
 import com.tuktak.carepick.data.model.DoctorDetailsResponse
-import com.tuktak.carepick.ui.search.result.DoctorCardViewHolder
+import com.tuktak.carepick.ui.search.result.doctor.DoctorCardViewHolder
 
 //
 class DoctorCardAdapter(

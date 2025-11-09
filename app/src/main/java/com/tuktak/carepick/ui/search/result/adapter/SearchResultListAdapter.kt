@@ -12,8 +12,8 @@ import com.tuktak.carepick.data.model.DoctorDetailsResponse
 import com.tuktak.carepick.data.model.HospitalDetailsResponse
 import com.tuktak.carepick.data.model.LoadingItem
 import com.tuktak.carepick.databinding.SearchListBinding
-import com.tuktak.carepick.ui.search.result.DoctorSearchListViewHolder
-import com.tuktak.carepick.ui.search.result.HospitalSearchListViewHolder
+import com.tuktak.carepick.ui.search.result.doctor.DoctorSearchListViewHolder
+import com.tuktak.carepick.ui.search.result.hospital.HospitalListViewHolder
 import com.tuktak.carepick.data.model.SearchResultItem
 import com.tuktak.carepick.ui.location.repository.UserLocation
 
@@ -49,7 +49,7 @@ class SearchResultListAdapter(
         return when (viewType) {
             TYPE_HOSPITAL -> {
                 val binding = SearchListBinding.inflate(inflater, parent, false)
-                HospitalSearchListViewHolder(binding)
+                HospitalListViewHolder(binding)
             }
             TYPE_DOCTOR -> {
                 val binding = SearchListBinding.inflate(inflater, parent, false)
@@ -69,7 +69,7 @@ class SearchResultListAdapter(
         when (val item = getItem(position)) {
             is HospitalDetailsResponse -> {
                 // ✅ 2. 바인딩 시, 생성자가 아닌 내부 변수 userLocation을 전달합니다.
-                (holder as HospitalSearchListViewHolder).bind(item, userLocation) { onItemClicked(item) }
+                (holder as HospitalListViewHolder).bind(item, userLocation) { onItemClicked(item) }
             }
             is DoctorDetailsResponse -> {
                 (holder as DoctorSearchListViewHolder).bind(item, userLocation) { onItemClicked(item) }

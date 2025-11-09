@@ -1,4 +1,4 @@
-package com.tuktak.carepick.ui.search.result
+package com.tuktak.carepick.ui.search.result.doctor
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity

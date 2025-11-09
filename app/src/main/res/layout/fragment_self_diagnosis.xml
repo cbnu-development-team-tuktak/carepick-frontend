@@ -44,26 +44,16 @@
             android:paddingStart="16dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
-            android:textSize="14sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/selfCheckKeywordButton"
+            app:layout_constraintEnd_toStartOf="@+id/selfCheckSendButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/selfCheckKeywordButton"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:padding="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/selfCheckSendButton"
-            app:layout_constraintStart_toEndOf="@+id/selfCheckInput"
-            app:srcCompat="@drawable/keyword_btn" />
-
         <ImageButton
             android:id="@+id/selfCheckSendButton"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:background="@null"
             android:contentDescription="전송 버튼"
             android:paddingTop="12dp"

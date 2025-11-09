@@ -40,7 +40,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nav_bar"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="120dp"
             android:background="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -50,9 +50,8 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/nav_home"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/nav_search"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@id/nav_hospital"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -80,17 +79,16 @@
                     app:layout_constraintTop_toBottomOf="@id/nav_home_icon" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- 검색 버튼 -->
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/nav_search"
+                android:id="@+id/nav_hospital"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/nav_self_diagnosis"
-                app:layout_constraintStart_toEndOf="@id/nav_home">
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@id/nav_doctor"
+                app:layout_constraintStart_toEndOf="@id/nav_home"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/nav_search_icon"
+                    android:id="@+id/nav_hospital_icon"
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_marginTop="8dp"
@@ -100,27 +98,92 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/nav_search_label"
+                    android:id="@+id/nav_hospital_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/pretendard_regular"
-                    android:text="검색"
+                    android:text="병원"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/nav_search_icon" />
+                    app:layout_constraintTop_toBottomOf="@id/nav_hospital_icon" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/nav_doctor"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@id/nav_self_diagnosis"
+                app:layout_constraintStart_toEndOf="@id/nav_hospital"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/nav_doctor_icon"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_search_deactivated"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/nav_doctor_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/pretendard_regular"
+                    android:text="의사"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/nav_doctor_icon" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!--            &lt;!&ndash; 검색 버튼 &ndash;&gt;-->
+            <!--            <androidx.constraintlayout.widget.ConstraintLayout-->
+            <!--                android:id="@+id/nav_search"-->
+            <!--                android:layout_width="0dp"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                app:layout_constraintEnd_toStartOf="@id/nav_self_diagnosis"-->
+            <!--                app:layout_constraintStart_toEndOf="@id/nav_home"-->
+            <!--                app:layout_constraintTop_toTopOf="parent">-->
+
+            <!--                <ImageView-->
+            <!--                    android:id="@+id/nav_search_icon"-->
+            <!--                    android:layout_width="28dp"-->
+            <!--                    android:layout_height="28dp"-->
+            <!--                    android:layout_marginTop="8dp"-->
+            <!--                    android:src="@drawable/ic_search_deactivated"-->
+            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                    app:layout_constraintStart_toStartOf="parent"-->
+            <!--                    app:layout_constraintTop_toTopOf="parent" />-->
+
+            <!--                <TextView-->
+            <!--                    android:id="@+id/nav_search_label"-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:layout_marginTop="8dp"-->
+            <!--                    android:fontFamily="@font/pretendard_regular"-->
+            <!--                    android:text="검색"-->
+            <!--                    android:textSize="16sp"-->
+            <!--                    android:textStyle="bold"-->
+            <!--                    app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                    app:layout_constraintStart_toStartOf="parent"-->
+            <!--                    app:layout_constraintTop_toBottomOf="@id/nav_search_icon" />-->
+            <!--            </androidx.constraintlayout.widget.ConstraintLayout>-->
 
             <!-- 즐겨찾기 버튼 -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/nav_self_diagnosis"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/nav_search">
+                app:layout_constraintStart_toEndOf="@id/nav_doctor"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/nav_self_diagnosis_icon"

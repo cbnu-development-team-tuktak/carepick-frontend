@@ -8,14 +8,17 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.tuktak.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
-import com.tuktak.carepick.ui.search.result.SearchResultFragment
+import com.tuktak.carepick.ui.search.result.doctor.DoctorSearchResultFragment
+import com.tuktak.carepick.ui.search.result.hospital.HospitalSearchResultFragment
 import com.tuktak.carepick.ui.selfDiagnosis.SelfDiagnosisFragment
 
 class MainActivity : AppCompatActivity() {
 
     // ✅ 각 프래그먼트의 인스턴스를 저장할 변수 선언
     private val homeFragment = HomeFragment()
-    val searchResultFragment = SearchResultFragment()
+    val hospitalFragment = HospitalSearchResultFragment()
+    val doctorFragment = DoctorSearchResultFragment()
+
     val selfDiagnosisFragment = SelfDiagnosisFragment()
 
     // ✅ 현재 활성화된 프래그먼트를 추적할 변수
@@ -30,8 +33,9 @@ class MainActivity : AppCompatActivity() {
         // ✅ 앱이 처음 시작될 때 모든 프래그먼트를 추가(add)하고, 홈 화면만 보여줌(show)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().apply {
-                add(R.id.fragment_container, selfDiagnosisFragment, "3").hide(selfDiagnosisFragment)
-                add(R.id.fragment_container, searchResultFragment, "2").hide(searchResultFragment)
+                add(R.id.fragment_container, selfDiagnosisFragment, "4").hide(selfDiagnosisFragment)
+                add(R.id.fragment_container, hospitalFragment, "3").hide(hospitalFragment)
+                add(R.id.fragment_container, doctorFragment, "2").hide(doctorFragment)
                 // 홈 프래그먼트는 마지막에 추가하고 보여줌
                 add(R.id.fragment_container, homeFragment, "1")
             }.commit()
@@ -41,14 +45,11 @@ class MainActivity : AppCompatActivity() {
             switchFragment(homeFragment)
         }
 
-        findViewById<ConstraintLayout>(R.id.nav_search).setOnClickListener {
-            if (activeFragment == searchResultFragment && supportFragmentManager.backStackEntryCount > 0) {
-                supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                // ✅ 백스택을 비운 후, '검색' 아이콘을 명시적으로 활성화합니다.
-                updateNavIcons(R.id.nav_search)
-            } else {
-                switchFragment(searchResultFragment)
-            }
+        findViewById<ConstraintLayout>(R.id.nav_hospital).setOnClickListener {
+            switchFragment(hospitalFragment)
+        }
+        findViewById<ConstraintLayout>(R.id.nav_doctor).setOnClickListener {
+            switchFragment(doctorFragment)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
@@ -88,6 +89,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 탭 클릭 처리 헬퍼 함수 (중복 코드 제거용)
+//    private fun handleTabClick(fragment: Fragment, navId: Int) {
+//        if (activeFragment == fragment && supportFragmentManager.backStackEntryCount > 0) {
+//            supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+//            updateNavIcons(navId)
+//        } else {
+//            switchFragment(fragment)
+//        }
+//    }
+
     /** ✅ 현재 화면의 프래그먼트를 확인하고, 그에 맞는 탭 아이콘을 활성화하는 중앙 제어 함수 */
     private fun updateNavSelection() {
         // 현재 화면에 보이는 프래그먼트를 찾습니다.
@@ -108,21 +119,28 @@ class MainActivity : AppCompatActivity() {
     fun navigateToTab(tabId: Int, args: Bundle? = null) {
         val targetFragment = when (tabId) {
             R.id.nav_home -> homeFragment
-            R.id.nav_search -> {
-                // ✅ arguments를 여기서 설정하는 대신, SearchResultFragment가
-                //    필요할 때 직접 arguments를 설정하고 이 함수를 호출하도록 합니다.
-                //    예: HomeFragment에서 검색어를 입력하고 넘어올 때
+
+            // ✅ [변경] 병원 탭으로 이동
+            R.id.nav_hospital -> {
                 if (args != null) {
-                    searchResultFragment.arguments = args
+                    hospitalFragment.arguments = args
                 }
-                searchResultFragment
+                hospitalFragment
             }
+
+            // ✅ [추가] 의사 탭으로 이동
+            R.id.nav_doctor -> {
+                if (args != null) {
+                    doctorFragment.arguments = args
+                }
+                doctorFragment
+            }
+
             R.id.nav_self_diagnosis -> selfDiagnosisFragment
             else -> null
         }
 
         if (targetFragment != null) {
-            // ✅ navigateToTab에서도 switchFragment를 호출하도록 통일합니다.
             switchFragment(targetFragment)
         }
     }
@@ -130,7 +148,7 @@ class MainActivity : AppCompatActivity() {
     /** ✅ 프래그먼트가 자신을 활성 프래그먼트로 등록할 수 있도록 하는 함수 */
     fun updateActiveFragment(fragment: Fragment) {
         // 메인 탭 프래그먼트 중 하나일 경우에만 activeFragment 참조를 업데이트
-        if (fragment is HomeFragment || fragment is SearchResultFragment || fragment is SelfDiagnosisFragment) {
+        if (fragment is HomeFragment || fragment is HospitalSearchResultFragment || fragment is SelfDiagnosisFragment) {
             activeFragment = fragment
         }
     }
@@ -138,7 +156,8 @@ class MainActivity : AppCompatActivity() {
     fun updateNavIcons(activeId: Int) {
         // 모든 아이콘을 비활성화된 상태로 초기화
         findViewById<ImageView>(R.id.nav_home_icon).setImageResource(R.drawable.ic_home_deactivated)
-        findViewById<ImageView>(R.id.nav_search_icon).setImageResource(R.drawable.ic_search_deactivated)
+        findViewById<ImageView>(R.id.nav_hospital_icon).setImageResource(R.drawable.ic_search_deactivated)
+        findViewById<ImageView>(R.id.nav_doctor_icon).setImageResource(R.drawable.ic_search_deactivated)
         findViewById<ImageView>(R.id.nav_self_diagnosis_icon).setImageResource(R.drawable.ic_recommand_deactivated)
         // -1이면 아무것도 활성화하지 않음
         if (activeId == -1) return
@@ -148,7 +167,10 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_home -> findViewById<ImageView>(R.id.nav_home_icon)
                 .setImageResource(R.drawable.ic_home_activated)
 
-            R.id.nav_search -> findViewById<ImageView>(R.id.nav_search_icon)
+            R.id.nav_hospital -> findViewById<ImageView>(R.id.nav_hospital_icon)
+                .setImageResource(R.drawable.ic_search_activated)
+
+            R.id.nav_doctor -> findViewById<ImageView>(R.id.nav_doctor_icon)
                 .setImageResource(R.drawable.ic_search_activated)
 
             R.id.nav_self_diagnosis -> findViewById<ImageView>(R.id.nav_self_diagnosis_icon)

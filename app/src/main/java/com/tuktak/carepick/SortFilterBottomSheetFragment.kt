@@ -11,6 +11,6 @@ class SortFilterBottomSheetFragment : BottomSheetDialogFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.sort_filter_menu, container, false)
+        return inflater.inflate(R.layout.sort_hospital_menu, container, false)
     }
 }

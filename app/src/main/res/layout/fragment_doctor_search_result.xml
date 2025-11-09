@@ -13,7 +13,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/search_view_border"
-        android:hint="@string/search_placeholder"
+        android:hint="의사 이름을 검색하세요"
         android:imeOptions="actionSearch"
         android:inputType="text"
         android:paddingLeft="16dp"
@@ -29,7 +29,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/filterContainer"
         android:layout_width="0dp"
-        android:layout_height="108dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@+id/searchResultContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -108,68 +108,13 @@
                 app:srcCompat="@drawable/ic_filter" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:id="@+id/hospitalDoctorToggle"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginEnd="16dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/searchResultSortButton">
-
-            <LinearLayout
-                android:id="@+id/searchResultHospitalFilterButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_search_result_filter_left_selected"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/searchResultHospitalFilterText"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/pretendard_regular"
-                    android:gravity="center"
-                    android:text="병원"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/searchResultDoctorFilterButton"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/bg_search_result_filter_right"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/searchResultDoctorFilterText"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/pretendard_regular"
-                    android:gravity="center"
-                    android:text="의사"/>
-            </LinearLayout>
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="6dp"
-            android:background="#B4B4B4"
-            app:layout_constraintTop_toBottomOf="@id/hospitalDoctorToggle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/searchResultContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -203,11 +148,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            tools:visibility="visible"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.tuktak.carepick.ui.search.filter
+package com.tuktak.carepick.ui.search.result.hospital
 
 import android.app.TimePickerDialog
 import android.os.Bundle
@@ -6,32 +6,40 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.fragment.app.Fragment
-import com.tuktak.carepick.R
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.SeekBar
+import android.widget.Spinner
+import android.widget.TextView
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.tuktak.carepick.ui.search.FilterViewModel
+import com.tuktak.carepick.R
 import com.tuktak.carepick.ui.search.filter.adapter.SpecialtyAdapter
-import com.tuktak.carepick.ui.search.result.SearchMode
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.ArrayList
+import java.util.Calendar
+import java.util.Locale
+import kotlin.collections.iterator
 
-class FilterFragment : Fragment() {
+class HospitalFilterFragment : Fragment() {
 
-    private val filterVM: FilterViewModel by activityViewModels()
-    private val logTag = "FilterDebug"
+    private val filterVM: HospitalFilterViewModel by activityViewModels()
+    private val logTag = "HospitalFilterFrag"
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_filter, container, false)
+        return inflater.inflate(R.layout.fragment_hospital_filter, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -46,25 +54,6 @@ class FilterFragment : Fragment() {
             val topInset = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             v.updatePadding(top = topInset + 12) // 기존 padding 유지
             insets
-        }
-
-        // ✅ 검색 모드를 arguments로부터 가져옵니다.
-        val modeString = arguments?.getString("current_search_mode")
-        val currentMode = if (modeString == "DOCTOR") SearchMode.DOCTOR else SearchMode.HOSPITAL
-
-        // ✅ 의사 모드일 경우, 운영 시간 섹션을 숨깁니다.
-        val distanceSection = view.findViewById<View>(R.id.distance_section)
-        val dividerOperationTimeSection = view.findViewById<View>(R.id.divider_operation_time)
-        val operationTimeSection = view.findViewById<View>(R.id.operation_time_section)
-        val dividerSpecialtySection = view.findViewById<View>(R.id.divider_specialty_section)
-        if (currentMode == SearchMode.DOCTOR) {
-            distanceSection.visibility = View.GONE
-            dividerOperationTimeSection.visibility = View.GONE
-            operationTimeSection.visibility = View.GONE
-            dividerSpecialtySection.visibility = View.GONE
-        } else {
-            distanceSection.visibility = View.VISIBLE
-            operationTimeSection.visibility = View.VISIBLE
         }
 
         // ✅ 초기화 버튼 리스너 추가
@@ -89,10 +78,7 @@ class FilterFragment : Fragment() {
             insets
         }
         specialtyRecyclerView.layoutManager = GridLayoutManager(requireContext(), 3)
-
-        val specialtyAdapter = SpecialtyAdapter(specialtyList, filterVM.selectedSpecialties)
-        specialtyRecyclerView.adapter = specialtyAdapter
-
+        specialtyRecyclerView.adapter = SpecialtyAdapter(specialtyList, filterVM.selectedSpecialties)
 
         // 🔙 뒤로가기 버튼
         view.findViewById<View>(R.id.btn_back)?.setOnClickListener {
@@ -105,7 +91,6 @@ class FilterFragment : Fragment() {
 
         val initialDistance = filterVM.selectedDistance ?: 0
         seekBar.progress = initialDistance
-
         seekBar.post {
             // 이 시점에는 seekBar.width, seekBar.x 등의 값이 유효할 확률이 높습니다.
             updateSeekBarLabel(seekBar, label, initialDistance)
@@ -126,42 +111,44 @@ class FilterFragment : Fragment() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        fun showTimePicker(targetView: TextView) {
-            val calendar = Calendar.getInstance()
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-
-            val dialog = TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
-                val isAM = selectedHour < 12
-                val hourDisplay = if (selectedHour % 12 == 0) 12 else selectedHour % 12
-                val amPm = if (isAM) "오전" else "오후"
-                val formatted = String.format("%s %02d : %02d", amPm, hourDisplay, selectedMinute)
-                targetView.text = formatted
-            }, hour, minute, false)
-
-            dialog.show()
-        }
-
-        // 🕐 운영시간 설정
         val startTimeText = view.findViewById<TextView>(R.id.start_time_text)
-        val startTimeIcon = view.findViewById<ImageView>(R.id.start_time_icon)
-        val startTimeContainer = view.findViewById<LinearLayout>(R.id.start_time_container)
-        val endTimeContainer = view.findViewById<LinearLayout>(R.id.end_time_container)
         val endTimeText = view.findViewById<TextView>(R.id.end_time_text)
-        val endTimeIcon = view.findViewById<ImageView>(R.id.end_time_icon)
-
-        startTimeContainer.setOnClickListener { showTimePicker(startTimeText) }
-        endTimeContainer.setOnClickListener { showTimePicker(endTimeText) }
 
         startTimeText.text = formatApiTimeToDisplayTime(filterVM.startTime)
         endTimeText.text = formatApiTimeToDisplayTime(filterVM.endTime)
+
+        fun showTimePicker(isStartTime: Boolean, targetView: TextView) {
+            val calendar = Calendar.getInstance()
+            // 현재 설정된 시간이 있다면 그 시간으로 피커 초기화
+            val currentTime = if (isStartTime) filterVM.startTime else filterVM.endTime
+            if (currentTime != null) {
+                val parts = currentTime.split(":")
+                calendar.set(Calendar.HOUR_OF_DAY, parts[0].toInt())
+                calendar.set(Calendar.MINUTE, parts[1].toInt())
+            }
+
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minute = calendar.get(Calendar.MINUTE)
+
+            TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
+                val apiTime = String.format(Locale.US, "%02d:%02d", selectedHour, selectedMinute)
+                // ✅ 시간 선택 즉시 ViewModel 업데이트
+                if (isStartTime) filterVM.startTime = apiTime else filterVM.endTime = apiTime
+                // UI 업데이트
+                targetView.text = formatApiTimeToDisplayTime(apiTime)
+            }, hour, minute, false).show()
+        }
+
+        view.findViewById<ImageView>(R.id.start_time_icon).setOnClickListener { showTimePicker(true, startTimeText) }
+        view.findViewById<ImageView>(R.id.end_time_icon).setOnClickListener { showTimePicker(false, endTimeText) }
 
         // ⏳ 시간 범위 Spinner 설정
         val spinner = view.findViewById<Spinner>(R.id.time_range_spinner)
         val spinnerContainer = view.findViewById<LinearLayout>(R.id.spinner_container)
         val spinnerIcon = view.findViewById<ImageView>(R.id.spinner_dropdown_icon)
         val timeRanges = listOf("30분", "1시간", "1시간 30분", "2시간", "2시간 30분", "3시간")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, timeRanges)
+        val adapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, timeRanges)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
         spinnerIcon.setOnClickListener { spinner.performClick() }
@@ -226,7 +213,8 @@ class FilterFragment : Fragment() {
         val dayGroupSpinner = view.findViewById<Spinner>(R.id.day_group_spinner)
         val dayGroupIcon = view.findViewById<ImageView>(R.id.day_group_icon)
         val dayGroupOptions = listOf("선택", "평일", "주말", "매일")
-        val groupAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, dayGroupOptions)
+        val groupAdapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, dayGroupOptions)
         groupAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         dayGroupSpinner.adapter = groupAdapter
         dayGroupIcon.setOnClickListener { dayGroupSpinner.performClick() }
@@ -400,14 +388,6 @@ class FilterFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-
-//        val startTime =
-//            parseDisplayTimeToApiTime(view?.findViewById<TextView>(R.id.start_time_text)?.text.toString())
-//        val endTime =
-//            parseDisplayTimeToApiTime(view?.findViewById<TextView>(R.id.end_time_text)?.text.toString())
-//
-//        filterVM.startTime = startTime
-//        filterVM.endTime = endTime
 
         val resultBundle = Bundle().apply {
             // ViewModel에 저장된 최신 진료과 목록을 가져와서 전달합니다.

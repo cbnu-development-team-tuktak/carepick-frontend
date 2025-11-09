@@ -49,7 +49,7 @@ class HospitalDetailFragment : Fragment(), TabOwner {
     private var doctors = mutableListOf<DoctorDetailsResponse>()
 
     // 이 상세 페이지도 '검색' 탭의 일부임을 명시합니다.
-    override fun getNavId(): Int = R.id.nav_search // 👈 메소드 추가
+    override fun getNavId(): Int = R.id.nav_hospital // 👈 메소드 추가
 
     override fun onCreateView(
         inflater: LayoutInflater,
