@@ -199,29 +199,27 @@ class DoctorSearchResultFragment : Fragment(), TabOwner  {
         binding.searchResultSearchView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val newQuery = binding.searchResultSearchView.text.toString()
-                if (newQuery.isNotBlank()) {
-                    hideKeyboard()
-                    // 코루틴을 시작하고, 그 안에서 suspend 함수 및 ViewModel 호출
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        try {
-                            // 위치 정보를 비동기적으로 가져옴
-                            val location = withTimeout(5000L) { userLocationVM.location.first { it != null } }
-                            // 필터 ViewModel에서 현재 정렬 기준을 가져옴
-                            val sortBy = filterVM.selectedSortBy
+                hideKeyboard()
+                // 코루틴을 시작하고, 그 안에서 suspend 함수 및 ViewModel 호출
+                viewLifecycleOwner.lifecycleScope.launch {
+                    try {
+                        // 위치 정보를 비동기적으로 가져옴
+                        val location = withTimeout(5000L) { userLocationVM.location.first { it != null } }
+                        // 필터 ViewModel에서 현재 정렬 기준을 가져옴
+                        val sortBy = filterVM.selectedSortBy
 
-                            viewModel.loadData(
-                                query = newQuery,
-                                location = location,
-                                specialties = filterVM.selectedSpecialties.toList(),
-                                distance = filterVM.selectedDistance,
-                                sortBy = sortBy,
-                                forceReload = true
-                            )
-                        } catch (e: TimeoutCancellationException) {
-                            showError(getString(R.string.need_location_message))
-                        } catch (e: Exception) {
-                            showError("검색 중 오류가 발생했습니다.")
-                        }
+                        viewModel.loadData(
+                            query = newQuery,
+                            location = location,
+                            specialties = filterVM.selectedSpecialties.toList(),
+                            distance = filterVM.selectedDistance,
+                            sortBy = sortBy,
+                            forceReload = true
+                        )
+                    } catch (e: TimeoutCancellationException) {
+                        showError(getString(R.string.need_location_message))
+                    } catch (e: Exception) {
+                        showError("검색 중 오류가 발생했습니다.")
                     }
                 }
                 // ✅ true를 반환하여 이벤트가 처리되었음을 알림
@@ -304,6 +302,7 @@ class DoctorSearchResultFragment : Fragment(), TabOwner  {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.searchResultRecyclerView.visibility = View.GONE
         binding.searchResultErrorText.visibility = View.GONE
+        binding.searchResultRecyclerView.scrollToPosition(0)
     }
 
     private fun showError(message: String) {

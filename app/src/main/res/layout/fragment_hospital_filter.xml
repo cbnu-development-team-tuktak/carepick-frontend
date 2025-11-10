@@ -69,8 +69,8 @@
                     <SeekBar
                         android:id="@+id/distance_slider"
                         android:layout_width="348dp"
-                        android:layout_height="20dp"
-                        android:layout_marginTop="36dp"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="22dp"
                         android:layout_marginBottom="16dp"
                         android:max="5"
                         android:paddingStart="32dp"

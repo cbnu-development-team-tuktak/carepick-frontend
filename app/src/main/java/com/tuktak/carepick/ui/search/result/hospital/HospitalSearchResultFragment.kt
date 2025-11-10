@@ -212,22 +212,20 @@ class HospitalSearchResultFragment : Fragment(), TabOwner {
         binding.searchResultSearchView.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val newQuery = binding.searchResultSearchView.text.toString()
-                if (newQuery.isNotBlank()) {
-                    hideKeyboard()
-                    lifecycleScope.launch {
-                        val location = userLocationVM.location.first { it != null }
-                        viewModel.loadData(
-                            query = newQuery,
-                            location = location!!,
-                            specialties = filterVM.selectedSpecialties.toList(),
-                            days = filterVM.selectedDays.toList(),
-                            startTime = filterVM.startTime,
-                            endTime = filterVM.endTime,
-                            distance = filterVM.selectedDistance,
-                            sortBy = filterVM.selectedSortBy,
-                            forceReload = true
-                        )
-                    }
+                hideKeyboard()
+                lifecycleScope.launch {
+                    val location = userLocationVM.location.first { it != null }
+                    viewModel.loadData(
+                        query = newQuery,
+                        location = location!!,
+                        specialties = filterVM.selectedSpecialties.toList(),
+                        days = filterVM.selectedDays.toList(),
+                        startTime = filterVM.startTime,
+                        endTime = filterVM.endTime,
+                        distance = filterVM.selectedDistance,
+                        sortBy = filterVM.selectedSortBy,
+                        forceReload = true
+                    )
                 }
                 return@setOnEditorActionListener true
             }
@@ -311,6 +309,7 @@ class HospitalSearchResultFragment : Fragment(), TabOwner {
         binding.loadingIndicator.visibility = View.VISIBLE
         binding.searchResultRecyclerView.visibility = View.GONE
         binding.searchResultErrorText.visibility = View.GONE
+        binding.searchResultRecyclerView.scrollToPosition(0)
     }
 
     private fun showError(message: String) {

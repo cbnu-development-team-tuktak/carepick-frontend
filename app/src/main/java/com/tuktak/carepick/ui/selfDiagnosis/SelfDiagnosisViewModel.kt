@@ -95,23 +95,6 @@ class SelfDiagnosisViewModel(
             _messages.update { currentList ->
                 currentList.filterNot { it is ChatMessage.Typing } + newMessages
             }
-//            // 2. API 결과로 봇 텍스트 메시지 생성
-//            val botTextMessage = ChatMessage.Bot(buildBothText(summary))
-//
-//            // 3. 추천 진료과 목록 추출
-//            val specialties = summary.specialties.map { it.name }
-//
-//            // 4. 메시지 리스트 업데이트: '입력 중' 제거 -> 봇 응답 추가 -> 버튼 그룹 추가
-//            _messages.update { currentList ->
-//                val listWithoutTyping = currentList.filterNot { it is ChatMessage.Typing }
-//
-//                // 진료과가 있을 때만 버튼 메시지를 추가
-//                if (specialties.isNotEmpty()) {
-//                    listWithoutTyping + botTextMessage + ChatMessage.SystemSpecialtyButtons(specialties)
-//                } else {
-//                    listWithoutTyping + botTextMessage
-//                }
-//            }
 
             _state.value = UiState.Idle // 상태를 다시 Idle로 변경
 
@@ -166,25 +149,6 @@ class SelfDiagnosisViewModel(
             }
         }
     }
-
-//    /** ✅ Fragment에서 가져온 헬퍼 함수들 */
-//    private fun buildBothText(sum: PredictionSummary): String {
-//        val sb = StringBuilder()
-//        if (sum.diseases.isNotEmpty()) {
-//            sb.appendLine("예측된 질병 Top-${sum.diseases.size.coerceAtMost(3)}")
-//            sum.diseases.take(3).forEachIndexed { i, it ->
-//                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
-//            }
-//        }
-//        if (sum.specialties.isNotEmpty()) {
-//            if (sb.isNotEmpty()) sb.appendLine()
-//            sb.appendLine("예측된 진료과 Top-${sum.specialties.size.coerceAtMost(3)}")
-//            sum.specialties.take(3).forEachIndexed { i, it ->
-//                sb.appendLine("${i + 1}. ${it.name} (${formatScore(it.score)})")
-//            }
-//        }
-//        return sb.toString().trimEnd().ifBlank { "예측 결과가 비어있어요." }
-//    }
 
     private fun formatScore(score: Double): String {
         return String.format("%.1f%%", score * 100)

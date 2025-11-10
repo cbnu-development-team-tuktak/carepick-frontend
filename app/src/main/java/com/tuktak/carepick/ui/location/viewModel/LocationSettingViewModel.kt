@@ -59,7 +59,14 @@ class LocationSettingViewModel : ViewModel() {
     // --- Public Methods (Fragment에서 호출) ---
 
     fun setMode(mode: Mode) {
-        _uiState.update { it.copy(currentMode = mode) }
+        _uiState.update {
+            it.copy(
+                currentMode = mode,
+                // ✨ [수정] ADMIN 모드가 아니면 무조건 확인 바를 숨깁니다.
+                // ADMIN 모드로 다시 돌아오면 이전 선택 상태가 유지되어 있다면 다시 보일 수 있습니다.
+                showConfirmBar = if (mode == Mode.ADMIN) it.showConfirmBar else false
+            )
+        }
         if (mode == Mode.ADMIN && _uiState.value.sidos.isEmpty()) {
             fetchSidos()
         }

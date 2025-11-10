@@ -57,10 +57,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:checkable="true"
             android:text="주소 검색"
-            android:textColor="#000000"
-            app:iconTint="#84EBC2" />
+            android:checkable="true"
+            app:backgroundTint="@color/selector_toggle_background"
+            android:textColor="@color/selector_toggle_text"
+            app:strokeColor="@color/mint_primary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModeAdmin"
@@ -68,9 +69,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:checkable="true"
             android:text="행정구역 선택"
-            app:iconTint="#84EBC2" />
+            android:checkable="true"
+            app:backgroundTint="@color/selector_toggle_background"
+            android:textColor="@color/selector_toggle_text"
+            app:strokeColor="@color/mint_primary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnModeGps"
@@ -78,9 +81,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:checkable="true"
             android:text="GPS 사용"
-            app:iconTint="#84EBC2" />
+            android:checkable="true"
+            app:backgroundTint="@color/selector_toggle_background"
+            android:textColor="@color/selector_toggle_text"
+            app:strokeColor="@color/mint_primary" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- 🔍 검색 섹션 컨테이너 -->
@@ -112,7 +117,10 @@
             app:endIconMode="clear_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView4"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:boxStrokeColor="#84EBC2"
+            app:hintTextColor="#84EBC2"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/searchEdit"
@@ -121,7 +129,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
-                android:padding="8dp" />
+                android:padding="8dp"
+                android:backgroundTint="#84EBC2" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -251,13 +260,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelSelection"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="취소"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            app:layout_constraintTop_toBottomOf="@id/tvSelectedAddress"
-            app:layout_constraintStart_toStartOf="parent"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/btnConfirmSelection"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectedAddress"
             app:layout_constraintWidth_percent="0.5" />
 
         <com.google.android.material.button.MaterialButton
@@ -313,8 +323,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="GPS 권한 요청 및 위치 설정" />
+                android:text="GPS 권한 요청 및 위치 설정"
+                android:textColor="#000000"
+                app:backgroundTint="#84EBC2" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="10dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

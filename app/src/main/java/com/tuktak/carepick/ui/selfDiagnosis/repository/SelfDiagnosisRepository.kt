@@ -37,7 +37,7 @@ class SelfDiagnosisRepository(
     suspend fun getDiseaseAndSpecialtyTopK(
         text: String,
         k: Int = 3,
-        timeoutMillis: Long = 3000L // 4초 타임아웃 기본값 설정
+        timeoutMillis: Long = 10000L // 4초 타임아웃 기본값 설정
     ): PredictionSummary = coroutineScope {
         val specialtyDeferred = async { getSpecialtyTopK(text, k) }
 

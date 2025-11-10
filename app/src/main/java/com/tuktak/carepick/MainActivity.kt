@@ -24,11 +24,18 @@ class MainActivity : AppCompatActivity() {
     // ✅ 현재 활성화된 프래그먼트를 추적할 변수
     private var activeFragment: Fragment = homeFragment
 
+    private var currentTabId: Int = R.id.nav_home
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        // ✅ 저장된 상태가 있다면, 마지막 탭 ID를 복구합니다.
+        if (savedInstanceState != null) {
+            currentTabId = savedInstanceState.getInt("CURRENT_TAB_ID", R.id.nav_home)
+        }
 
         // ✅ 앱이 처음 시작될 때 모든 프래그먼트를 추가(add)하고, 홈 화면만 보여줌(show)
         if (savedInstanceState == null) {
@@ -42,29 +49,29 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<ConstraintLayout>(R.id.nav_home).setOnClickListener {
+            currentTabId = R.id.nav_home // 👈 추가
             switchFragment(homeFragment)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_hospital).setOnClickListener {
+            currentTabId = R.id.nav_hospital // 👈 추가
             switchFragment(hospitalFragment)
         }
         findViewById<ConstraintLayout>(R.id.nav_doctor).setOnClickListener {
+            currentTabId = R.id.nav_doctor // 👈 추가
             switchFragment(doctorFragment)
         }
 
         findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
+            currentTabId = R.id.nav_self_diagnosis // 👈 추가
             switchFragment(selfDiagnosisFragment)
         }
+    }
 
-
-//        // ✅ 프래그먼트 스택에 변경이 있을 때마다 감지하는 리스너 추가
-//        supportFragmentManager.addOnBackStackChangedListener {
-//            updateNavSelection()
-//        }
-//
-//        // 초기 아이콘 상태 설정
-//        updateNavSelection()
-
+    // ✅ 시스템에 의해 액티비티가 종료될 때 현재 탭 ID를 저장합니다.
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt("CURRENT_TAB_ID", currentTabId)
     }
 
     // ✅ 새로운 프래그먼트 전환 함수
@@ -88,16 +95,6 @@ class MainActivity : AppCompatActivity() {
             updateNavIcons(fragment.getNavId())
         }
     }
-
-    // 탭 클릭 처리 헬퍼 함수 (중복 코드 제거용)
-//    private fun handleTabClick(fragment: Fragment, navId: Int) {
-//        if (activeFragment == fragment && supportFragmentManager.backStackEntryCount > 0) {
-//            supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-//            updateNavIcons(navId)
-//        } else {
-//            switchFragment(fragment)
-//        }
-//    }
 
     /** ✅ 현재 화면의 프래그먼트를 확인하고, 그에 맞는 탭 아이콘을 활성화하는 중앙 제어 함수 */
     private fun updateNavSelection() {
@@ -141,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (targetFragment != null) {
+            currentTabId = tabId
             switchFragment(targetFragment)
         }
     }
@@ -156,8 +154,8 @@ class MainActivity : AppCompatActivity() {
     fun updateNavIcons(activeId: Int) {
         // 모든 아이콘을 비활성화된 상태로 초기화
         findViewById<ImageView>(R.id.nav_home_icon).setImageResource(R.drawable.ic_home_deactivated)
-        findViewById<ImageView>(R.id.nav_hospital_icon).setImageResource(R.drawable.ic_search_deactivated)
-        findViewById<ImageView>(R.id.nav_doctor_icon).setImageResource(R.drawable.ic_search_deactivated)
+        findViewById<ImageView>(R.id.nav_hospital_icon).setImageResource(R.drawable.ic_hospital_deactivated)
+        findViewById<ImageView>(R.id.nav_doctor_icon).setImageResource(R.drawable.ic_doctor_deactivated)
         findViewById<ImageView>(R.id.nav_self_diagnosis_icon).setImageResource(R.drawable.ic_recommand_deactivated)
         // -1이면 아무것도 활성화하지 않음
         if (activeId == -1) return
@@ -168,13 +166,32 @@ class MainActivity : AppCompatActivity() {
                 .setImageResource(R.drawable.ic_home_activated)
 
             R.id.nav_hospital -> findViewById<ImageView>(R.id.nav_hospital_icon)
-                .setImageResource(R.drawable.ic_search_activated)
+                .setImageResource(R.drawable.ic_hospital_activated)
 
             R.id.nav_doctor -> findViewById<ImageView>(R.id.nav_doctor_icon)
-                .setImageResource(R.drawable.ic_search_activated)
+                .setImageResource(R.drawable.ic_doctor_activated)
 
             R.id.nav_self_diagnosis -> findViewById<ImageView>(R.id.nav_self_diagnosis_icon)
                 .setImageResource(R.drawable.ic_recommand_activated)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 1. 저장된 탭 ID에 해당하는 프래그먼트를 찾습니다.
+        val targetFragment = when (currentTabId) {
+            R.id.nav_home -> homeFragment
+            R.id.nav_hospital -> hospitalFragment
+            R.id.nav_doctor -> doctorFragment
+            R.id.nav_self_diagnosis -> selfDiagnosisFragment
+            else -> homeFragment
+        }
+
+        // 2. 화면 전환을 시도합니다. (이미 해당 화면이면 내부에서 아무 일도 안 함)
+        switchFragment(targetFragment)
+
+        // 3. ✅ [중요] switchFragment가 아무 일도 안 했을 경우를 대비해
+        //       아이콘 상태를 현재 탭 ID에 맞게 강제로 동기화합니다.
+        updateNavIcons(currentTabId)
     }
 }

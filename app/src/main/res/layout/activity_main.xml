@@ -92,7 +92,7 @@
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_marginTop="8dp"
-                    android:src="@drawable/ic_search_deactivated"
+                    android:src="@drawable/ic_hospital_no_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -124,7 +124,7 @@
                     android:layout_width="28dp"
                     android:layout_height="28dp"
                     android:layout_marginTop="8dp"
-                    android:src="@drawable/ic_search_deactivated"
+                    android:src="@drawable/ic_doctor_no_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

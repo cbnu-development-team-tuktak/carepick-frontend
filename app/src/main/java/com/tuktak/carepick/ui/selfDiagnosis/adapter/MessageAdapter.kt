@@ -100,7 +100,11 @@ class MessageAdapter(
                     tv.text = "분석 중 $dots"
                     i++
                     // View가 아직 화면에 있으면 400ms 주기로 계속
-                    if (tv.isAttachedToWindow) tv.postDelayed(this, 400)
+                    if (tv.isAttachedToWindow)
+                        tv.postDelayed(this, 400)
+                    else {
+                        running = false
+                    }
                 }
             })
         }

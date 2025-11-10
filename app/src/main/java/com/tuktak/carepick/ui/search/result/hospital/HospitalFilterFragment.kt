@@ -139,19 +139,21 @@ class HospitalFilterFragment : Fragment() {
             }, hour, minute, false).show()
         }
 
-        view.findViewById<ImageView>(R.id.start_time_icon).setOnClickListener { showTimePicker(true, startTimeText) }
-        view.findViewById<ImageView>(R.id.end_time_icon).setOnClickListener { showTimePicker(false, endTimeText) }
-
-        // ⏳ 시간 범위 Spinner 설정
-        val spinner = view.findViewById<Spinner>(R.id.time_range_spinner)
+        val startTimeContainer = view.findViewById<LinearLayout>(R.id.start_time_container)
+        val endTimeContainer = view.findViewById<LinearLayout>(R.id.end_time_container)
         val spinnerContainer = view.findViewById<LinearLayout>(R.id.spinner_container)
-        val spinnerIcon = view.findViewById<ImageView>(R.id.spinner_dropdown_icon)
+
+        startTimeContainer.setOnClickListener { showTimePicker(true, startTimeText) }
+        endTimeContainer.setOnClickListener { showTimePicker(false, endTimeText) }
+
+        val spinner = view.findViewById<Spinner>(R.id.time_range_spinner)
         val timeRanges = listOf("30분", "1시간", "1시간 30분", "2시간", "2시간 30분", "3시간")
         val adapter =
             ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, timeRanges)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
-        spinnerIcon.setOnClickListener { spinner.performClick() }
+
+        spinnerContainer.setOnClickListener { spinner.performClick() }
 
         spinner.setSelection(filterVM.selectedTimeRangeIndex, false)
 
@@ -413,6 +415,6 @@ class HospitalFilterFragment : Fragment() {
         Log.d(logTag, "[onDestroyView] Just updated VM: days=${filterVM.selectedDays}, start=${filterVM.startTime}, end=${filterVM.endTime}, dist=${filterVM.selectedDistance}")
         // ---------------------------
 
-        parentFragmentManager.setFragmentResult("filter_apply_request", resultBundle)
+        parentFragmentManager.setFragmentResult("hospital_filter_request", resultBundle)
     }
 }
