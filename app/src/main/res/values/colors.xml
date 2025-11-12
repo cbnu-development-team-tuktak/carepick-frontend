@@ -5,4 +5,5 @@
     <color name="HospitalDetailAddInfoTrue">#00DEA4</color>
     <color name="link_blue">#0066CC</color>
     <color name="mint_primary">#84EBC2</color>
+    <color name="gray_medium">#888888</color>
 </resources>

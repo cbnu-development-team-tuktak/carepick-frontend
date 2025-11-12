@@ -60,7 +60,8 @@ class SelfDiagnosisViewModel(
         try {
             // 1. Repository를 통해 API 호출
             val summary = repo.getDiseaseAndSpecialtyTopK(text, k)
-
+            // 2. 채팅창에 추가할 메시지들을 담을 리스트 준비
+            val newMessages = mutableListOf<ChatMessage>()
             // ======================= [ 디버깅 로그 추가 ] =======================
             // API 호출 직후, summary 객체에 어떤 데이터가 들어있는지 확인합니다.
             // Logcat에서 "Debug_Summary" 태그로 검색해보세요.
@@ -68,8 +69,6 @@ class SelfDiagnosisViewModel(
             Log.d("Debug_Summary", "Specialties: ${summary.specialties}")
             // =================================================================
 
-            // 2. 채팅창에 추가할 메시지들을 담을 리스트 준비
-            val newMessages = mutableListOf<ChatMessage>()
 
             // 3. 질병 예측 결과가 성공적으로 왔을 때만 (null이나 비어있지 않을 때) 질병 메시지를 추가
             if (!summary.diseases.isNullOrEmpty()) {
@@ -80,14 +79,22 @@ class SelfDiagnosisViewModel(
                 Log.d(TAG, "Disease prediction timed out or returned empty.")
             }
 
-            // 4. 진료과 예측 결과는 항상 추가 (신뢰할 수 있다고 가정)
-            if (summary.specialties.isNotEmpty()) {
-                val specialtyText = buildSpecialtyText(summary.specialties, k)
-                val specialtyNames = summary.specialties.map { it.name }
+
+            // 4. 진료과 예측 결과 처리
+            //    API가 반환한 목록(summary.specialties)에서 이름이 비어있지 않은 것만 필터링합니다.
+            val validSpecialties = summary.specialties.filter { it.name.isNotBlank() }
+
+            // 5. 유효한(필터링된) 진료과 목록이 있을 때만 메시지와 버튼을 추가합니다.
+            if (validSpecialties.isNotEmpty()) {
+                // 필터링된 목록을 헬퍼 함수로 전달
+                val specialtyText = buildSpecialtyText(validSpecialties, k)
+                // 필터링된 목록에서 버튼 이름 추출
+                val specialtyNames = validSpecialties.map { it.name }
 
                 newMessages.add(ChatMessage.Bot(specialtyText))
                 newMessages.add(ChatMessage.SystemSpecialtyButtons(specialtyNames))
             } else {
+                // API 결과가 아예 없거나, 모든 결과의 이름이 비어있는 경우
                 newMessages.add(ChatMessage.Bot("추천 진료과를 찾지 못했습니다. 증상을 더 자세히 설명해주세요."))
             }
 

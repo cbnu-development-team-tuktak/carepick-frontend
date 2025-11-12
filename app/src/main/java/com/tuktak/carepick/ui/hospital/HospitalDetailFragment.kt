@@ -1,11 +1,17 @@
 package com.tuktak.carepick.ui.hospital
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -46,6 +52,9 @@ class HospitalDetailFragment : Fragment(), TabOwner {
     private val hospitalRepository = HospitalRepository()
     private val doctorRepository = DoctorRepository()
 
+    // ✅ [추가] 깃발을 저장할 클래스 변수
+    private var isCrossTabNavigation = false
+
     private var doctors = mutableListOf<DoctorDetailsResponse>()
 
     // 이 상세 페이지도 '검색' 탭의 일부임을 명시합니다.
@@ -66,6 +75,9 @@ class HospitalDetailFragment : Fragment(), TabOwner {
     // 뷰가 생성되면 지도 화면에서 병원 위치로 이동하고 병원 자리에 마커를 생성한다
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ [추가] arguments에서 깃발 값을 읽어와 변수에 저장합니다.
+        isCrossTabNavigation = arguments?.getBoolean("IS_CROSS_TAB_NAVIGATION", false) ?: false
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
@@ -89,6 +101,35 @@ class HospitalDetailFragment : Fragment(), TabOwner {
                     .error(R.drawable.hospital_placeholder)
                     .into(binding.hospitalDetailImage)
 
+                if (!hospital.homepage.isNullOrBlank()) {
+                    // 1. URL이 있는 경우
+                    val url = hospital.homepage
+
+                    // 2. 텍스트에 밑줄을 추가하여 링크처럼 보이게 함
+                    val spannableString = SpannableString(url)
+                    spannableString.setSpan(UnderlineSpan(), 0, url.length, 0)
+
+                    binding.hospitalUrl.text = spannableString // 밑줄 친 URL 텍스트 설정
+                    binding.hospitalUrl.setTextColor(ContextCompat.getColor(requireContext(), R.color.link_blue)) // 링크 색상 설정
+
+                    // 3. 클릭 시 웹 브라우저 열기
+                    binding.hospitalUrl.setOnClickListener {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            startActivity(intent)
+                        } catch (e: Exception) {
+                            // 유효하지 않은 URL이거나 브라우저가 없는 경우
+                            Toast.makeText(requireContext(), "링크를 열 수 없습니다.", Toast.LENGTH_SHORT).show()
+                            Log.e("UrlClickError", "Cannot open URL: $url", e)
+                        }
+                    }
+                } else {
+                    // 4. URL이 없는 경우
+                    binding.hospitalUrl.text = "홈페이지 정보 없음"
+                    binding.hospitalUrl.setTextColor(ContextCompat.getColor(requireContext(), R.color.gray_medium)) // 회색 텍스트
+                    binding.hospitalUrl.setOnClickListener(null) // 클릭 이벤트 제거
+                }
+
                 // ▼▼▼▼▼ 운영 시간 처리 로직 추가 ▼▼▼▼▼
                 setupOperatingHours(hospital)
                 // ▲▲▲▲▲ 운영 시간 처리 로직 추가 ▲▲▲▲▲
@@ -109,9 +150,15 @@ class HospitalDetailFragment : Fragment(), TabOwner {
             }
         }
 
-        // 뒤로가기 버튼 설정
-        view.findViewById<ImageButton>(R.id.btn_back).setOnClickListener {
-            parentFragmentManager.popBackStack()
+        // ✅ 2. 뒤로가기 버튼 설정 (수정된 로직)
+        binding.CommonHeader.btnBack.setOnClickListener { // (ID는 바인딩에 맞게 수정)
+            if (isCrossTabNavigation) {
+                // '의사' 탭에서 넘어온 경우 -> '의사' 탭으로 복귀
+                (activity as? MainActivity)?.navigateToTab(R.id.nav_doctor)
+            } else {
+                // '병원' 탭에서 넘어온 경우 -> 스택에서 뒤로가기
+                parentFragmentManager.popBackStack()
+            }
         }
     }
 
@@ -223,8 +270,18 @@ class HospitalDetailFragment : Fragment(), TabOwner {
         } else {
             binding.doctorListEmptyText.visibility = View.GONE
             binding.doctorListRecyclerView.visibility = View.VISIBLE
-            binding.doctorListRecyclerView.adapter = DoctorCardAdapter(doctors, requireActivity())
-            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+            // ✅ DoctorCardAdapter의 클릭 리스너 수정
+            // ❌ 두 번째 인자였던 requireActivity()를 제거합니다.
+            val adapter = DoctorCardAdapter(doctors) { doctor ->
+                // ✅ 변경: BottomSheet 대신 DialogFragment 띄우기
+                DoctorDetailDialogFragment.newInstance(doctor.id)
+                    .show(parentFragmentManager, DoctorDetailDialogFragment.TAG)
+            }
+
+            binding.doctorListRecyclerView.adapter = adapter
+            binding.doctorListRecyclerView.layoutManager = LinearLayoutManager(requireContext(),
+                LinearLayoutManager.HORIZONTAL, false)
         }
     }
 

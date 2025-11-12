@@ -50,6 +50,7 @@
                 android:id="@+id/HospitalDetailBasicInfoContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,8 +63,6 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
-                        android:layout_marginBottom="16dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/hospitalDetailImage"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -186,6 +185,31 @@
                         <!--                        </androidx.constraintlayout.widget.ConstraintLayout>-->
 
                         <LinearLayout
+                            android:id="@+id/linearLayout3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+                            <ImageView
+                                android:id="@+id/imageView3"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_marginEnd="8dp"
+                                app:srcCompat="@drawable/outline_add_link_24" />
+
+                            <TextView
+                                android:id="@+id/hospitalUrl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="병원 홈페이지" />
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:id="@+id/operatingHoursLayout"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -193,7 +217,7 @@
                             android:orientation="vertical"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -212,8 +236,9 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/pretendard_regular"
-                                    android:text="상태" android:textSize="16sp"
-                                    android:textStyle="bold"/>
+                                    android:text="상태"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:id="@+id/hospitalDetailTimeText"
@@ -263,7 +288,7 @@
                     <ImageView
                         android:id="@+id/hospitalDetailImage"
                         android:layout_width="140dp"
-                        android:layout_height="140dp"
+                        android:layout_height="170dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:layout_weight="0"

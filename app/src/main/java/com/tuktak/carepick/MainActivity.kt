@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.tuktak.carepick.ui.home.HomeFragment // MainActivity가 로드할 Fragment
+import com.tuktak.carepick.ui.hospital.HospitalDetailFragment
 import com.tuktak.carepick.ui.search.result.doctor.DoctorSearchResultFragment
 import com.tuktak.carepick.ui.search.result.hospital.HospitalSearchResultFragment
 import com.tuktak.carepick.ui.selfDiagnosis.SelfDiagnosisFragment
@@ -49,23 +50,39 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<ConstraintLayout>(R.id.nav_home).setOnClickListener {
-            currentTabId = R.id.nav_home // 👈 추가
-            switchFragment(homeFragment)
+            handleTabClick(homeFragment, R.id.nav_home)
         }
-
         findViewById<ConstraintLayout>(R.id.nav_hospital).setOnClickListener {
-            currentTabId = R.id.nav_hospital // 👈 추가
-            switchFragment(hospitalFragment)
+            handleTabClick(hospitalFragment, R.id.nav_hospital)
         }
         findViewById<ConstraintLayout>(R.id.nav_doctor).setOnClickListener {
-            currentTabId = R.id.nav_doctor // 👈 추가
-            switchFragment(doctorFragment)
+            handleTabClick(doctorFragment, R.id.nav_doctor)
+        }
+        findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
+            handleTabClick(selfDiagnosisFragment, R.id.nav_self_diagnosis)
+        }
+    }
+
+    // ✅ [수정] 탭 클릭 처리 헬퍼 함수
+    private fun handleTabClick(fragment: Fragment, navId: Int) {
+        // 1. 현재 탭을 다시 누른 경우
+        if (activeFragment == fragment) {
+            // 상세 페이지(백스택)가 열려 있으면 모두 닫고 목록으로 복귀
+            if (supportFragmentManager.backStackEntryCount > 0) {
+                supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            }
+        }
+        // 2. 다른 탭을 누른 경우
+        else {
+            // ✅ 다른 탭으로 이동할 때도 현재 탭의 상세 페이지(백스택)를 모두 닫습니다.
+            supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+            // 탭을 전환합니다.
+            switchFragment(fragment)
+            currentTabId = navId
         }
 
-        findViewById<ConstraintLayout>(R.id.nav_self_diagnosis).setOnClickListener {
-            currentTabId = R.id.nav_self_diagnosis // 👈 추가
-            switchFragment(selfDiagnosisFragment)
-        }
+        // 아이콘을 강제로 업데이트합니다.
+        updateNavIcons(navId)
     }
 
     // ✅ 시스템에 의해 액티비티가 종료될 때 현재 탭 ID를 저장합니다.
@@ -76,40 +93,19 @@ class MainActivity : AppCompatActivity() {
 
     // ✅ 새로운 프래그먼트 전환 함수
     private fun switchFragment(fragment: Fragment) {
-        if (fragment == activeFragment && supportFragmentManager.backStackEntryCount == 0) return
 
-        // 1. ✅ 백스택을 모두 비워서 상세 페이지 등을 모두 닫습니다.
-        // 'inclusive' 플래그는 지정된 트랜잭션까지 포함하여 제거하라는 의미입니다.
-        // 여기서는 null을 주어 가장 처음까지의 모든 스택을 비웁니다.
-        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        val transaction = supportFragmentManager.beginTransaction()
 
-        // 2. ✅ 기존의 hide/show 로직을 실행합니다.
-        supportFragmentManager.beginTransaction()
-            .hide(activeFragment)
-            .show(fragment)
-            .commit()
-
-        activeFragment = fragment
-
-        if (fragment is TabOwner) {
-            updateNavIcons(fragment.getNavId())
+        supportFragmentManager.fragments.filter { it.isVisible }.forEach {
+            transaction.hide(it)
         }
-    }
 
-    /** ✅ 현재 화면의 프래그먼트를 확인하고, 그에 맞는 탭 아이콘을 활성화하는 중앙 제어 함수 */
-    private fun updateNavSelection() {
-        // 현재 화면에 보이는 프래그먼트를 찾습니다.
-        val visibleFragment = supportFragmentManager.fragments.lastOrNull { it.isVisible }
+        // 2. ✅ 목표 프래그먼트(fragment)를 '보여줍니다(show)'.
+        transaction.show(fragment)
 
-        // 보이는 프래그먼트가 TabOwner 인터페이스를 구현했다면
-        if (visibleFragment is TabOwner) {
-            // 해당 프래그먼트가 알려주는 탭 ID로 아이콘을 업데이트합니다.
-            updateNavIcons(visibleFragment.getNavId())
-        } else {
-            // TabOwner가 아닌 프래그먼트(예: 시스템 다이얼로그)가 위에 떠 있다면
-            // 어떤 아이콘도 활성화하지 않을 수 있습니다. (선택적)
-            // updateNavIcons(-1)
-        }
+        transaction.commit()
+
+        activeFragment = fragment // activeFragment는 베이스 탭을 가리키도록 유지
     }
 
     /** ✅ HomeFragment에서 탭 전환을 요청할 때 사용할 함수 */
@@ -139,15 +135,25 @@ class MainActivity : AppCompatActivity() {
 
         if (targetFragment != null) {
             currentTabId = tabId
-            switchFragment(targetFragment)
-        }
-    }
 
-    /** ✅ 프래그먼트가 자신을 활성 프래그먼트로 등록할 수 있도록 하는 함수 */
-    fun updateActiveFragment(fragment: Fragment) {
-        // 메인 탭 프래그먼트 중 하나일 경우에만 activeFragment 참조를 업데이트
-        if (fragment is HomeFragment || fragment is HospitalSearchResultFragment || fragment is SelfDiagnosisFragment) {
-            activeFragment = fragment
+            // 1. 해당 탭으로 먼저 전환 (백스택을 비우지 않음!)
+            switchFragment(targetFragment)
+
+            // 2. ✅ 아이콘을 여기서 명시적으로 업데이트
+            updateNavIcons(tabId)
+
+            // 3. ✅ Bundle을 확인하여 추가 액션(상세 페이지 열기) 수행
+            if (args != null) {
+                if (tabId == R.id.nav_hospital && args.containsKey("hospitalId")) {
+                    val hospitalDetailFragment = HospitalDetailFragment()
+                    hospitalDetailFragment.arguments = args
+
+                    supportFragmentManager.beginTransaction()
+                        .add(R.id.fragment_container, hospitalDetailFragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+            }
         }
     }
 
@@ -178,20 +184,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // 1. 저장된 탭 ID에 해당하는 프래그먼트를 찾습니다.
-        val targetFragment = when (currentTabId) {
-            R.id.nav_home -> homeFragment
-            R.id.nav_hospital -> hospitalFragment
-            R.id.nav_doctor -> doctorFragment
-            R.id.nav_self_diagnosis -> selfDiagnosisFragment
-            else -> homeFragment
+
+        // 1. 현재 FragmentManager가 관리 중인 프래그먼트들 중에서
+        //    실제로 사용자 눈에 보이고 있는(isVisible) TabOwner 프래그먼트를 찾습니다.
+        val visibleFragment = supportFragmentManager.fragments.firstOrNull { it.isVisible && it is TabOwner }
+
+        if (visibleFragment != null) {
+            // 2. 찾았다면, 그 프래그먼트를 activeFragment로 재설정하여 동기화를 맞춥니다.
+            activeFragment = visibleFragment
+
+            // 3. 그 프래그먼트의 ID를 가져와서 currentTabId도 업데이트합니다.
+            val realTabId = (visibleFragment as TabOwner).getNavId()
+            currentTabId = realTabId
+
+            // 4. 마지막으로 네비게이션 바 아이콘을 강제로 업데이트합니다.
+            updateNavIcons(realTabId)
+        } else {
+            // 만약 보이는 프래그먼트를 못 찾았다면(예외 상황), 저장해뒀던 currentTabId를 믿어봅니다.
+            updateNavIcons(currentTabId)
         }
-
-        // 2. 화면 전환을 시도합니다. (이미 해당 화면이면 내부에서 아무 일도 안 함)
-        switchFragment(targetFragment)
-
-        // 3. ✅ [중요] switchFragment가 아무 일도 안 했을 경우를 대비해
-        //       아이콘 상태를 현재 탭 ID에 맞게 강제로 동기화합니다.
-        updateNavIcons(currentTabId)
     }
 }

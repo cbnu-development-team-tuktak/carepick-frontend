@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
-    android:background="#F4FBF8"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_top_background">
 
-    <!-- 공통 헤더 -->
-    <include
-        android:id="@+id/CommonHeader"
-        layout="@layout/header_detail_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+    <ImageView
+        android:id="@+id/btn_close_bottom_sheet"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="닫기"
+        android:padding="12dp"
+        android:src="@drawable/ic_close"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/doctorDetailMainInfo"
@@ -23,96 +23,89 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/CommonHeader">
+        app:layout_constraintTop_toBottomOf="@+id/btn_close_bottom_sheet">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/doctorDetailMainInfoContent"
+        <ImageView
+            android:id="@+id/doctorDetailImage"
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/image_background"
+            android:clipToOutline="true"
+            android:contentDescription="@string/doctor_detail_image"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/doctorDetailName"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/pretendard_regular"
+            android:text="@string/doctor_name_example"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/doctorDetailHospitalName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/pretendard_regular"
+            android:paddingStart="2dp"
+            android:paddingEnd="8dp"
+            android:singleLine="true"
+            android:text="@string/hospital_name_example"
+            android:textColor="@color/link_blue"
+            android:textSize="20dp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
+            app:layout_constraintTop_toBottomOf="@+id/doctorDetailName" />
 
-            <ImageView
-                android:id="@+id/doctorDetailImage"
-                android:layout_width="120dp"
-                android:layout_height="150dp"
-                android:background="@drawable/image_background"
-                android:clipToOutline="true"
-                android:contentDescription="@string/doctor_detail_image"
-                android:scaleType="centerCrop"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:srcCompat="@tools:sample/avatars" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/doctorDetailSpecialties"
+            android:layout_width="212dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
+            app:layout_constraintTop_toBottomOf="@+id/doctorDetailHospitalName" />
 
-            <TextView
-                android:id="@+id/doctorDetailName"
-                android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginStart="12dp"
-                android:fontFamily="@font/pretendard_regular"
-                android:text="@string/doctor_name_example"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
-                app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/doctorDetailAddress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:singleLine="true"
+            android:text="병원 주소"
+            android:textSize="16sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
+            app:layout_constraintTop_toBottomOf="@+id/doctorDetailHospitalName"
+            tools:visibility="gone" />
 
-            <TextView
-                android:id="@+id/doctorDetailHospitalName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="8dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="@font/pretendard_regular"
-                android:paddingStart="2dp"
-                android:paddingEnd="8dp"
-                android:singleLine="true"
-                android:text="@string/hospital_name_example"
-                android:textColor="@color/link_blue"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
-                app:layout_constraintTop_toBottomOf="@+id/doctorDetailName" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/doctorDetailSpecialties"
-                android:layout_width="212dp"
-                android:layout_height="28dp"
-                android:layout_marginStart="12dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
-                app:layout_constraintTop_toBottomOf="@+id/doctorDetailAddress" />
-
-            <TextView
-                android:id="@+id/doctorDetailAddress"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:singleLine="true"
-                android:text="병원 주소"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/doctorDetailImage"
-                app:layout_constraintTop_toBottomOf="@+id/doctorDetailHospitalName" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ScrollView
-        android:id="@+id/doctorDetailScrollView"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="500dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/doctorDetailMainInfo">
+        app:layout_constraintTop_toBottomOf="@id/doctorDetailMainInfo">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -121,7 +114,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/doctorDetailLicenseContainer"
-                android:layout_width="409dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
@@ -168,7 +161,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/doctorDetailCareerContainer"
-                android:layout_width="409dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
@@ -215,7 +208,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/doctorDetailScoreContainer"
-                android:layout_width="409dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <TextView
@@ -225,7 +218,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/pretendard_regular"
-                    android:text="케어픽 스코어"
+                    android:text="학력 점수"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
@@ -238,7 +231,7 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:fontFamily="@font/pretendard_regular"
-                    android:text="케어픽 스코어:"
+                    android:text="학력 점수:"
                     android:textSize="16sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView10" />
@@ -249,14 +242,17 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
                     android:text="점수"
                     android:textSize="16sp"
                     android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView12"
                     app:layout_constraintTop_toBottomOf="@+id/textView10" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
-    </ScrollView>
+
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

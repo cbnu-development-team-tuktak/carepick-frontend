@@ -6,6 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -42,6 +45,21 @@ class DoctorDetailFragment: Fragment(), TabOwner {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // ✅ Inset 리스너를 프래그먼트의 루트 뷰(binding.root)에 적용
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            // 1. 시스템 UI(상태바, 네비게이션 바) 영역 정보를 가져옵니다.
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // 2. CommonHeader의 루트 뷰에 상단(상태 바) 패딩 적용
+            binding.CommonHeader.root.updatePadding(top = systemBars.top)
+
+            // 3. ScrollView에 하단(시스템 네비게이션 바) 패딩 적용
+            binding.doctorDetailScrollView.updatePadding(bottom = systemBars.bottom)
+
+            // 4. Insets을 '소비'하여 시스템이 추가 패딩을 적용하지 않도록 합니다.
+            WindowInsetsCompat.CONSUMED
+        }
 
         viewLifecycleOwner.lifecycleScope.launch{
             val doctorId = arguments?.getString("doctorId") ?: return@launch
@@ -80,19 +98,16 @@ class DoctorDetailFragment: Fragment(), TabOwner {
 
                 // 병원 이름 선택시 병원 상세 화면으로 전환
                 binding.doctorDetailHospitalName.setOnClickListener {
-                    // 1. 이동할 HospitalDetailFragment 인스턴스 생성
-                    val hospitalDetailFragment = HospitalDetailFragment()
-
-                    // 2. hospitalId를 전달하기 위한 Bundle 생성
+                    // 1. 전달할 병원 ID를 Bundle에 담습니다.
                     val bundle = Bundle()
                     bundle.putString("hospitalId", hospitalId)
-                    hospitalDetailFragment.arguments = bundle
 
-                    // 3. Fragment Transaction을 통해 화면 전환
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, hospitalDetailFragment) // fragment_container는 MainActivity의 FragmentContainerView ID
-                        .addToBackStack(null) // 뒤로가기 버튼으로 현재 프래그먼트로 돌아올 수 있게 함
-                        .commit()
+                    // 2. ✅ [추가] "교차 탭 이동" 깃발을 true로 설정합니다.
+                    bundle.putBoolean("IS_CROSS_TAB_NAVIGATION", true)
+
+                    // 2. ✅ MainActivity의 navigateToTab 함수를 호출하여
+                    //    '병원' 탭(R.id.nav_hospital)으로 Bundle과 함께 이동을 요청합니다.
+                    (activity as? MainActivity)?.navigateToTab(R.id.nav_hospital, bundle)
                 }
             } else {
                 // hospitalId가 없는 경우
@@ -149,9 +164,9 @@ class DoctorDetailFragment: Fragment(), TabOwner {
             // ▲▲▲▲▲ 케어픽 스코어 설정 ▲▲▲▲▲
         }
 
-        // 뒤로가기 버튼 (기존 코드)
-        val backButton = view.findViewById<ImageButton>(R.id.btn_back)
-        backButton.setOnClickListener {
+        // 뒤로가기 버튼
+        // ❗️ CommonHeader.root가 아닌, binding.CommonHeader로 헤더 내부 뷰에 접근해야 합니다.
+        binding.CommonHeader.btnBack.setOnClickListener { // 'btn_back' ID로 가정
             parentFragmentManager.popBackStack()
         }
     }
